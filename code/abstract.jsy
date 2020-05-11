@@ -1,0 +1,10 @@
+const bkc_abstract_api = @{}
+  async bkc_store(u8_pair_list) ::
+    throw new Exception('Concrete impl responsability')
+
+  async bkc_fetch(u8_key_list) ::
+    throw new Exception('Concrete impl responsability')
+
+  async bkc_exists(u8_key_list) ::
+    throw new Exception('Concrete impl responsability')
+

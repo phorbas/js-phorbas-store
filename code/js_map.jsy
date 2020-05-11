@@ -1,0 +1,28 @@
+import {as_hex} from './_utils.jsy'
+
+export async function bkc_with_js_map(map_db) ::
+  const _db = map_db || new Map()
+  const _db_has = key => 0 | _db.has @ key
+  const _db_get = key => _db.get @ key
+
+  return @{}
+    async bkc_store(u8_pair_list) ::
+      for const [u8_key, u8_content] of u8_pair_list ::
+        const hk = as_hex(u8_key)
+        _db.set @ hk, u8_content
+      return true
+
+    async bkc_fetch(u8_key_list) ::
+      const ans = []
+      for const u8_key of u8_key_list ::
+        const hk = as_hex(u8_key)
+        ans.push @# u8_key, _db.get(hk)
+      return ans
+
+    async bkc_exists(u8_key_list) ::
+      const ans = []
+      for const u8_key of u8_key_list ::
+        const hk = as_hex(u8_key)
+        ans.push @# u8_key, _db.has(hk)
+      return ans
+

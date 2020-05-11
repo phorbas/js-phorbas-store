@@ -1,0 +1,15 @@
+import {u8_to_hex} from 'u8-utils'
+export {u8_to_hex}
+
+
+const _wm_hex_cache = new WeakMap()
+export function as_hex(u8_key) ::
+  if 'string' === typeof u8_key ::
+    throw new TypeError()
+
+  let hk = _wm_hex_cache.get(u8_key)
+  if undefined === hk ::
+    hk = u8_to_hex(u8_key)
+    _wm_hex_cache.set(u8_key, hk)
+  return hk
+

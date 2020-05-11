@@ -1,0 +1,45 @@
+{
+  "name": "@phorbas/store",
+  "version": "0.0.1",
+  "description": "Persistent, hashed, opaque, replicable, binary key/content, addressable, storage",
+  "license": "BSD-2-Clause",
+  "author": "Shane Holloway <shane.holloway@ieee.org>",
+  "homepage": "https://github.com/phorbas/js-phorbas-store#readme",
+  "bugs": {
+    "url": "https://github.com/phorbas/js-phorbas-store/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/phorbas/js-phorbas-store.git"
+  },
+  "files": [
+    "cjs/",
+    "code/",
+    "esm/",
+    "umd/"
+  ],
+  "type": "module",
+  "module": "./esm/index.mjs",
+  "exports": {
+    "./": "./",
+    ".": "./esm/index.mjs"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@rollup/plugin-node-resolve": "^7.1.3",
+    "rollup": "^2.9.1",
+    "rollup-plugin-dgnotify": "^0.1.5",
+    "rollup-plugin-jsy": "^1.7.1",
+    "u8-utils": "^0.3.7"
+  },
+  "scripts": {
+    "clean": "rm -rf ./cjs/* ./esm/* ./umd/*",
+    "build": "rollup --config",
+    "watch": "npm -s run build -- --watch",
+    "pretest": "npm -s run build",
+    "test": "cd test; npm -s run test",
+    "test:install": "cd test; npm -s install",
+    "test:one": "cd test; npm -s run test:one",
+    "test:watch": "cd test; npm -s run test:watch"
+  }
+}

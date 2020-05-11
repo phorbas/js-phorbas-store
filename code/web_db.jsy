@@ -1,0 +1,58 @@
+export async function bkc_with_web_db(db_options={}) ::
+  if 'string' === typeof db_options ::
+    const [db, store] = db_options.split('/')
+    db_options = {db, store}
+
+  const store_name = db_options.store || 'kv'
+  const idb = await new Promise @\ resolve, reject ::
+    const req = indexedDB.open @ db_options.db || 'phorbas', 1
+    req.onupgradeneeded = @=> req.result.createObjectStore(store_name)
+    req.onsuccess = @=> resolve @ req.result
+    req.onerror = @=> reject @ req.error
+
+  return Object.create @ _bkc_indexdb_proto_, @{}
+    _txn_ro: @{} value: ()=> _idb_txn(idb, store_name, 'readonly')
+    _txn_rw: @{} value: ()=> _idb_txn(idb, store_name, 'readwrite')
+
+
+
+const _bkc_indexdb_proto_ = @{}
+  async bkc_store(u8_pair_list) ::
+    const [kvdb, txn_done] = this._txn_rw()
+    for const [u8_key, u8_content] of u8_pair_list ::
+      kvdb.put(u8_content, u8_key)
+
+    await txn_done
+    return true
+
+  async bkc_fetch(u8_key_list) ::
+    const [kvdb, txn_done] = this._txn_ro()
+    const ans = []
+    for const u8_key of u8_key_list ::
+      ans.push @# u8_key, kvdb.get @ u8_key
+
+    await txn_done
+    for const tpl of ans ::
+      tpl[1] = tpl[1].result
+    return ans
+
+  async bkc_exists(u8_key_list) ::
+    const [kvdb, txn_done] = this._txn_ro()
+    const ans = []
+    for const u8_key of u8_key_list ::
+      ans.push @# u8_key, kvdb.count @ u8_key
+
+    await txn_done
+    for const tpl of ans ::
+      tpl[1] = tpl[1].result
+    return ans
+
+
+function _idb_txn(idb, store_name, mode) ::
+  const txn = idb.transaction(store_name, mode)
+  return @[]
+    txn.objectStore(store_name),
+    new Promise @\ resolve, reject ::
+      txn.oncomplete = resolve
+      txn.onabort = txn.onerror = @=> reject @ txn.error
+
