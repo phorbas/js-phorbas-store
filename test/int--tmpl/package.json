@@ -1,0 +1,15 @@
+{
+  "private": true,
+  "version": "0.0.0",
+  "dependencies": {},
+  "devDependencies": {},
+  "scripts": {
+    "clean": "rm -rf ./cjs/* ./esm/*",
+    "build": "../node_modules/.bin/rollup --config",
+    "watch": "npm -s run build -- --watch",
+    "prepretest": "docker stack deploy -c deps-deploy.yml integ_phorbas_store",
+    "pretest": "npm -s run build",
+    "postpretest": "docker build .",
+    "test": "docker run --rm -it $(docker build -q .)"
+  }
+}
