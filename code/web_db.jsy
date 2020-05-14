@@ -1,15 +1,21 @@
 export default bkc_with_web_db
-export async function bkc_with_web_db(db_options={}) ::
-  if 'string' === typeof db_options ::
-    const [db, store] = db_options.split('/')
-    db_options = {db, store}
+export async function bkc_with_web_db(opt={}) ::
+  if 'string' === typeof opt ::
+    const [db, store] = opt.split('/')
+    opt = {db, store}
 
-  const store_name = db_options.store || 'kv'
-  const idb = await new Promise @\ resolve, reject ::
-    const req = indexedDB.open @ db_options.db || 'phorbas', 1
-    req.onupgradeneeded = @=> req.result.createObjectStore(store_name)
-    req.onsuccess = @=> resolve @ req.result
-    req.onerror = @=> reject @ req.error
+  const store_name = opt.store || 'kv'
+  const db_name = opt.db || 'phorbas'
+
+  if opt.wipe ::
+    await _idb_req @
+      indexedDB.deleteDatabase(db_name)
+
+  const req_open = indexedDB.open(db_name, 1)
+  req_open.onupgradeneeded = evt =>
+    evt.target.result.createObjectStore(store_name)
+
+  const idb = await _idb_req(req_open)
 
   return Object.create @ _bkc_indexdb_proto_, @{}
     _txn_ro: @{} value: ()=> _idb_txn(idb, store_name, 'readonly')
@@ -57,3 +63,7 @@ function _idb_txn(idb, store_name, mode) ::
       txn.oncomplete = resolve
       txn.onabort = txn.onerror = @=> reject @ txn.error
 
+function _idb_req(req) ::
+  return new Promise @\ resolve, reject ::
+    req.onsuccess = @=> resolve @ req.result
+    req.onerror = @=> reject @ req.error

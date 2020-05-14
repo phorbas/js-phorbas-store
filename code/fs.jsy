@@ -1,23 +1,39 @@
 import {bkc_hexkey_api} from './_utils.jsy'
 
-export async function bkc_with_fs(fs, opt={}) ::
-  const {stat, readFile, writeFile} = fs
-  const {base} = opt || './db-fs/'
+export default bkc_with_fs
+export async function bkc_with_fs(opt={}) ::
+  const {stat, readFile, writeFile, mkdir} = opt.fs
+  const base = opt.base || ''
+  const ext = opt.ext || ''
 
   return bkc_hexkey_api @:
 
-    hk_has: hex_key => new Promise @\ resolve, reject ::
-      stat @ `${base}${hex_key}`,
-        err => err && 'ENOENT' !== err.code
-          ? reject(err)
-          : resolve(err ? 0 : 1)
+    hk_has: hex_key =>
+      new Promise @\ resolve, reject ::
+        stat @ `${base}${hex_key}${ext}`,
+          @\ err ::
+            if ! err ::
+              resolve(1)
+            else if 'ENOENT' === err.code ::
+              resolve(0)
+            else reject(err)
 
-    hk_get: hex_key => new Promise @\ y,n ::
-      readFile @ `${base}${hex_key}`, {encoding: null},
-        @\ err, buf => err ? reject(err)
-            : resolve @ Uint8Array.from(buf)
+    hk_get: hex_key =>
+      new Promise @\ resolve, reject ::
+        readFile @ `${base}${hex_key}${ext}`,
+          {encoding: null},
+          @\ err, buf ::
+            if ! err ::
+              resolve @ Uint8Array.from(buf)
+            else if 'ENOENT' === err.code ::
+              resolve()
+            else reject(err)
 
-    hk_set: @\ hex_key, u8_content => new Promise @\ y,n ::
-      writeFile @ `${base}${hex_key}`, u8_content, {encoding: null},
-        err => err ? reject(err) : resolve(1)
+    hk_set: @\ hex_key, u8_content =>
+      new Promise @\ resolve, reject ::
+        writeFile @ `${base}${hex_key}${ext}`,
+          u8_content, {encoding: null},
+          @\ err ::
+            err ? reject(err)
+                : resolve(1)
 

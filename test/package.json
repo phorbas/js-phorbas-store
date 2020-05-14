@@ -5,9 +5,11 @@
   },
   "devDependencies": {
     "@phorbas/opaque": "file:../../phorbas-opaque",
-    "@phorbas/store": "file:.."
+    "@phorbas/store": "file:..",
+    "qsrv": "^0.1.6"
   },
   "scripts": {
+    "start": "qsrv -f unittest.html --",
     "prebuild": "test -d ./node_modules || npm -s install",
     "build": "../node_modules/.bin/rollup --config",
     "clean": "rm ./__unittest.*",

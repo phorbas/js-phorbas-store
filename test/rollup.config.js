@@ -9,9 +9,14 @@ const _cfg_ = {
     rpi_resolve(),
   ]}
 
-const cfg_node = { ..._cfg_, external: id => builtinModules.includes(id)}
+const cfg_node = { ..._cfg_,
+  external: id => builtinModules.includes(id),
+}
 
-const cfg_web = { ..._cfg_, context: 'window'}
+const cfg_web = { ..._cfg_,
+  external: id => /https?:/.test(id),
+  context: 'window',
+}
 
 
 export default [
