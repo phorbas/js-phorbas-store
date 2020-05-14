@@ -70,9 +70,11 @@ export const validate_backend = (backend_name, create_bkc_storage) =>
         const p = expect.promise @
           _stg_.bkc_store(rk_pairs)
 
-        const ans = await p
-        if true !== ans ::
-          throw new Error('Expected bkc_store() to return true')
+        const ans = expect.array @ await p
+        let i=0
+        for let [u8_key, err] of ans ::
+          expect.ok @ rk_pairs[i++][0] === u8_key, 'aligned result array of identical u8_key'
+          expect.ok @ undefined === err, 'unexpected errors during write'
 
 
     describe @ 'sequences', @::
@@ -92,6 +94,7 @@ export const validate_backend = (backend_name, create_bkc_storage) =>
             expect.ok @ rk_key_lst[i++] === u8_key, 'aligned result array of identical u8_key'
             expect.ok @ 0 === exists, '256-bit crypto random keys should not be present in the storage backend'
 
+
         :: // should not (yet) have content
           let i=0
           for let [u8_key, u8_content] of await _stg_.bkc_fetch(rk_key_lst) ::
@@ -99,8 +102,11 @@ export const validate_backend = (backend_name, create_bkc_storage) =>
             expect.ok @ undefined === u8_content, '256-bit crypto random keys should not be present in the storage backend'
 
 
-        if true !== await _stg_.bkc_store(rk_pairs) ::
-          throw new Error('Expected bkc_store() to return true')
+        :: // store the pairs
+          let i=0
+          for let [u8_key, err] of await _stg_.bkc_store(rk_pairs) ::
+            expect.ok @ rk_pairs[i++][0] === u8_key, 'aligned result array of identical u8_key'
+            expect.ok @ undefined === err, 'unexpected errors during write'
 
 
         :: // should now exist

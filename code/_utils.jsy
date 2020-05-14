@@ -14,42 +14,22 @@ export function as_hex(u8_key) ::
   return hk
 
 
-export const bkc_binkey_api = api => @:
-    async bkc_store(u8_pair_list) ::
-      for let [u8_key, u8_content] of u8_pair_list ::
-        api.bk_set @ u8_key, u8_content
-      return true
-
-    async bkc_fetch(u8_key_list) ::
-      const ans = []
-      for let u8_key of u8_key_list ::
-        ans.push @# u8_key, api.bk_get(u8_key)
-
-      for const tpl of ans ::
-        tpl[1] = await tpl[1]
-      return ans
-
-    async bkc_exists(u8_key_list) ::
-      const ans = []
-      for let u8_key of u8_key_list ::
-        ans.push @# u8_key, api.bk_has(u8_key)
-
-      for const tpl of ans ::
-        tpl[1] = await tpl[1]
-      return ans
-
-
 export const bkc_hexkey_api = api => @:
     async bkc_store(u8_pair_list) ::
+      const ans = []
       for let [u8_key, u8_content] of u8_pair_list ::
-        api.hk_set @ as_hex(u8_key), u8_content
-      return true
+        ans.push @# u8_key,
+          api.hk_set @ as_hex(u8_key), u8_content
+
+      for const tpl of ans ::
+        tpl[1] = await tpl[1]
+      return ans
 
     async bkc_fetch(u8_key_list) ::
       const ans = []
       for let u8_key of u8_key_list ::
-        let hk = as_hex(u8_key)
-        ans.push @# u8_key, api.hk_get(hk)
+        ans.push @# u8_key,
+          api.hk_get @ as_hex(u8_key)
 
       for const tpl of ans ::
         tpl[1] = await tpl[1]
@@ -58,8 +38,40 @@ export const bkc_hexkey_api = api => @:
     async bkc_exists(u8_key_list) ::
       const ans = []
       for let u8_key of u8_key_list ::
-        let hk = as_hex(u8_key)
-        ans.push @# u8_key, api.hk_has(hk)
+        ans.push @# u8_key,
+          api.hk_has @ as_hex(u8_key)
+
+      for const tpl of ans ::
+        tpl[1] = await tpl[1]
+      return ans
+
+
+export const bkc_binkey_api = api => @:
+    async bkc_store(u8_pair_list) ::
+      const ans = []
+      for let [u8_key, u8_content] of u8_pair_list ::
+        ans.push @# u8_key,
+          api.bk_set @ u8_key, u8_content
+
+      for const tpl of ans ::
+        tpl[1] = await tpl[1]
+      return ans
+
+    async bkc_fetch(u8_key_list) ::
+      const ans = []
+      for let u8_key of u8_key_list ::
+        ans.push @# u8_key,
+          api.bk_get(u8_key)
+
+      for const tpl of ans ::
+        tpl[1] = await tpl[1]
+      return ans
+
+    async bkc_exists(u8_key_list) ::
+      const ans = []
+      for let u8_key of u8_key_list ::
+        ans.push @# u8_key,
+          api.bk_has(u8_key)
 
       for const tpl of ans ::
         tpl[1] = await tpl[1]

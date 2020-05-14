@@ -1,8 +1,10 @@
 import {bkc_hexkey_api} from './_utils.jsy'
 
+const _enc_binary = {encoding: null}
+
 export default bkc_with_fsp
 export async function bkc_with_fsp(opt={}) ::
-  const {stat, readFile, writeFile, mkdir} = opt.fsp
+  const {stat, readFile, writeFile} = opt.fsp
   const base = opt.base || ''
   const ext = opt.ext || ''
 
@@ -10,7 +12,7 @@ export async function bkc_with_fsp(opt={}) ::
 
     async hk_has(hex_key) ::
       try ::
-        await stat @ `${base}${hex_key}${ext}`,
+        await stat(`${base}${hex_key}${ext}`)
         return 1
       catch err ::
         if 'ENOENT' === err.code ::
@@ -19,13 +21,15 @@ export async function bkc_with_fsp(opt={}) ::
 
     async hk_get(hex_key) ::
       try ::
-        return Uint8Array.from @
-          await readFile @ `${base}${hex_key}${ext}`, {encoding: null},
+        const buf = await readFile(`${base}${hex_key}${ext}`, _enc_binary)
+        return Uint8Array.from(buf)
       catch err ::
         if 'ENOENT' !== err.code ::
           throw err
 
     async hk_set(hex_key, u8_content) ::
-      await writeFile @ `${base}${hex_key}${ext}`, u8_content, {encoding: null}
-      return 1
+      try ::
+        await writeFile(`${base}${hex_key}${ext}`, u8_content, _enc_binary)
+      catch err ::
+        return err
 

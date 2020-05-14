@@ -10,6 +10,6 @@ export async function bkc_with_js_map(map_db) ::
 
     hk_get: async hex_key => _db.get(hex_key)
 
-    hk_set: async (hex_key, u8_content) => @
-      _db.set(hex_key, u8_content), 1
+    hk_set: async (hex_key, u8_content) =>
+      void _db.set(hex_key, u8_content)
 
