@@ -1,0 +1,24 @@
+import {bkc_hexkey_api} from './_utils.jsy'
+
+export async function bkc_with_fsp(fsp, opt={}) ::
+  const {stat, readFile, writeFile} = fsp
+  const {base} = opt || './db-fs/'
+
+  return bkc_hexkey_api @:
+
+    async hk_has(hex_key) ::
+      try ::
+        await stat @ `${base}${hex_key}`,
+        return 1
+      catch err ::
+        if 'ENOENT' === err.code ::
+          throw err
+        return 0
+
+    async hk_get(hex_key) :: return Uint8Array.from @
+      await readFile @ `${base}${hex_key}`, {encoding: null},
+
+    async hk_set(hex_key, u8_content) ::
+      await writeFile @ `${base}${hex_key}`, u8_content, {encoding: null}
+      return 1
+

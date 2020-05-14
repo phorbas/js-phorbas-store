@@ -1,3 +1,4 @@
+export default bkc_with_web_db
 export async function bkc_with_web_db(db_options={}) ::
   if 'string' === typeof db_options ::
     const [db, store] = db_options.split('/')

@@ -1,0 +1,23 @@
+import {bkc_hexkey_api} from './_utils.jsy'
+
+export async function bkc_with_fs(fs, opt={}) ::
+  const {stat, readFile, writeFile} = fs
+  const {base} = opt || './db-fs/'
+
+  return bkc_hexkey_api @:
+
+    hk_has: hex_key => new Promise @\ resolve, reject ::
+      stat @ `${base}${hex_key}`,
+        err => err && 'ENOENT' !== err.code
+          ? reject(err)
+          : resolve(err ? 0 : 1)
+
+    hk_get: hex_key => new Promise @\ y,n ::
+      readFile @ `${base}${hex_key}`, {encoding: null},
+        @\ err, buf => err ? reject(err)
+            : resolve @ Uint8Array.from(buf)
+
+    hk_set: @\ hex_key, u8_content => new Promise @\ y,n ::
+      writeFile @ `${base}${hex_key}`, u8_content, {encoding: null},
+        err => err ? reject(err) : resolve(1)
+

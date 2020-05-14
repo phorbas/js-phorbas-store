@@ -1,0 +1,141 @@
+import {utf8_to_u8} from 'u8-utils'
+
+#IF PLAT_NODEJS
+  import {randomFillSync} from 'crypto'
+  const rand_u8 = n =>
+    randomFillSync @
+      new Uint8Array(n)
+
+#ELIF PLAT_WEB
+  const rand_u8 = n => @
+    // web quota of 64KB of random values
+    n = Math.min(65536, n)
+
+    crypto.getRandomValues @
+      new Uint8Array(n)
+
+const rand_u8_key = ()=> rand_u8(32)
+
+
+export default validate_backend
+export const validate_backend = (backend_name, create_bkc_storage) =>
+
+  describe @ `backend: ${backend_name}`, @::
+    let _stg_
+    before @::>
+      _stg_ = await create_bkc_storage(backend_name)
+
+
+    describe @ 'api', @::
+      it @ 'bkc_exists', @::>
+        expect.func @ _stg_.bkc_exists
+
+        const rk_key_lst = @[] rand_u8_key(), rand_u8_key(), rand_u8_key()
+
+        const p = expect.promise @
+          _stg_.bkc_exists(rk_key_lst)
+
+        const ans = expect.array @ await p
+
+        let i=0
+        for let [u8_key, exists] of ans ::
+          expect.ok @ rk_key_lst[i++] === u8_key, 'aligned result array of identical u8_key'
+          expect.ok @ 0 === exists, '256-bit crypto random keys should not be present in the storage backend'
+
+
+      it @ 'bkc_fetch', @::>
+        expect.func @ _stg_.bkc_fetch
+
+        const rk_key_lst = @[] rand_u8_key(), rand_u8_key(), rand_u8_key()
+
+        const p = expect.promise @
+          _stg_.bkc_fetch(rk_key_lst)
+
+        const ans = expect.array @ await p
+
+        let i=0
+        for let [u8_key, u8_content] of ans ::
+          expect.ok @ rk_key_lst[i++] === u8_key, 'aligned result array of identical u8_key'
+          expect.ok @ undefined === u8_content, '256-bit crypto random keys should not be present in the storage backend'
+
+
+      it @ 'bkc_store', @::>
+        expect.func @ _stg_.bkc_store
+
+        const rk_pairs = @[]
+          @[] rand_u8_key(), utf8_to_u8('first')
+          @[] rand_u8_key(), utf8_to_u8('second')
+          @[] rand_u8_key(), utf8_to_u8('third')
+
+        const p = expect.promise @
+          _stg_.bkc_store(rk_pairs)
+
+        const ans = await p
+        if true !== ans ::
+          throw new Error('Expected bkc_store() to return true')
+
+
+    describe @ 'sequences', @::
+
+      it @ 'round-trip 3 random u8 pairs', @::>
+
+        const rk_pairs = @[]
+          @[] rand_u8_key(), rand_u8(1024)
+          @[] rand_u8_key(), rand_u8(16*1024)
+          @[] rand_u8_key(), rand_u8(1024*1024)
+
+        const rk_key_lst = rk_pairs.map(tpl => tpl[0])
+
+        :: // should not (yet) exist
+          let i=0
+          for let [u8_key, exists] of await _stg_.bkc_exists(rk_key_lst) ::
+            expect.ok @ rk_key_lst[i++] === u8_key, 'aligned result array of identical u8_key'
+            expect.ok @ 0 === exists, '256-bit crypto random keys should not be present in the storage backend'
+
+        :: // should not (yet) have content
+          let i=0
+          for let [u8_key, u8_content] of await _stg_.bkc_fetch(rk_key_lst) ::
+            expect.ok @ rk_key_lst[i++] === u8_key, 'aligned result array of identical u8_key'
+            expect.ok @ undefined === u8_content, '256-bit crypto random keys should not be present in the storage backend'
+
+
+        if true !== await _stg_.bkc_store(rk_pairs) ::
+          throw new Error('Expected bkc_store() to return true')
+
+
+        :: // should now exist
+          let i=0
+          for let [u8_key, exists] of await _stg_.bkc_exists(rk_key_lst) ::
+            expect.ok @ rk_key_lst[i++] === u8_key, 'aligned result array of identical u8_key'
+            expect.ok @ 1 === exists, 'We just stored it -- it should exist!'
+
+        :: // should not (yet) have content
+          let i=0
+          for let [u8_key, u8_content] of await _stg_.bkc_fetch(rk_key_lst) ::
+            const [rk_key, rk_content] = rk_pairs[i++]
+            expect.ok @ rk_key === u8_key, 'aligned result array of identical u8_key'
+            expect.ok @ undefined !== u8_content, 'We just stored it -- it should exist!'
+            expect.ok @ rk_content.byteLength === u8_content.byteLength, 'Byte length should match'
+
+            const all_u8_match = u8_content.every @\ v,i => v === rk_content[i]
+            expect.ok @ all_u8_match, 'All u8 bytes should match'
+
+
+const expect = @{}
+  ok(ok, msg) ::
+    if ! ok :: throw new Error(msg)
+
+  func: val =>
+    expect.__check @ val, 'function', 'function' === typeof val
+
+  promise: val =>
+    expect.__check @ val, 'Promise', null != val && 'function' === typeof val.then
+
+  array: val =>
+    expect.__check @ val, 'array', Array.isArray(val)
+
+  __check(val, msg, ok) ::
+    if ! ok ::
+      throw new TypeError(`Expected ${msg}`)
+    return val
+

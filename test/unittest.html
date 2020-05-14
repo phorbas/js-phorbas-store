@@ -6,7 +6,6 @@
   <link rel='stylesheet' href='./node_modules/mocha/mocha.css' />
 
   <script src='./node_modules/mocha/mocha.js'></script>
-  <script src='./node_modules/chai/chai.js'></script>
 </head>
 <body>
 
@@ -16,7 +15,7 @@
   window.require = module => window[module] || window[module.replace('-', '_')]
   mocha.setup({ ui: 'bdd' })
 </script>
-<script src='./__unittest.iife.js'></script>
+<script src='./__unittest.web.mjs'></script>
 <script>
   mocha.run()
 </script>
