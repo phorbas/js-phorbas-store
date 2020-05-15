@@ -24,17 +24,16 @@ export async function bkc_with_web_db(opt={}) ::
 
 
 const _bkc_indexdb_proto_ = @{}
-  async bkc_store(u8_pair_list) ::
-    const [kvdb, txn_done] = this._txn_rw()
+  async bkc_exists(u8_key_list) ::
+    const [kvdb, txn_done] = this._txn_ro()
     const ans = []
-    for const [u8_key, u8_content] of u8_pair_list ::
+    for const u8_key of u8_key_list ::
       ans.push @# u8_key,
-        kvdb.put(u8_content, u8_key)
+        kvdb.count @ u8_key
 
     await txn_done
     for const tpl of ans ::
-      let err = tpl[1].error
-      tpl[1] = err ? err : void 0
+      tpl[1] = tpl[1].result ? 1 : 0
     return ans
 
   async bkc_fetch(u8_key_list) ::
@@ -49,16 +48,17 @@ const _bkc_indexdb_proto_ = @{}
       tpl[1] = tpl[1].result
     return ans
 
-  async bkc_exists(u8_key_list) ::
-    const [kvdb, txn_done] = this._txn_ro()
+  async bkc_store(u8_pair_list) ::
+    const [kvdb, txn_done] = this._txn_rw()
     const ans = []
-    for const u8_key of u8_key_list ::
+    for const [u8_key, u8_content] of u8_pair_list ::
       ans.push @# u8_key,
-        kvdb.count @ u8_key
+        kvdb.put(u8_content, u8_key)
 
     await txn_done
     for const tpl of ans ::
-      tpl[1] = tpl[1].result
+      let err = tpl[1].error
+      tpl[1] = err ? err : undefined
     return ans
 
 

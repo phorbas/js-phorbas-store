@@ -1,0 +1,18 @@
+{
+  "private": true,
+  "version": "0.0.0",
+  "dependencies": {
+    "encoding-down": "*",
+    "subleveldown": "*",
+    "level": "*",
+    "leveldown": "*",
+    "levelup": "*",
+    "mocha": "*",
+    "node-lmdb": "*",
+    "rocksdb": "*"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "NODE_OPTIONS=--enable-source-maps mocha cjs/integ-test.cjs"
+  }
+}

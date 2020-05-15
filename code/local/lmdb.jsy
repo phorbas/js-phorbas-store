@@ -1,0 +1,55 @@
+import {bkc_binkey_api} from '../_utils.jsy'
+
+export default bkc_with_lmdb
+export async function bkc_with_lmdb(env, dbi='phorbas') ::
+  if 'string' === typeof dbi ::
+    dbi = @{} name: dbi, create: true
+
+  dbi = env.openDbi @:
+    ... dbi, keyIsBuffer: true
+
+  return @{}
+    async bkc_exists(u8_key_list) ::
+      const txn = env.beginTxn()
+
+      const ans = []
+      for const u8_key of u8_key_list ::
+        const buf = txn.getBinary(dbi, u8_key)
+        ans.push @# u8_key,
+          null == buf ? 0 : 1
+
+      await txn.commit()
+      return ans
+
+    async bkc_fetch(u8_key_list) ::
+      const txn = env.beginTxn()
+
+      const ans = []
+      for const u8_key of u8_key_list ::
+        const buf = txn.getBinary(dbi, u8_key)
+
+        ans.push @# u8_key,
+          null == buf ? undefined
+            : Uint8Array.from(buf)
+
+      await txn.commit()
+      return ans
+
+    async bkc_store(u8_pair_list) ::
+      const ans = [], ops = []
+      for const [u8_key, u8_content] of u8_pair_list ::
+        ans.push @# u8_key
+        ops.push @# dbi, u8_key, u8_content
+
+      await new Promise @ done =>
+        env.batchWrite @ ops, {},
+          @\ err, results ::
+            if err ::
+              for let i=0; i<results.length; i++ ::
+                if results[i] ::
+                  ans[i] = err
+
+            done()
+
+      return ans
+

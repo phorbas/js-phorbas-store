@@ -1,12 +1,13 @@
-FROM node:14-stretch-slim as base
+# vim: filetype=dockerfile
+FROM node:14-stretch as base
 WORKDIR /app
 
 COPY ./integ-package.json /app/package.json
 RUN npm install
 
 RUN mkdir -p \
-      /var/phorbas/bkc-fs \
-      /var/phorbas/bkc-fsp \
+      /var/phorbas/ \
+      /var/phorbas/test-lmdb \
   ;
 
 COPY ./cjs/ /app/cjs/

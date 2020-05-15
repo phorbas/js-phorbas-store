@@ -1,4 +1,4 @@
-import {bkc_binkey_api, bkc_hexkey_api} from '../_utils.jsy'
+import {bkc_binkey_api, bkc_hexkey_api, as_hex} from '../_utils.jsy'
 
 
 export default bkc_with_level

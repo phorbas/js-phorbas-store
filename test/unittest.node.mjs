@@ -8,6 +8,7 @@ const levelup = require('levelup')
 const encodingdown = require('encoding-down')
 const memdown = require('memdown')
 
+
 validate_backend('js_map', ()=> bkc_with_js_map())
 
 validate_backend('level with level-mem()', ()=>
@@ -15,12 +16,12 @@ validate_backend('level with level-mem()', ()=>
     level_mem()
   ))
 
-validate_backend('level with levelup @ encodingdown @ memdown()', ()=>
+validate_backend('level with levelup(encodingdown(memdown()))', ()=>
   bkc_with_level(
     levelup( encodingdown( memdown() ) )
   ))
 
-validate_backend('level with levelup @ encodingdown @ memdown()', ()=>
+validate_backend('level with levelup(memdown())', ()=>
   bkc_with_level(
     levelup( memdown() )
   ))

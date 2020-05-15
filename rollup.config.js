@@ -43,6 +43,7 @@ add_jsy('web_db', {category: 'local/', plat_web: true})
 add_jsy('fs', {category: 'local/'})
 add_jsy('fsp', {category: 'local/'})
 add_jsy('level', {category: 'local/', plat_node: true})
+add_jsy('lmdb', {category: 'local/', plat_node: true})
 
 
 
