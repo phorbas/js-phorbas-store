@@ -1,11 +1,15 @@
 FROM node:14-stretch-slim as base
 WORKDIR /app
 
-# RUN npm install ...
+COPY ./integ-package.json /app/package.json
+RUN npm install
+
+RUN mkdir -p \
+      /var/phorbas/ \
+  ;
 
 COPY ./cjs/ /app/cjs/
-# COPY ./esm/ /app/esm/
 
-CMD [ "/usr/local/bin/node", "/app/cjs/integ-test.cjs" ]
+CMD npm -s test
 
 # vim: filetype=dockerfile
