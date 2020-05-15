@@ -7,6 +7,8 @@
     "level": "*",
     "leveldown": "*",
     "levelup": "*",
+    "medea": "*",
+    "medeadown": "*",
     "mocha": "*",
     "node-lmdb": "*",
     "rocksdb": "*"

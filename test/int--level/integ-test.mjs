@@ -8,6 +8,7 @@ const leveldown = require('leveldown')
 const encodingdown = require('encoding-down')
 const subleveldown = require('subleveldown')
 const rocksdb = require('rocksdb')
+const medeadown = require('medeadown')
 const lmdb = require('node-lmdb')
 
 
@@ -54,6 +55,14 @@ validate_backend('level with levelup(encodingdown(rocksdb()))', ()=>
     levelup(
       encodingdown(
         rocksdb('/var/phorbas/test-rocksdb')))
+  ))
+
+
+validate_backend('level with levelup(encodingdown(medeadown()))', ()=>
+  bkc_with_level(
+    levelup(
+      encodingdown(
+        medeadown('/var/phorbas/test-medea')))
   ))
 
 
