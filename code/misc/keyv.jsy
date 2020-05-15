@@ -1,0 +1,23 @@
+import {bkc_hexkey_api} from '../_utils.jsy'
+
+export default bkc_with_keyv
+export async function bkc_with_keyv(keyv) ::
+  return bkc_hexkey_api @:
+
+    async hk_has(hex_key) ::
+      const buf = await keyv.get(hex_key)
+      return buf ? 1 : 0
+
+    async hk_get(hex_key) ::
+      const buf = await keyv.get(hex_key)
+      if null != buf ::
+        return Uint8Array.from(buf)
+
+    async hk_set(hex_key, u8_content) ::
+      try ::
+        await keyv.set @ hex_key,
+          Buffer.from(u8_content)
+      catch err ::
+        return err
+
+
