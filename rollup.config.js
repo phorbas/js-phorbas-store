@@ -48,6 +48,8 @@ add_jsy('lmdb', {category: 'local/', plat_node: true})
 
 add_jsy('keyv', {category: 'misc/', plat_node: true})
 
+add_jsy('minio', {category: 'nosql/', plat_node: true})
+
 
 function add_jsy(src_name, opt={}) {
   const input = `code/${opt.category || ''}${src_name}${opt.ext || '.jsy'}`

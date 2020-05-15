@@ -1,0 +1,10 @@
+version: '3.7'
+networks:
+  default: 
+    attachable: true
+
+services:
+  placeholder:
+    image: 'hello-world'
+    deploy:
+      replicas: 0

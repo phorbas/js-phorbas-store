@@ -1,0 +1,44 @@
+import {bkc_hexkey_api} from '../_utils.jsy'
+
+export default bkc_with_minio
+export async function bkc_with_minio(opt={}) ::
+  const {minio, bucket} = opt
+  if ! await minio.bucketExists(bucket) ::
+    await minio.makeBucket(bucket, opt.region || 'us-east-1')
+  
+  return bkc_hexkey_api @:
+
+    async hk_has(hex_key) ::
+      try ::
+        await minio.statObject( bucket, hex_key )
+        return 1
+      catch err ::
+        if 'NotFound' === err.code ::
+          return 0
+        else throw err
+
+    async hk_get(hex_key) ::
+      let stream
+      try ::
+        stream = await minio.getObject( bucket, hex_key )
+      catch err ::
+        if 'NoSuchKey' === err.code ::
+          return
+        else throw err
+
+      const parts = []
+      for await const p of stream ::
+        parts.push(p)
+
+      return Uint8Array.from @
+        Buffer.concat(parts)
+
+    async hk_set(hex_key, u8_content) ::
+      try ::
+        await minio.putObject @
+          bucket, hex_key,
+          Buffer.from(u8_content)
+      catch err ::
+        console.log @: hex_key, err
+        return err
+
