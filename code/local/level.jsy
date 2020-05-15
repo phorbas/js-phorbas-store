@@ -1,0 +1,128 @@
+import {bkc_binkey_api, bkc_hexkey_api} from '../_utils.jsy'
+
+
+export default bkc_with_level
+export async function bkc_with_level(levelup) ::
+  return levelup.supports.bufferKeys
+    ? bkc_with_level_binkey(levelup)
+    : bkc_with_level_hexkey(levelup)
+
+
+export async function bkc_with_level_binkey(levelup) ::
+  if ! levelup.supports.bufferKeys ::
+    throw new Error('LevelDB bufferKeys support required')
+  if ! levelup.supports.promises ::
+    throw new Error('LevelDB promise support required')
+
+  const lvl_opt = {keyEncoding: 'binary', valueEncoding: 'binary'}
+  return @{}
+    ... bkc_binkey_api @:
+
+      async bk_has(u8_key) ::
+        try ::
+          await levelup.get @
+            Buffer.from(u8_key),
+            lvl_opt
+          return 1
+
+        catch err ::
+          if err.notFound ::
+            return 0
+          else throw err
+
+      async bk_get(u8_key) ::
+        try ::
+          return Uint8Array.from @
+            await levelup.get @
+              Buffer.from(u8_key),
+              lvl_opt
+
+        catch err ::
+          if ! err.notFound ::
+            throw err
+          // else return undefined
+
+      async bk_set(u8_key, u8_content) ::
+        try ::
+          await levelup.put @
+            Buffer.from(u8_key),
+            Buffer.from(u8_content),
+            lvl_opt
+
+        catch err ::
+          return err
+
+    async bkc_store(u8_pair_list) ::
+      const ans = [], ops = []
+
+      const {keyEncoding, valueEncoding} = lvl_opt
+      for let [u8_key, u8_content] of u8_pair_list ::
+        ans.push @# u8_key
+        ops.push @: type:'put',
+          key: Buffer.from(u8_key), keyEncoding,
+          value: Buffer.from(u8_content), valueEncoding,
+
+      try ::
+        await levelup.batch(ops)
+      catch err ::
+        for const tpl of ans ::
+          tpl[1] = err
+      return ans
+
+
+export async function bkc_with_level_hexkey(levelup) ::
+  if ! levelup.supports.promises ::
+    throw new Error('LevelDB promise support required')
+
+  const lvl_opt = {keyEncoding: 'utf8', valueEncoding: 'binary'}
+  return @{}
+    ... bkc_hexkey_api @:
+
+      async hk_has(hex_key) ::
+        try ::
+          await levelup.get @
+            hex_key, lvl_opt
+          return 1
+
+        catch err ::
+          if err.notFound ::
+            return 0
+          else throw err
+
+      async hk_get(hex_key) ::
+        try ::
+          return Uint8Array.from @
+            await levelup.get @
+              hex_key, lvl_opt
+
+        catch err ::
+          if ! err.notFound ::
+            throw err
+
+      async hk_set(hex_key, u8_content) ::
+        try ::
+          await levelup.put @
+            hex_key,
+            u8_content,
+            lvl_opt
+
+        catch err ::
+          return err
+
+    async bkc_store(u8_pair_list) ::
+      const ans = [], ops = []
+
+      const {keyEncoding, valueEncoding} = lvl_opt
+      for let [u8_key, u8_content] of u8_pair_list ::
+        ans.push @# u8_key
+        ops.push @: type:'put',
+          key: as_hex(u8_key), keyEncoding,
+          value: u8_content, valueEncoding,
+
+      try ::
+        await levelup.batch(ops)
+      catch err ::
+        for const tpl of ans ::
+          tpl[1] = err
+      return ans
+

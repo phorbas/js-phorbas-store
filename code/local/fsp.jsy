@@ -1,4 +1,4 @@
-import {bkc_hexkey_api} from './_utils.jsy'
+import {bkc_hexkey_api} from '../_utils.jsy'
 
 const _enc_binary = {encoding: null}
 
