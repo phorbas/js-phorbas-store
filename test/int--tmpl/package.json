@@ -7,7 +7,9 @@
     "clean": "rm -rf ./cjs/* ./esm/*",
     "build": "../../node_modules/.bin/rollup --config",
     "dkr_deps": "docker stack deploy -c deps-deploy.yml integ_phorbas_store",
-    "pretest": "npm -s run dkr_deps && npm -s run build && docker build .",
-    "test": "docker run --network integ_phorbas_store_default --rm -it $(docker build -q .)"
+    "pretest": "npm -s run dkr_deps",
+    "test": "npm -s run test:dkr",
+    "pretest:dkr": "npm -s run build && docker build .",
+    "test:dkr": "docker run --network integ_phorbas_store_default --rm -it $(docker build -q .)"
   }
 }

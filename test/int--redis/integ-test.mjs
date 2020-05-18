@@ -11,51 +11,69 @@ const redisdown = require('redisdown')
 const encodingdown = require('encoding-down')
 
 const Keyv = require('keyv')
-const {KeyvFile} = require('@keyv/redis')
+const KeyvRedis = require('@keyv/redis')
 
 
 for (const host of ['redis_v5', 'redis_v6']) {
   validate_backend(
     `${host} with ioredis`,
-    ctx => bkc_with_ioredis_pipeline(
-      ctx.ioredis = new IORedis({host}) ),
-    ctx => ctx.ioredis.disconnect() )
+    {
+      create:
+        ctx => bkc_with_ioredis_pipeline(
+          ctx.ioredis = new IORedis({host}) ),
+      done:
+        ctx => ctx.ioredis.disconnect()
+    })
 
 
   validate_backend(
     `${host} with ioredis`,
-    ctx => bkc_with_ioredis_direct(
-      ctx.ioredis = new IORedis({host}) ),
-    ctx => ctx.ioredis.disconnect() )
+    {
+      create: 
+        ctx => bkc_with_ioredis_direct(
+          ctx.ioredis = new IORedis({host}) ),
+      done:
+        ctx => ctx.ioredis.disconnect()
+    })
 
 
   validate_backend(
     `${host} with levelup(redisdown)`,
-
-    ctx => bkc_with_level(
-      ctx.lvldb = levelup(
-        redisdown('phorbas-test'),
-        {host}) ),
-
-    ctx => ctx.lvldb.close() )
+    {
+      create: 
+        ctx => bkc_with_level(
+          ctx.lvldb = levelup(
+            redisdown('phorbas-test'),
+            {host}) ),
+      done:
+        ctx => ctx.lvldb.close()
+    })
 
 
   validate_backend(
     `${host} with levelup(encdown(redisdown))`,
+    {
+      create:
+        ctx => bkc_with_level(
+          ctx.lvldb = levelup(
+            encodingdown(redisdown('phorbas-test')),
+            {host}) ),
 
-    ctx => bkc_with_level(
-      ctx.lvldb = levelup(
-        encodingdown(redisdown('phorbas-test')),
-        {host}) ),
-
-    ctx => ctx.lvldb.close() )
+      done:
+        ctx => ctx.lvldb.close()
+    })
 
 
   validate_backend(
     `${host} with @keyv/redis`,
-    ctx => bkc_with_keyv(
-      ctx.inst = new Keyv(`redis://${host}:6379`)),
-    ctx => ctx.inst.opts.store.redis.disconnect() )
+    {
+      create:
+        ctx => bkc_with_keyv(
+          ctx.inst = new Keyv(`redis://${host}:6379`)),
+
+      done:
+        ctx => ctx.inst.opts.store.redis.disconnect()
+    })
 
 }
 

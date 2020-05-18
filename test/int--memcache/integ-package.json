@@ -1,0 +1,15 @@
+{
+  "private": true,
+  "version": "0.0.0",
+  "dependencies": {
+    "keyv": "*",
+    "keyv-memcache": "*",
+    "memjs": "*",
+    "memcached": "*",
+    "mocha": "*"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "NODE_OPTIONS=--enable-source-maps mocha cjs/integ-test.cjs"
+  }
+}

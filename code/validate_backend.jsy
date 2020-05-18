@@ -34,16 +34,19 @@ export const validate_backend = Object.assign @
         ()=> _validate_backend(...args)
 
 
-function _validate_backend(create_bkc_storage, done_bkc_storage) ::
+function _validate_backend(opt, ... opt_args) ::
+    if 'function' === typeof opt ::
+      opt = {create: opt}
+
     let _stg_, _ctx_
     before @::>
-      _stg_ = await create_bkc_storage(_ctx_={})
+      _stg_ = await opt.create(_ctx_={})
       if null == _stg_ ::
         throw new TypeError("create_bkc_storage did not return an instance")
 
-    if done_bkc_storage ::
+    if opt.done ::
       after @::>
-        await done_bkc_storage(_ctx_)
+        await opt.done(_ctx_)
         _stg_ = _ctx_ = undefined
 
     describe @ 'api', @::
@@ -102,9 +105,9 @@ function _validate_backend(create_bkc_storage, done_bkc_storage) ::
       it @ 'round-trip 3 random u8 pairs', @::>
 
         const rk_pairs = @[]
-          @[] rand_u8_key(), rand_u8(1024)
-          @[] rand_u8_key(), rand_u8(16*1024)
-          @[] rand_u8_key(), rand_u8(1024*1024)
+          @[] rand_u8_key(), rand_u8 @ 1024
+          @[] rand_u8_key(), rand_u8 @ 16*1024
+          @[] rand_u8_key(), rand_u8 @ opt.max_item_size || 1024*1024
 
         const rk_key_lst = rk_pairs.map(tpl => tpl[0])
 
