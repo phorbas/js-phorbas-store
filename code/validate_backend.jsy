@@ -38,6 +38,8 @@ function _validate_backend(create_bkc_storage) ::
     let _stg_
     before @::>
       _stg_ = await create_bkc_storage()
+      if null == _stg_ ::
+        throw new TypeError("create_bkc_storage did not return an instance")
 
 
     describe @ 'api', @::

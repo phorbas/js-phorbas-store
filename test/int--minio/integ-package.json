@@ -2,8 +2,12 @@
   "private": true,
   "version": "0.0.0",
   "dependencies": {
+    "aws-sdk": "*",
+    "encoding-down": "*",
+    "levelup": "*",
     "minio": "*",
-    "mocha": "*"
+    "mocha": "*",
+    "s3leveldown": "*"
   },
   "devDependencies": {},
   "scripts": {

@@ -117,7 +117,7 @@ export async function bkc_with_level_hexkey(levelup) ::
         ans.push @# u8_key
         ops.push @: type:'put',
           key: as_hex(u8_key), keyEncoding,
-          value: u8_content, valueEncoding,
+          value: Buffer.from(u8_content), valueEncoding,
 
       try ::
         await levelup.batch(ops)
