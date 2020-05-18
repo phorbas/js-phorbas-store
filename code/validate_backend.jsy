@@ -34,13 +34,17 @@ export const validate_backend = Object.assign @
         ()=> _validate_backend(...args)
 
 
-function _validate_backend(create_bkc_storage) ::
-    let _stg_
+function _validate_backend(create_bkc_storage, done_bkc_storage) ::
+    let _stg_, _ctx_
     before @::>
-      _stg_ = await create_bkc_storage()
+      _stg_ = await create_bkc_storage(_ctx_={})
       if null == _stg_ ::
         throw new TypeError("create_bkc_storage did not return an instance")
 
+    if done_bkc_storage ::
+      after @::>
+        await done_bkc_storage(_ctx_)
+        _stg_ = _ctx_ = undefined
 
     describe @ 'api', @::
       it @ 'bkc_exists', @::>
