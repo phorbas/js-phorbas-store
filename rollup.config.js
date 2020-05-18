@@ -51,6 +51,7 @@ add_jsy('keyv', {category: 'misc/', plat_node: true})
 add_jsy('minio', {category: 'nosql/', plat_node: true})
 add_jsy('ioredis', {category: 'nosql/', plat_node: true})
 add_jsy('memjs', {category: 'nosql/', plat_node: true})
+add_jsy('mongojs', {category: 'nosql/', plat_node: true})
 
 
 function add_jsy(src_name, opt={}) {

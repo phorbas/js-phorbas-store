@@ -1,7 +1,7 @@
 import {bkc_hexkey_api} from '../_utils.jsy'
 
 export default bkc_with_memjs
-export async function bkc_with_memjs(memjs, set_options={}) ::
+export async function bkc_with_memjs(memjs, store_options={}) ::
   return bkc_hexkey_api @:
 
     async hk_has(hex_key) ::
@@ -17,7 +17,7 @@ export async function bkc_with_memjs(memjs, set_options={}) ::
       try ::
         await memjs.set(hex_key,
           Buffer.from(u8_content),
-          set_options || {})
+          store_options || {})
       catch err ::
         return err
 

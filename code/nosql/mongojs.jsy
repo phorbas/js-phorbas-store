@@ -1,0 +1,63 @@
+import {bkc_binkey_api} from '../_utils.jsy'
+
+export default bkc_with_mongojs
+export async function bkc_with_mongojs(mongojs_coll, {writeConcern}={}) ::
+  const _proj_has = {_id: 0, bc:0}, _proj_get = {bc: 1}
+
+  await mongojs_coll.createIndex @
+    @{} _id: 'hashed'
+    @{} unique: true, background: true
+
+  return @{}
+    ... bkc_binkey_api @:
+
+      bk_has: u8_key => new Promise @\ resolve, reject ::
+        const doc = @{} _id: Buffer.from(u8_key)
+        mongojs_coll.findOne @ doc, _proj_has,
+          @\ err, ans ::
+            if (err) return reject(err)
+            resolve(null != ans ? 1 : 0)
+
+
+      bk_get: u8_key => new Promise @\ resolve, reject ::
+        const doc = @{} _id: Buffer.from(u8_key)
+        mongojs_coll.findOne @ doc, _proj_get,
+          @\ err, ans ::
+            if (err) return reject(err)
+            resolve @ null == ans ? void ans :
+              Uint8Array.from(ans.bc.buffer)
+
+
+      bk_set: @\ u8_key, u8_content => new Promise @\ resolve ::
+        const doc = @{}
+          _id: Buffer.from(u8_key)
+          bc: Buffer.from(u8_content)
+
+        mongojs_coll.insertOne @ doc, {writeConcern},
+          err => err ? resolve(err) : resolve()
+
+
+    bkc_store(u8_pair_list) ::
+      let ans=[], ops=[]
+      for let [u8_key, u8_content] of u8_pair_list ::
+        const _id = Buffer.from(u8_key)
+        ans.push @# u8_key, _id
+        ops.push @: _id, bc: Buffer.from(u8_content)
+
+      return new Promise @\ resolve ::
+        mongojs_coll.insertMany @ ops,
+          {writeConcern, ordered: false},
+          @\ err, results ::
+            if (null === err)
+              err = void err
+
+            let success = new Set()
+            for let {_id} of results ::
+              success.add(_id)
+
+            for let e of ans ::
+              e[1] = success.has(e[1])
+                ? undefined : err
+
+            resolve(ans)
+
