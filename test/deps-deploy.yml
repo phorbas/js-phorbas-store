@@ -4,7 +4,7 @@ networks:
     attachable: true
 
 services:
-  placeholder:
-    image: 'hello-world'
-    deploy:
-      replicas: 0
+  sql_adminer:
+    image: adminer
+    ports: ['18082:8080']
+

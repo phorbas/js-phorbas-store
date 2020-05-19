@@ -4,26 +4,8 @@ import bkc_with_knex from '@phorbas/store/esm/node/knex.mjs'
 const knex = require('knex')
 
 
-
-/*
 // KeyV does NOT work properly with MySQL and Phorbas's binary use case
-
-import bkc_with_keyv from '@phorbas/store/esm/node/keyv.mjs'
-const Keyv = require('keyv')
-const KeyvMySQL = require('@keyv/mysql')
-
-validate_backend(
-  `${host} with @keyv/mysql`,
-  {
-    async create(ctx) {
-      ctx.inst = new Keyv(
-        `mysql://root:integ_pass@${host}:3306/phorbas_test`,
-        {table: 'phorbas_kv'})
-      return bkc_with_keyv(ctx.inst) },
-
-    //done: ctx => ctx.inst.opts.store.db.close(),
-  })
-*/
+// import bkc_with_keyv from '@phorbas/store/esm/node/keyv.mjs'
 
 
 

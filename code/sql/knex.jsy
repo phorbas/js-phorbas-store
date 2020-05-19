@@ -6,10 +6,20 @@ export async function bkc_with_knex(knex, opt={}) ::
 
   if ! await knex.schema.hasTable(table) ::
     await knex.schema.createTable @ table, @\ t ::
-      t.string('key').unique().primary()
-      if (opt.blob_type)
-        t.specificType('bc', opt.blob_type)
-      else t.binary('bc')
+      const {key_type, blob_type} = opt
+
+      const col_key = key_type
+        ? t.specificType('bc', key_type)
+        : t.string('key')
+
+      col_key.unique().notNullable().primary()
+
+      const col_bc = blob_type
+        ? t.specificType('bc', blob_type)
+        : t.binary('bc')
+
+      col_bc.notNullable()
+
 
   return bkc_hexkey_api @:
 

@@ -19,6 +19,3 @@ services:
       MYSQL_ROOT_PASSWORD: integ_pass
       MYSQL_DATABASE: phorbas_test
 
-  sql_adminer:
-    image: adminer
-    ports: ['18082:8080']

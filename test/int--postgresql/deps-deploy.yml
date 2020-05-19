@@ -18,6 +18,12 @@ services:
       POSTGRES_PASSWORD: integ_pass
       POSTGRES_DB: phorbas_test
 
-  sql_adminer:
-    image: adminer
-    ports: ['18082:8080']
+  cockroach_v20:
+    image: cockroachdb/cockroach:v20.1.0
+    ports: ['18083:8080']
+    command: start-single-node --insecure
+
+  #crate_v4: // NO SQL BLOB type available
+  #  image: crate:4.1
+  #  ports: ['4204:4200']
+

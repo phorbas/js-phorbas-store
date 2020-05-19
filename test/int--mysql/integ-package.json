@@ -2,8 +2,6 @@
   "private": true,
   "version": "0.0.0",
   "dependencies": {
-    "@keyv/mysql": "*",
-    "keyv": "*",
     "knex": "*",
     "mocha": "*",
     "mysql": "*",

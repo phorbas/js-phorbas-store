@@ -21,6 +21,7 @@
     "clean": "rm ./__unittest.*",
     "watch": "npm -s run build -- --watch",
     "dkr_deps": "docker stack deploy -c deps-deploy.yml integ_phorbas_store",
+    "dkr_prune": "docker stack deploy --prune -c deps-deploy.yml integ_phorbas_store",
     "pretest": "npm -s run build",
     "test": "npm -s run test:one",
     "test:one": "NODE_OPTIONS=--enable-source-maps  mocha ./__unittest.node.cjs",
