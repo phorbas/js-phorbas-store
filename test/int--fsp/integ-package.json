@@ -4,6 +4,7 @@
   "dependencies": {
     "keyv": "*",
     "keyv-file": "*",
+    "@keyv/sqlite": "*",
     "mocha": "*"
   },
   "devDependencies": {},
