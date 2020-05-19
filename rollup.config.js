@@ -55,6 +55,8 @@ add_jsy('mongojs', {category: 'nosql/', plat_node: true})
 add_jsy('rethinkdb', {category: 'nosql/', plat_node: true})
 add_jsy('arangojs', {category: 'nosql/', plat_node: true, plat_web: true})
 
+//add_jsy('cassandra', {category: 'sql/', plat_node: true})
+
 
 function add_jsy(src_name, opt={}) {
   const input = `code/${opt.category || ''}${src_name}${opt.ext || '.jsy'}`

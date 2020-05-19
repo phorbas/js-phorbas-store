@@ -7,7 +7,7 @@ import {bkc_hexkey_api, as_hex} from '../_utils.jsy'
   import {u8_to_base64, base64_to_u8} from 'u8-utils/esm/web/base64.js'
 
 export default bkc_with_arangojs
-export async function bkc_with_arangojs(adb_collection, opt={}) ::
+export async function bkc_with_arangojs(adb_collection) ::
   return bkc_hexkey_api @:
 
     async hk_has(hex_key) ::
