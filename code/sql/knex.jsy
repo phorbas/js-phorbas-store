@@ -1,0 +1,45 @@
+import {bkc_hexkey_api} from '../_utils.jsy'
+
+export default bkc_with_knex
+export async function bkc_with_knex(knex, opt={}) ::
+  const table = opt.table || 'phorbas_kv'
+
+  if ! await knex.schema.hasTable(table) ::
+    await knex.schema.createTable @ table, @\ t ::
+      t.string('key').unique().primary()
+      if (opt.blob_type)
+        t.specificType('bc', opt.blob_type)
+      else t.binary('bc')
+
+  return bkc_hexkey_api @:
+
+    async hk_has(hex_key) ::
+      const ans = await knex(table)
+        .select('key')
+        .where('key', hex_key)
+        .first()
+
+      return null != ans ? 1 : 0
+
+    async hk_get(hex_key) ::
+      const ans = await knex(table)
+        .select('bc')
+        .where('key', hex_key)
+        .first()
+
+      if null != ans ::
+        return Uint8Array.from(ans.bc)
+
+    async hk_set(hex_key, u8_content) ::
+      try ::
+        const bc = 
+          #IF PLAT_NODEJS
+            Buffer.from(u8_content)
+          #ELSE
+            u8_content
+
+        await knex(table).insert({key: hex_key, bc})
+      catch err ::
+        console.log @ "SET ERR:", err
+        return err
+

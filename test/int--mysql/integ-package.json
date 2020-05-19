@@ -2,9 +2,12 @@
   "private": true,
   "version": "0.0.0",
   "dependencies": {
-    "keyv": "*",
     "@keyv/mysql": "*",
-    "mocha": "*"
+    "keyv": "*",
+    "knex": "*",
+    "mocha": "*",
+    "mysql": "*",
+    "mysql2": "*"
   },
   "devDependencies": {},
   "scripts": {

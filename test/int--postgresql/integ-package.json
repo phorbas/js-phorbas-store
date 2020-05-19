@@ -2,9 +2,11 @@
   "private": true,
   "version": "0.0.0",
   "dependencies": {
-    "keyv": "*",
     "@keyv/postgres": "*",
-    "mocha": "*"
+    "keyv": "*",
+    "knex": "*",
+    "mocha": "*",
+    "pg": "*"
   },
   "devDependencies": {},
   "scripts": {

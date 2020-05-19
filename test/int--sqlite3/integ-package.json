@@ -2,8 +2,9 @@
   "private": true,
   "version": "0.0.0",
   "dependencies": {
-    "keyv": "*",
     "@keyv/sqlite": "*",
+    "keyv": "*",
+    "knex": "*",
     "mocha": "*",
     "sqlite3": "^4.2.0"
   },

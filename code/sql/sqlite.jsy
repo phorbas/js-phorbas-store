@@ -1,4 +1,4 @@
-import {bkc_hexkey_api, as_hex} from '../_utils.jsy'
+import {bkc_hexkey_api} from '../_utils.jsy'
 
 export default bkc_with_sqlite
 export async function bkc_with_sqlite(db, opt={}) ::
