@@ -1,0 +1,23 @@
+version: '3.7'
+services:
+  postgres_v12:
+    image: postgres:12.3
+    environment:
+      POSTGRES_PASSWORD: integ_pass
+      POSTGRES_DB: phorbas_test
+
+  #postgres_v11:
+  #  image: postgres:11.8
+  #  environment:
+  #    POSTGRES_PASSWORD: integ_pass
+  #    POSTGRES_DB: phorbas_test
+
+  #postgres_v10:
+  #  image: postgres:10.13
+  #  environment:
+  #    POSTGRES_PASSWORD: integ_pass
+  #    POSTGRES_DB: phorbas_test
+
+  sql_adminer:
+    image: adminer
+    ports: ['18082:8080']
