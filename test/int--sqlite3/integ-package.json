@@ -3,8 +3,9 @@
   "version": "0.0.0",
   "dependencies": {
     "keyv": "*",
-    "keyv-file": "*",
-    "mocha": "*"
+    "@keyv/sqlite": "*",
+    "mocha": "*",
+    "sqlite3": "^4.2.0"
   },
   "devDependencies": {},
   "scripts": {

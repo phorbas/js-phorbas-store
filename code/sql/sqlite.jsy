@@ -1,0 +1,36 @@
+import {bkc_hexkey_api, as_hex} from '../_utils.jsy'
+
+export default bkc_with_sqlite
+export async function bkc_with_sqlite(db, opt={}) ::
+  const table = opt.table || 'phorbas_kv'
+  ::
+    const sql_create = `CREATE TABLE IF NOT EXISTS "${table}" ( "key" TEXT PRIMARY KEY, "bc" BLOB );`
+    await new Promise @\ resolve, reject ::
+      db.run @ sql_create, err => err ? reject(err) : resolve()
+
+  const sql_has = `SELECT 1 FROM "${table}" WHERE "key"=?`
+  const sql_get = `SELECT "key", "bc" FROM "${table}" WHERE "key"=?`
+  const sql_set = `INSERT INTO "${table}" ("key", "bc") VALUES (?, ?)`
+
+  return bkc_hexkey_api @:
+
+    hk_has: hex_key =>
+      new Promise @\ resolve, reject ::
+        db.get @ sql_has, hex_key,
+          @\ err, ans ::
+            if (err) return reject(err)
+            resolve(ans ? 1 : 0)
+
+    hk_get: hex_key =>
+      new Promise @\ resolve, reject ::
+        db.get @ sql_get, hex_key,
+          @\ err, ans ::
+            if (err) return reject(err)
+            resolve @ null == ans ? void ans
+              : Uint8Array.from(ans.bc)
+
+    hk_set: @\ hex_key, u8_content =>
+      new Promise @\ resolve ::
+        db.run @ sql_set, hex_key, Buffer.from(u8_content),
+          err => err ? resolve(err) : resolve()
+

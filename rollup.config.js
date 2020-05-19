@@ -55,6 +55,7 @@ add_jsy('mongojs', {category: 'nosql/', plat_node: true})
 add_jsy('rethinkdb', {category: 'nosql/', plat_node: true})
 add_jsy('arangojs', {category: 'nosql/', plat_node: true, plat_web: true})
 
+add_jsy('sqlite', {category: 'sql/', plat_node: true})
 //add_jsy('cassandra', {category: 'sql/', plat_node: true})
 
 
