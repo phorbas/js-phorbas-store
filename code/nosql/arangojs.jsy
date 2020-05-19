@@ -1,0 +1,31 @@
+import {bkc_hexkey_api, as_hex} from '../_utils.jsy'
+
+#IF PLAT_NODEJS
+  import {u8_to_base64, base64_to_u8} from 'u8-utils/esm/node/base64.mjs'
+
+#ELIF PLAT_WEB
+  import {u8_to_base64, base64_to_u8} from 'u8-utils/esm/web/base64.js'
+
+export default bkc_with_arangojs
+export async function bkc_with_arangojs(adb_collection, opt={}) ::
+  return bkc_hexkey_api @:
+
+    async hk_has(hex_key) ::
+      const exists = await adb_collection
+        .documentExists(hex_key)
+      return exists ? 1 : 0
+
+    async hk_get(hex_key) ::
+      const doc = await adb_collection
+        .document(hex_key, {graceful: true})
+
+      if null != doc ::
+        return base64_to_u8(doc.hc)
+
+    async hk_set(hex_key, u8_content) ::
+      const doc = @{}
+        _key: hex_key
+        hc: u8_to_base64(u8_content)
+
+      try :: await adb_collection.save(doc)
+      catch err :: return err

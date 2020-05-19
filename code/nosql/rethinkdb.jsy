@@ -1,0 +1,90 @@
+import {bkc_hexkey_api, as_hex} from '../_utils.jsy'
+
+export default bkc_with_rethinkdb_batch
+
+
+export async function bkc_with_rethinkdb_direct(opt={}) ::
+  const {connection, table} = opt
+
+  return bkc_hexkey_api @:
+
+    async hk_has(hex_key) ::
+      const res = await table
+        .get(hex_key)
+        .run(connection)
+      return null != res ? 1 : 0
+
+    async hk_get(hex_key) ::
+      const res = await table
+        .get(hex_key)
+        .run(connection)
+
+      if null != res ::
+        return Uint8Array.from(res.bc)
+
+    async hk_set(hex_key, u8_content) ::
+      try ::
+        await table
+          .insert @:
+            id: hex_key
+            bc: Buffer.from(u8_content)
+
+          .run(connection)
+      catch err ::
+        return err
+
+
+export async function bkc_with_rethinkdb_batch(opt={}) ::
+  const {connection, table} = opt
+
+  return @{}
+
+    async bkc_exists(u8_key_list) ::
+      const ans=[], ops=[], ns={}
+      for let u8_key of u8_key_list ::
+        let tip = [u8_key, 0], hex_key = as_hex(u8_key)
+        ns[hex_key] = tip
+        ops.push(hex_key)
+        ans.push(tip)
+
+      const results = await table
+        .getAll(... ops)
+        .coerceTo('array')
+        .run(connection)
+
+      for const {id} of results ::
+        ns[id][1] = 1
+      return ans
+
+    async bkc_fetch(u8_key_list) ::
+      const ans=[], ops=[], ns={}
+      for let u8_key of u8_key_list ::
+        let tip = [u8_key], hex_key = as_hex(u8_key)
+        ns[hex_key] = tip
+        ops.push(hex_key)
+        ans.push(tip)
+
+      const results = await table
+        .getAll(... ops)
+        .coerceTo('array')
+        .run(connection)
+
+      for const {id, bc} of results ::
+        ns[id][1] = Uint8Array.from(bc)
+      return ans
+
+    async bkc_store(u8_pair_list) ::
+      const ans = [], ops=[]
+
+      for let [u8_key, u8_content] of u8_pair_list ::
+        const hex_key = as_hex(u8_key)
+        ans.push @# u8_key
+        ops.push @:
+          id: hex_key
+          bc: Buffer.from(u8_content)
+
+      const results = await table
+        .insert(ops)
+        .run(connection)
+      return ans
+

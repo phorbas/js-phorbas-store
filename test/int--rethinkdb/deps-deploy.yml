@@ -1,0 +1,5 @@
+version: '3.7'
+services:
+  some_rethink:
+    image: rethinkdb:2.4
+    #ports: ['18080:8080']

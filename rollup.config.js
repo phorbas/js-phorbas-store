@@ -52,6 +52,8 @@ add_jsy('minio', {category: 'nosql/', plat_node: true})
 add_jsy('ioredis', {category: 'nosql/', plat_node: true})
 add_jsy('memjs', {category: 'nosql/', plat_node: true})
 add_jsy('mongojs', {category: 'nosql/', plat_node: true})
+add_jsy('rethinkdb', {category: 'nosql/', plat_node: true})
+add_jsy('arangojs', {category: 'nosql/', plat_node: true, plat_web: true})
 
 
 function add_jsy(src_name, opt={}) {
