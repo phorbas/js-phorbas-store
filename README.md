@@ -35,6 +35,7 @@ Also see SQLite and Level-based adapters for local / embedded alternatives.
 |----|----------------------|----------------
 | ⚠️ | [ArangoDB](https://www.arangodb.com) <br/> [arangojs](https://github.com/arangodb/arangojs) | impl: [code/nosql/arangojs.jsy](code/nosql/arangojs.jsy) <br/> test: [test/int--arangodb/integ-test.mjs](test/int--arangodb/integ-test.mjs) <br/> **note:** Binary values encode in base64
 | ⚗️ | [Cassandra](https://cassandra.apache.org) <br/> [cassandra-driver](https://github.com/datastax/nodejs-driver#readme) | intended; need help setting up Docker integration testing
+| ⚗️ | [Couchbase](https://www.couchbase.com/) | intended
 | ⚗️ | [CouchDB](https://www.couchdb.com) | intended
 | ✅ | [LMDB](https://symas.com/lmdb/) <br/> [node-lmdb](https://github.com/Venemo/node-lmdb#readme) | impl: [code/nosql/lmdb.jsy](code/nosql/lmdb.jsy) <br/> test: [test/int--level/integ-test.mjs](test/int--level/integ-test.mjs)
 | ✅ | [Memcache](https://memcached.org/) <br/> [memjs](http://github.com/memcachier/memjs#readme) | impl: [code/nosql/memjs.jsy](code/nosql/memjs.jsy) <br/> test: [test/int--memcache/integ-test.mjs](test/int--memcache/integ-test.mjs)
