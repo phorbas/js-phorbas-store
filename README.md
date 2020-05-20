@@ -34,11 +34,15 @@ Also see SQLite and Level-based adapters for local / embedded alternatives.
 |    | Technology / Library | Implementation
 |----|----------------------|----------------
 | ⚠️ | [ArangoDB](https://www.arangodb.com) <br/> [arangojs](https://github.com/arangodb/arangojs) | impl: [code/nosql/arangojs.jsy](code/nosql/arangojs.jsy) <br/> test: [test/int--arangodb/integ-test.mjs](test/int--arangodb/integ-test.mjs) <br/> **note:** Binary values encode in base64
+| ⚗️ | [Cassandra](https://cassandra.apache.org) <br/> [cassandra-driver](https://github.com/datastax/nodejs-driver#readme) | intended; need help setting up Docker integration testing
+| ⚗️ | [CouchDB](https://www.couchdb.com) | intended
 | ✅ | [LMDB](https://symas.com/lmdb/) <br/> [node-lmdb](https://github.com/Venemo/node-lmdb#readme) | impl: [code/nosql/lmdb.jsy](code/nosql/lmdb.jsy) <br/> test: [test/int--level/integ-test.mjs](test/int--level/integ-test.mjs)
 | ✅ | [Memcache](https://memcached.org/) <br/> [memjs](http://github.com/memcachier/memjs#readme) | impl: [code/nosql/memjs.jsy](code/nosql/memjs.jsy) <br/> test: [test/int--memcache/integ-test.mjs](test/int--memcache/integ-test.mjs)
 | ✅ | [MongoDB](https://www.mongodb.com/) <br/> [mongojs](https://github.com/mongo-js/mongojs#readme) | impl: [code/nosql/mongojs.jsy](code/nosql/mongojs.jsy) <br/> test: [test/int--mongodb/integ-test.mjs](test/int--mongodb/integ-test.mjs)
+| ⚗️ | [PouchDB](https://pouchdb.com) | intended
 | ✅ | [Redis](https://redis.io/) <br/> [ioredis](https://github.com/luin/ioredis#readme) | impl: [code/nosql/ioredis.jsy](code/nosql/ioredis.jsy) <br/> test: [test/int--redis/integ-test.mjs](test/int--redis/integ-test.mjs)
 | ✅ | [RethinkDB](https://rethinkdb.com) <br/> [rethinkdb](https://www.npmjs.com/package/rethinkdb) | impl: [code/nosql/rethinkdb.jsy](code/nosql/rethinkdb.jsy) <br/> test: [test/int--rethinkdb/integ-test.mjs](test/int--rethinkdb/integ-test.mjs)
+| ⚗️ | [ScyllaDB](https://www.scylladb.com/) <br/> [cassandra-driver](https://github.com/datastax/nodejs-driver#readme) | intended; need help setting up Docker integration testing
 
 
 ##### S3 NoSQL
