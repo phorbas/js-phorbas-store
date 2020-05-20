@@ -1,14 +1,14 @@
 import {bkc_hexkey_api} from '../_utils.jsy'
 
 export default bkc_with_minio
-export async function bkc_with_minio(opt={}) ::
-  const {minio, bucket} = opt
-  const base = opt.base || ''
-  const ext = opt.ext || ''
+export async function bkc_with_minio(minio, opt={}) ::
+  if 'string' === typeof opt ::
+    opt = {bucket: opt}
 
-  if ! await minio.bucketExists(bucket) ::
-    await minio.makeBucket(bucket, opt.region || 'us-east-1')
-  
+  const {bucket} = opt, base = opt.base || '', ext = opt.ext || ''
+  if ! bucket ::
+    throw new Error('opt.bucket required')
+
   return bkc_hexkey_api @:
 
     async hk_has(hex_key) ::
