@@ -53,7 +53,6 @@ export async function bkc_with_s3_aws4fetch(aws4fetch, opt={}) ::
               ... store_headers,
               'Content-Type': 'application/octet-stream'
               'Content-Length': u8_content.byteLength
-            aws: {signQuery: true}
 
       if ! resp.ok ::
         return _as_error(resp)

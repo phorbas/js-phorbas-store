@@ -30,7 +30,7 @@ validate_backend('fsp with @isomorphic-git/lightning-fs', ()=> {
 })
 
 validate_backend('s3 with s3_aws4fetch', async ()=> {
-  console.log('Requires int--minio to be up an running')
+  console.log('NOTE: "s3 with s3_aws4fetch" suite requires running int--minio docker dependencies')
 
   const s3_aws4fetch = new AwsClient({
     service: 's3',
