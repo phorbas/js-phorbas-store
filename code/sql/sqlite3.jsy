@@ -1,7 +1,7 @@
 import {bkc_hexkey_api} from '../_utils.jsy'
 
-export default bkc_with_sqlite
-export async function bkc_with_sqlite(db, opt={}) ::
+export default bkc_with_sqlite3
+export async function bkc_with_sqlite3(db, opt={}) ::
   const table = opt.table || 'phorbas_kv'
   ::
     const sql_create = `CREATE TABLE IF NOT EXISTS "${table}" ( "key" TEXT PRIMARY KEY, "bc" BLOB );`

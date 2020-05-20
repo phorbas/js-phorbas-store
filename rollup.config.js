@@ -47,10 +47,10 @@ add_jsy('js_map')
 add_jsy('web_db', {category: 'local/', plat_web: true})
 add_jsy('fs', {category: 'local/'})
 add_jsy('fsp', {category: 'local/'})
-add_jsy('level', {category: 'local/', plat_node: true})
 add_jsy('lmdb', {category: 'local/', plat_node: true})
 
-add_jsy('keyv', {category: 'misc/', plat_node: true})
+add_jsy('level', {category: 'adapter/', plat_node: true})
+add_jsy('keyv', {category: 'adapter/', plat_node: true})
 
 add_jsy('minio', {category: 'nosql/', plat_node: true})
 add_jsy('s3_aws4fetch', {category: 'nosql/', all: true})
@@ -60,7 +60,7 @@ add_jsy('mongojs', {category: 'nosql/', plat_node: true})
 add_jsy('rethinkdb', {category: 'nosql/', plat_node: true})
 add_jsy('arangojs', {category: 'nosql/', plat_node: true, plat_web: true})
 
-add_jsy('sqlite', {category: 'sql/', plat_node: true})
+add_jsy('sqlite3', {category: 'sql/', plat_node: true})
 add_jsy('knex', {category: 'sql/', all: true})
 //add_jsy('cassandra', {category: 'sql/', plat_node: true})
 

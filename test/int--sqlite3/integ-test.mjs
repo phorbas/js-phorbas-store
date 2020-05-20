@@ -1,7 +1,7 @@
 import validate_backend from '@phorbas/store/esm/node/validate_backend.mjs'
 
 import bkc_with_keyv from '@phorbas/store/esm/node/keyv.mjs'
-import bkc_with_sqlite from '@phorbas/store/esm/node/sqlite.mjs'
+import bkc_with_sqlite3 from '@phorbas/store/esm/node/sqlite3.mjs'
 import bkc_with_knex from '@phorbas/store/esm/node/knex.mjs'
 
 const Keyv = require('keyv')
@@ -32,7 +32,7 @@ validate_backend(
         ctx.db = new sqlite3.Database(':memory:',
           err => err ? reject(err) : resolve() ) )
 
-      return bkc_with_sqlite(ctx.db)
+      return bkc_with_sqlite3(ctx.db)
     },
 
     done: ctx => ctx.db.close() })
@@ -47,7 +47,7 @@ validate_backend(
           '/var/phorbas/bkc_sqlite/db.sqlite',
           err => err ? reject(err) : resolve() ) )
 
-      return bkc_with_sqlite(ctx.db)
+      return bkc_with_sqlite3(ctx.db)
     },
 
     done: ctx => ctx.db.close() })
