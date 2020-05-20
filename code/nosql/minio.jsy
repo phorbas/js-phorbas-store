@@ -9,6 +9,9 @@ export async function bkc_with_minio(minio, opt={}) ::
   if ! bucket ::
     throw new Error('opt.bucket required')
 
+  if ! await minio.bucketExists(bucket) ::
+    throw new Error('bucket does not exist on server')
+
   return bkc_hexkey_api @:
 
     async hk_has(hex_key) ::

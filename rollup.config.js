@@ -2,6 +2,7 @@ import {builtinModules} from 'module'
 import rpi_jsy from 'rollup-plugin-jsy'
 import rpi_dgnotify from 'rollup-plugin-dgnotify'
 import rpi_resolve from '@rollup/plugin-node-resolve'
+//import { terser as rpi_terser } from 'rollup-plugin-terser'
 
 
 const _cfg_ = {
@@ -28,6 +29,9 @@ const cfg_web = {
     rpi_dgnotify(),
   ]}
 
+const cfg_web_min = 'undefined'===typeof rpi_terser ? null
+  : { ... cfg_web, plugins: [ ... cfg_web.plugins, rpi_terser() ]}
+
 const _out_ = { sourcemap: true }
 
 
@@ -49,7 +53,7 @@ add_jsy('lmdb', {category: 'local/', plat_node: true})
 add_jsy('keyv', {category: 'misc/', plat_node: true})
 
 add_jsy('minio', {category: 'nosql/', plat_node: true})
-add_jsy('s3_aws4fetch', {category: 'nosql/'})
+add_jsy('s3_aws4fetch', {category: 'nosql/', all: true})
 add_jsy('ioredis', {category: 'nosql/', plat_node: true})
 add_jsy('memjs', {category: 'nosql/', plat_node: true})
 add_jsy('mongojs', {category: 'nosql/', plat_node: true})
@@ -72,7 +76,12 @@ function add_jsy(src_name, opt={}) {
     configs.push({ ... cfg_node, input,
       output: { ..._out_, file: `esm/node/${src_name}.mjs`, format: 'es' }})
 
-  if (opt.all || opt.plat_web)
+  if (opt.all || opt.plat_web) {
     configs.push({ ... cfg_web, input,
       output: { ..._out_, file: `esm/web/${src_name}.mjs`, format: 'es' }})
+
+    if (cfg_web_min)
+      configs.push({ ... cfg_web_min, input,
+        output: { ..._out_, file: `esm/web/${src_name}.min.mjs`, format: 'es' }})
+  }
 }

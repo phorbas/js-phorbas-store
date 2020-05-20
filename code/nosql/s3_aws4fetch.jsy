@@ -1,59 +1,82 @@
 import {bkc_hexkey_api} from '../_utils.jsy'
+import {AwsClient} from 'aws4fetch'
 
-export default bkc_with_s3_aws4fetch
-export async function bkc_with_s3_aws4fetch(aws4fetch, opt={}) ::
-  if 'string' === typeof opt ::
-    opt = {bucket: opt}
+export default bkc_with_s3_fetch
+export async function bkc_with_s3_fetch(url_bucket, opt={}) ::
+  return bkc_with_s3_aws4fetch(url_bucket, new AwsClient({... opt, service: 's3' }), opt)
 
-  const {url, bucket} = opt, base = opt.base || '', ext = opt.ext || ''
-  if ! url ::
-    throw new Error('opt.url required')
-  if ! bucket ::
-    throw new Error('opt.bucket required')
+export async function bkc_with_s3_aws4fetch(url_bucket, aws4fetch, opt={}) ::
+  url_bucket = new URL(url_bucket)
+  if ! url_bucket.pathname.endsWith('/') ::
+    throw new Error('url must end with a slash ("/")')
 
-  const store_headers = opt.store_headers || null
-  const _as_error = resp =>
-    new Error(`s3_aws4fetch: ${resp.status}: ${resp.statusText}}`)
+  const _as_error = (resp, msg) =>
+    new Error(`s3_aws4fetch[${url_bucket}]: ${resp.status} -- ${msg || resp.statusText}`)
 
+  await _s3fetch_ensure_bucket(url_bucket, aws4fetch, opt.autocreate, _as_error)
+
+  const _key_url = _s3fetch_bind_url(url_bucket, opt.base, opt.ext)
+  const _initobj_has = {method: 'HEAD'}, _initobj_get = {method: 'GET'}
   return bkc_hexkey_api @:
 
     async hk_has(hex_key) ::
-      const resp = await aws4fetch.fetch @
-        new URL(`${bucket}/${base}${hex_key}${ext}`, url)
-        @{} method: 'HEAD'
+      const resp = await aws4fetch.fetch(
+        _key_url(hex_key), _initobj_has)
 
-      if resp.ok ::
+      if (resp.ok)
         return 1
 
-      if 404 !== resp.status ::
+      if (404 !== resp.status)
         throw _as_error(resp)
 
       return 0
 
 
     async hk_get(hex_key) ::
-      const resp = await aws4fetch.fetch @
-        new URL(`${bucket}/${base}${hex_key}${ext}`, url)
+      const resp = await aws4fetch.fetch(
+        _key_url(hex_key), _initobj_get)
 
-      if resp.ok ::
-        return new Uint8Array @
-          await resp.arrayBuffer()
+      if (resp.ok)
+        return new Uint8Array(
+          await resp.arrayBuffer())
 
-      if 404 !== resp.status ::
+      if (404 !== resp.status)
         throw _as_error(resp)
 
 
     async hk_set(hex_key, u8_content) ::
-      const resp = await aws4fetch.fetch @
-        new URL(`${bucket}/${base}${hex_key}${ext}`, url)
+      const _initobj_set = @{} method: 'PUT', body: u8_content,
+        headers: @{}
+          'Content-Type': 'application/octet-stream'
+          'Content-Length': u8_content.byteLength
 
-        @{} method: 'PUT',
-            body: u8_content,
-            headers: @{}
-              ... store_headers,
-              'Content-Type': 'application/octet-stream'
-              'Content-Length': u8_content.byteLength
+      const resp = await aws4fetch.fetch(
+        _key_url(hex_key), _initobj_set)
 
-      if ! resp.ok ::
+      if (! resp.ok)
         return _as_error(resp)
+
+
+function _s3fetch_bind_url(url_bucket, base, ext) ::
+  base = base || ''; ext = ext || ''
+  return hex_key =>
+    new URL(`${base}${hex_key}${ext}`, url_bucket)
+
+
+async function _s3fetch_ensure_bucket(url_bucket, s3_aws4fetch, autocreate, _as_error) ::
+  const resp_hasBucket =
+    await s3_aws4fetch.fetch(
+      new URL('?location', url_bucket))
+
+  if ! resp_hasBucket.ok ::
+    if (! autocreate)
+      throw _as_error(resp_hasBucket, 'bucket does not exist on server')
+
+    const resp_makeBucket =
+      await s3_aws4fetch.fetch(
+        url_bucket, { method: 'PUT', headers: {'Content-Length': 0}})
+
+    if (! resp_makeBucket.ok)
+      throw _as_error(resp_makeBucket, 'unable to autocreate bucket on server')
+  return true
 
