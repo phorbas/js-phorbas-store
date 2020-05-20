@@ -6,6 +6,7 @@ RUN npm install
 
 COPY ./cjs/ /app/cjs/
 
+# ENV http_proxy=http://mitmproxy:8080
 CMD npm -s test
 
 # vim: filetype=dockerfile

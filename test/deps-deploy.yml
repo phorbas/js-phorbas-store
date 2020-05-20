@@ -8,3 +8,7 @@ services:
     image: adminer
     ports: ['18082:8080']
 
+  mitmproxy:
+    image: mitmproxy/mitmproxy:5.1.1
+    command: mitmweb --web-host 0.0.0.0
+    ports: ['18081:8081']

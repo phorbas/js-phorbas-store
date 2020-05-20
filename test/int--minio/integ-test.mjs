@@ -4,6 +4,7 @@ import bkc_with_minio from '@phorbas/store/esm/node/minio.mjs'
 import bkc_with_level from '@phorbas/store/esm/node/level.mjs'
 
 const Minio = require('minio')
+const proxy_agent = require('proxy-agent')
 
 const AWS = require('aws-sdk')
 const levelup = require('levelup')
@@ -18,6 +19,12 @@ validate_backend('minio', async ()=> {
   const minio = new Minio.Client({
       endPoint: 'minio', port: 9000, useSSL: false,
       accessKey: accessKeyId, secretKey: secretAccessKey })
+
+  if (process.env.http_proxy) {
+    minio.setRequestOptions({
+      agent: proxy_agent(process.env.http_proxy)
+    })
+  }
 
   const bucket = 'phorbas-test'
   if (! await minio.bucketExists(bucket))
