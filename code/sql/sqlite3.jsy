@@ -10,7 +10,7 @@ export async function bkc_with_sqlite3(db, opt={}) ::
 
   const sql_has = `SELECT 1 FROM "${table}" WHERE "key"=?`
   const sql_get = `SELECT "key", "bc" FROM "${table}" WHERE "key"=?`
-  const sql_set = `INSERT INTO "${table}" ("key", "bc") VALUES (?, ?)`
+  const sql_set = `INSERT OR REPLACE INTO "${table}" ("key", "bc") VALUES (?, ?)`
 
   return bkc_hexkey_api @:
 

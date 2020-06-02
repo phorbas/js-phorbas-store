@@ -138,7 +138,29 @@ function _validate_backend(opt, ... opt_args) ::
             expect.ok @ rk_key_lst[i++] === u8_key, 'aligned result array of identical u8_key'
             expect.ok @ 1 === exists, 'We just stored it -- it should exist!'
 
-        :: // should not (yet) have content
+        :: // should now have content
+          let i=0
+          for let [u8_key, u8_content] of await _stg_.bkc_fetch(rk_key_lst) ::
+            const [rk_key, rk_content] = rk_pairs[i++]
+            expect.ok @ rk_key === u8_key, 'aligned result array of identical u8_key'
+            expect.ok @ undefined !== u8_content, 'We just stored it -- it should exist!'
+            expect.ok @ rk_content.byteLength === u8_content.byteLength, 'Byte length should match'
+
+            const all_u8_match = u8_content.every @\ v,i => v === rk_content[i]
+            expect.ok @ all_u8_match, 'All u8 bytes should match'
+
+
+      it @ 'overwrite test', @::>
+        const rk_pairs = @[]
+          @[] rand_u8_key(), rand_u8(1000)
+          @[] rand_u8_key(), rand_u8(2000)
+          @[] rand_u8_key(), rand_u8(4000)
+
+        const rk_key_lst = rk_pairs.map(tpl => tpl[0])
+
+        for const step of [1,2,3] ::
+          await _stg_.bkc_store(rk_pairs)
+
           let i=0
           for let [u8_key, u8_content] of await _stg_.bkc_fetch(rk_key_lst) ::
             const [rk_key, rk_content] = rk_pairs[i++]

@@ -52,7 +52,7 @@ export async function bkc_with_mongojs(mongojs_coll, {writeConcern}={}) ::
               err = void err
 
             let success = new Set()
-            for let {_id} of results ::
+            for let {_id} of results || [] ::
               success.add(_id)
 
             for let e of ans ::
