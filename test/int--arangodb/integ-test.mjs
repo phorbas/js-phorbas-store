@@ -24,9 +24,13 @@ for (const url_conn of ['http://some_arango:8529']) {
 async function init_arango_test(url_conn, db_name, collection_name) {
   const adb = new arangojs.Database(url_conn)
 
-  if (! await adb.exists(db_name)) {
+  try {
     await adb.createDatabase(db_name)
+  } catch (err) {
+    if (409 !== err.code)
+      throw err
   }
+
   await adb.useDatabase(db_name)
 
   const coll = adb.collection(collection_name)
