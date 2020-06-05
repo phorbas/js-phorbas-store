@@ -1,5 +1,5 @@
-import {utf8_to_u8} from 'u8-utils'
-export {utf8_to_u8, u8_to_hex, hex_to_u8} from 'u8-utils'
+import {utf8_to_u8} from './_utils.jsy'
+export * from './_utils.jsy'
 
 #IF PLAT_NODEJS
   import {randomFillSync} from 'crypto'

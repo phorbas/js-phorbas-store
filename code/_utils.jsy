@@ -1,5 +1,5 @@
-import {u8_to_hex, hex_to_u8} from 'u8-utils'
-export {u8_to_hex, hex_to_u8}
+import {u8_to_hex} from 'u8-utils'
+export {u8_to_hex, hex_to_u8, utf8_to_u8, u8_to_utf8} from 'u8-utils'
 
 
 const _wm_hex_cache = new WeakMap()
