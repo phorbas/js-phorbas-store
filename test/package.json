@@ -5,18 +5,19 @@
     "level-mem": "^5.0.1",
     "levelup": "^4.4.0",
     "memdown": "^5.1.0",
-    "mocha": "^7.1.2"
+    "mocha": "^7.2.0"
   },
   "devDependencies": {
     "@phorbas/opaque": "file:../../phorbas-opaque",
     "@phorbas/store": "file:..",
-    "@rollup/plugin-commonjs": "^11.1.0",
-    "aws4fetch": "^1.0.5",
+    "@rollup/plugin-commonjs": "^12.0.0",
+    "aws4fetch": "^1.0.9",
     "keyv": "^4.0.1",
-    "qsrv": "^0.1.6"
+    "qsrv": "^0.1.7"
   },
   "scripts": {
-    "start": "qsrv -f unittest.html --",
+    "serve": "qsrv -f unittest.html -- __unittest.iife.js",
+    "start": "npm -s run serve",
     "prebuild": "test -d ./node_modules || npm -s install",
     "build": "../node_modules/.bin/rollup --config",
     "clean": "rm ./__unittest.*",
