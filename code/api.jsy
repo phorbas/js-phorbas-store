@@ -1,0 +1,84 @@
+import {bkc_storage_verify, utf8_to_u8, u8_to_utf8} from './_utils.jsy'
+
+export {phorbas_store_api as phorbas_store}
+export async function phorbas_store_api(stg, kw_init) ::
+  bkc_storage_verify(stg = await stg)
+  return @{} __proto__: phorbas_store_proto, stg, ... kw_init
+
+
+export const phorbas_store_proto = @{}
+  sync: {add() {}}
+
+  with(kw_init) :: return @{} __proto__: this, ... kw_init
+  with_sync(sync) :: return this.with({sync})
+  with_opaque(opaque) :: return this.with({opaque})
+
+
+  // api-compatible with a phorbase store backend
+  async bkc_store(u8_pair_list) ::
+    return this.stg.bkc_store(u8_pair_list)
+  async bkc_fetch(u8_key_list) ::
+    return this.stg.bkc_fetch(u8_key_list)
+  async bkc_exists(u8_key_list) ::
+    return this.stg.bkc_exists(u8_key_list)
+
+
+  async store_utf8(utf8, opt) ::
+    return this.store_content(utf8_to_u8(utf8), opt)
+
+  async store_content(u8, opt={}) ::
+    let k = await @ opt.rand
+      ? this.opaque.from_random()
+      : this.opaque.from_u8(u8)
+
+    await this.store_content_at(k, u8)
+    return opt.as_key ? k : k.k21pair()
+
+
+  async store_utf8_at(k2loc, utf8) ::
+    return this.store_content_at(k2loc, utf8_to_u8(utf8))
+
+  async store_content_at(key, u8) ::
+    const {stg, sync} = this
+
+    let k2loc
+    if key.encode_content ::
+      u8 = await key.encode_content(u8)
+      k2loc = key.k2loc
+    else if Array.isArray(key) ::
+      k2loc = key[0] // k21pair[0]
+    else k2loc = key
+
+    const [[, err]] = await this.bkc_store([[k2loc, u8]])
+    if null != err ::
+      throw err
+
+    sync.add(k2loc)
+
+
+  async fetch_utf8(ref) ::
+    const u8_res = await this.fetch_content(ref)
+    if u8_res ::
+      return u8_to_utf8(u8_res)
+
+  async fetch_content(ref) ::
+    const {stg, opaque} = this
+    if undefined !== opaque ::
+      const k = await opaque.from_k21pair(ref)
+      const [[, u8_res]] = await this.bkc_fetch([k.k2loc])
+      return u8_res && k.decode_content(u8_res)
+
+    else if Array.isArray(ref) ::
+      ref = ref[0] // k2loc = k21pair[0]
+
+    const [[, u8_res]] = await this.bkc_fetch([ref])
+    return u8_res
+
+  async exists(ref) ::
+    const {stg, opaque} = this
+    if undefined !== opaque ::
+      @ {k2loc: ref} = await opaque.from_k21pair(ref)
+
+    const [[, ans]] = await this.bkc_exists([ref])
+    return ans
+

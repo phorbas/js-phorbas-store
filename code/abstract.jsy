@@ -1,10 +1,15 @@
-const bkc_abstract_api = @{}
-  async bkc_store(u8_pair_list) ::
-    throw new Exception('Concrete impl responsability')
+import {bkc_storage_verify} from './_utils.jsy'
 
-  async bkc_fetch(u8_key_list) ::
-    throw new Exception('Concrete impl responsability')
+export default bkc_with_delegate
+export async function bkc_with_delegate(stg) ::
+  bkc_storage_verify(stg)
+  return @{}
+    async bkc_store(u8_pair_list) ::
+      return stg.bkc_store(u8_pair_list)
 
-  async bkc_exists(u8_key_list) ::
-    throw new Exception('Concrete impl responsability')
+    async bkc_fetch(u8_key_list) ::
+      return stg.bkc_fetch(u8_key_list)
+
+    async bkc_exists(u8_key_list) ::
+      return stg.bkc_exists(u8_key_list)
 

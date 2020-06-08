@@ -77,3 +77,15 @@ export const bkc_binkey_api = api => @:
         tpl[1] = await tpl[1]
       return ans
 
+
+function _is_fn(v) ::
+  if 'function' !== typeof v ::
+    throw new TypeError()
+
+
+export function bkc_storage_verify(stg) ::
+  _is_fn(stg.bkc_exists)
+  _is_fn(stg.bkc_fetch)
+  _is_fn(stg.bkc_store)
+  return stg
+
