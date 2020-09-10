@@ -5,6 +5,8 @@ import 'https://cdn.jsdelivr.net/npm/@isomorphic-git/lightning-fs@4.2.2/dist/lig
 import {AwsClient} from 'aws4fetch'
 import bkc_with_js_map from '@phorbas/store/esm/js_map.mjs'
 import bkc_with_web_db from '@phorbas/store/esm/web/web_db.mjs'
+import bkc_with_web_cache from '@phorbas/store/esm/web/web_cache.mjs'
+import bkc_with_web_fetch from '@phorbas/store/esm/web/web_fetch.mjs'
 import bkc_with_fs from '@phorbas/store/esm/fs.mjs'
 import bkc_with_fsp from '@phorbas/store/esm/fsp.mjs'
 import {bkc_with_s3_fetch, bkc_with_s3_aws4fetch} from '@phorbas/store/esm/s3_aws4fetch.mjs'
@@ -18,6 +20,17 @@ validate_backend('web_db', ()=>
     db: 'test-phorbas',
     store: 'kv-phorbas',
     wipe: true}) )
+
+validate_backend('web_cache', async ()=>
+  await bkc_with_web_cache(
+    caches.open('phorbas-unittest'),
+    new URL('http://127.0.0.1:9098/some/pre/fix/'),
+    {}))
+
+validate_backend('web_fetch with `node test/http-test-store.cjs`', ()=>
+  bkc_with_web_fetch(
+    new URL('http://127.0.0.1:9099/some/pre/fix/'),
+    {}))
 
 validate_backend('fs with @isomorphic-git/lightning-fs', ()=> {
   const lfs = new LightningFS('test-fs', {wipe: true})

@@ -1,0 +1,38 @@
+import {bkc_hexkey_api} from '../_utils.jsy'
+
+export default bkc_with_web_fetch
+export async function bkc_with_web_fetch(url_base, req_init) ::
+  const as_req = hex_key =>
+    new Request @ new URL(hex_key, url_base), req_init
+
+  return bkc_hexkey_api @:
+
+    async hk_has(hex_key) ::
+      let resp = await fetch @
+        as_req(hex_key),
+        @{} method: 'HEAD'
+
+      return resp.ok ? 1 : 0
+
+    async hk_get(hex_key) ::
+      let resp = await fetch @
+        as_req(hex_key),
+        @{} method: 'GET'
+
+      if resp.ok ::
+        return new Uint8Array @ await resp.arrayBuffer()
+
+    async hk_set(hex_key, u8_content) ::
+      let resp = await fetch @
+        as_req(hex_key),
+        @{} method: 'PUT',
+            body: u8_content
+
+      if ! resp.ok ::
+        let {url, status, statusText} = resp
+        let err = new Error(`${statusText || status}`)
+        err.url = resp.url
+        err.status = status
+        return err
+
+

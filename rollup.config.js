@@ -44,7 +44,10 @@ add_jsy('validate_backend', {plat_node: true, plat_web: true})
 
 add_jsy('js_map')
 
-add_jsy('web_db', {category: 'local/', plat_web: true})
+add_jsy('web_db', {category: 'web/', plat_web: true})
+add_jsy('web_cache', {category: 'web/', plat_web: true})
+add_jsy('web_fetch', {category: 'web/', plat_web: true})
+
 add_jsy('fs', {category: 'local/'})
 add_jsy('fsp', {category: 'local/'})
 add_jsy('lmdb', {category: 'local/', plat_node: true})

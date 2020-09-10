@@ -1,0 +1,35 @@
+import {bkc_hexkey_api} from '../_utils.jsy'
+
+export default bkc_with_web_cache
+export async function bkc_with_web_cache(cache_store, url_base, req_init) ::
+  const opt_match = @{} ignoreMethod: true
+  const as_req = hex_key =>
+    new Request @ new URL(hex_key, url_base), req_init
+
+  cache_store = await cache_store
+  return bkc_hexkey_api @:
+
+    async hk_has(hex_key) ::
+      let resp = await cache_store.match @
+        as_req(hex_key), opt_match
+
+      return undefined !== resp ? 1 : 0
+
+    async hk_get(hex_key) ::
+      let resp = await cache_store.match @
+        as_req(hex_key), opt_match
+
+      if undefined !== resp ::
+        return new Uint8Array @
+          await resp.arrayBuffer()
+
+    async hk_set(hex_key, u8_content) ::
+      let resp = new Response @ u8_content,
+        @{} status: 200
+            headers: @{}
+              'Content-Type': 'application/octet-stream'
+              'Content-Length': u8_content.byteLength
+
+      await cache_store.put @
+        as_req(hex_key), resp
+
