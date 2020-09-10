@@ -1,5 +1,7 @@
 import {bkc_storage_verify} from './_utils.jsy'
 
+
+// bkc api delegate -- binary key (binary) content
 export default bkc_with_delegate
 export async function bkc_with_delegate(stg) ::
   bkc_storage_verify(stg)

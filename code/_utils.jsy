@@ -14,6 +14,11 @@ export function as_hex(u8_key) ::
   return hk
 
 
+// `bkc_hexkey_api` transforms
+// batch `bkc_exists` / `bkc_fetch` / `bkc_store` calls
+// into individual `hk_has` / `hk_get` / `hk_set` calls
+// with hex encoded keys
+
 export const bkc_hexkey_api = api => @:
     async bkc_exists(u8_key_list) ::
       const ans = []
@@ -45,6 +50,10 @@ export const bkc_hexkey_api = api => @:
         tpl[1] = await tpl[1]
       return ans
 
+
+// `bkc_binkey_api` transforms
+// batch `bkc_exists` / `bkc_fetch` / `bkc_store` calls
+// into individual `bk_has` / `bk_get` / `bk_set` calls
 
 export const bkc_binkey_api = api => @:
     async bkc_exists(u8_key_list) ::
@@ -83,6 +92,7 @@ function _is_fn(v) ::
     throw new TypeError()
 
 
+// bkc api verification -- binary key (binary) content
 export function bkc_storage_verify(stg) ::
   _is_fn(stg.bkc_exists)
   _is_fn(stg.bkc_fetch)
