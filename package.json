@@ -1,6 +1,6 @@
 {
   "name": "@phorbas/store",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Persistent, hashed, opaque, replicable, binary key/content, addressable, storage",
   "license": "BSD-2-Clause",
   "author": "Shane Holloway <shane.holloway@ieee.org>",
