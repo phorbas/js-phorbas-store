@@ -17,24 +17,26 @@ export * from './_utils.jsy'
 
 export const rand_u8_key = ()=> rand_u8(32)
 
+export const _as_test_suite = validate_fn =>
+  Object.assign @
+    (backend_name, ...args) =>
+      describe @ `backend: ${backend_name}`,
+        ()=> validate_fn(...args)
+
+    @{}
+      only: (backend_name, ...args) =>
+        describe.only @ `backend: ${backend_name}`,
+          ()=> validate_fn(...args)
+
+      skip: (backend_name, ...args) =>
+        describe.skip @ `backend: ${backend_name}`,
+          ()=> validate_fn(...args)
+
 
 export default validate_backend
-export const validate_backend = Object.assign @
-  (backend_name, ...args) =>
-    describe @ `backend: ${backend_name}`,
-      ()=> _validate_backend(...args)
+export const validate_backend = _as_test_suite(_validate_backend)
 
-  @{}
-    only: (backend_name, ...args) =>
-      describe.only @ `backend: ${backend_name}`,
-        ()=> _validate_backend(...args)
-
-    skip: (backend_name, ...args) =>
-      describe.skip @ `backend: ${backend_name}`,
-        ()=> _validate_backend(...args)
-
-
-function _validate_backend(opt, ... opt_args) ::
+function _validate_backend(opt) ::
     if 'function' === typeof opt ::
       opt = {create: opt}
 
@@ -49,7 +51,7 @@ function _validate_backend(opt, ... opt_args) ::
         await opt.done(_ctx_)
         _stg_ = _ctx_ = undefined
 
-    describe @ 'api', @::
+    opt.skip_api || describe @ 'api', @::
       it @ 'bkc_exists', @::>
         expect.func @ _stg_.bkc_exists
 
@@ -100,7 +102,44 @@ function _validate_backend(opt, ... opt_args) ::
           expect.ok @ undefined === err, 'unexpected errors during write'
 
 
-    describe @ 'sequences', @::
+    opt.skip_one || describe @ 'one', @::
+
+      it @ 'round-trip one', @::>
+        let rk_src_key = rand_u8_key()
+        let rk_src_content = rand_u8(1024)
+
+        :: // should not (yet) exist
+          let [[u8_key, exists]] = await _stg_.bkc_exists([rk_src_key])
+          expect.ok @ rk_src_key === u8_key, 'aligned result array of identical u8_key'
+          expect.ok @ 0 === exists, '256-bit crypto random keys should not be present in the storage backend'
+
+        :: // should not (yet) have content
+          let [[u8_key, u8_content]] = await _stg_.bkc_fetch([rk_src_key])
+          expect.ok @ rk_src_key === u8_key, 'aligned result array of identical u8_key'
+          expect.ok @ undefined === u8_content, '256-bit crypto random keys should not be present in the storage backend'
+
+
+        :: // store the pairs
+          let [[u8_key, err]] = await _stg_.bkc_store([[rk_src_key, rk_src_content]])
+          expect.ok @ rk_src_key === u8_key, 'aligned result array of identical u8_key'
+          expect.ok @ undefined === err, 'unexpected errors during write'
+
+        :: // should now exist
+          let [[u8_key, exists]] = await _stg_.bkc_exists([rk_src_key])
+            expect.ok @ rk_src_key === u8_key, 'aligned result array of identical u8_key'
+            expect.ok @ 1 === exists, 'We just stored it -- it should exist!'
+
+        :: // should now have content
+          let [[u8_key, u8_content]] = await _stg_.bkc_fetch([rk_src_key])
+          expect.ok @ rk_src_key === u8_key, 'aligned result array of identical u8_key'
+          expect.ok @ undefined !== u8_content, 'We just stored it -- it should exist!'
+          expect.ok @ rk_src_content.byteLength === u8_content.byteLength, 'Byte length should match'
+
+          const all_u8_match = u8_content.every @\ v,i => v === rk_src_content[i]
+          expect.ok @ all_u8_match, 'All u8 bytes should match'
+
+
+    opt.skip_sequences || describe @ 'sequences', @::
 
       it @ 'round-trip 3 random u8 pairs', @::>
 
