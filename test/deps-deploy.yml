@@ -12,3 +12,12 @@ services:
     image: mitmproxy/mitmproxy:5.1.1
     command: mitmweb --web-host 0.0.0.0
     ports: ['18081:8081']
+
+  minio:
+    image: minio/minio
+    ports: ["9000:9000"]
+    command: 'server /data'
+    environment:
+      MINIO_ACCESS_KEY: AKIAIOSFODNN7EXAMPLE
+      MINIO_SECRET_KEY: wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+

@@ -33,10 +33,9 @@
     "rollup-plugin-jsy": "^1.7.1",
     "u8-utils": "^0.3.7"
   },
-  "oow dependencies": {
-    "rollup-plugin-terser": "^5.3.0"
-  },
   "scripts": {
+    "start": "npx tmex $PWD -rn _cli watch",
+    "_cli": "true",
     "clean": "rm -rf ./cjs/* ./esm/* ./umd/*",
     "build": "rollup --config",
     "watch": "npm -s run build -- --watch",
@@ -44,6 +43,6 @@
     "test": "cd test; npm -s run test",
     "test:install": "cd test; npm -s install",
     "test:one": "cd test; npm -s run test:one",
-    "test:watch": "cd test; npm -s run test:watch"
+    "test:watch": "cd test; npm -s run watch"
   }
 }

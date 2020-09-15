@@ -16,8 +16,9 @@
     "qsrv": "^0.1.7"
   },
   "scripts": {
+    "start": "npx tmex $PWD -rn dkr_deps watch serve http-store ",
     "serve": "qsrv -f unittest.html -- __unittest.iife.js",
-    "start": "npm -s run serve",
+    "http-store": "node ./http-test-store.cjs",
     "prebuild": "test -d ./node_modules || npm -s install",
     "build": "../node_modules/.bin/rollup --config",
     "clean": "rm ./__unittest.*",
