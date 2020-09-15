@@ -47,6 +47,7 @@ add_jsy('js_map')
 add_jsy('web_db', {category: 'web/', plat_web: true})
 add_jsy('web_cache', {category: 'web/', plat_web: true})
 add_jsy('web_fetch', {category: 'web/', plat_web: true})
+add_jsy('web_cache_fetch', {category: 'web/', plat_web: true})
 
 add_jsy('fs', {category: 'local/'})
 add_jsy('fsp', {category: 'local/'})

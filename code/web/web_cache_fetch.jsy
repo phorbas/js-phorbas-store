@@ -1,0 +1,63 @@
+import {bkc_hexkey_api} from '../_utils.jsy'
+
+export default bkc_with_web_cache_fetch
+export async function bkc_with_web_cache_fetch(cache_store, url_base, req_init) ::
+  const as_req = hex_key =>
+    new Request(new URL(hex_key, url_base), req_init)
+
+  const opt_match = @{} ignoreMethod: true
+  cache_store = await cache_store
+  return bkc_hexkey_api @:
+
+    async hk_has(hex_key) ::
+      let req = as_req(hex_key)
+      let resp = await cache_store.match @
+        req, opt_match
+
+      if undefined === resp ::
+        try ::
+          await cache_store.add(req)
+        catch err ::
+          return 0
+
+      return 1
+
+    async hk_get(hex_key) ::
+      let req = as_req(hex_key)
+      let resp = await cache_store.match @
+        req, opt_match
+
+      if undefined === resp ::
+        try ::
+          await cache_store.add(req)
+        catch err ::
+          return
+
+        resp = await cache_store.match @
+          req, opt_match
+
+      return new Uint8Array @
+        await resp.arrayBuffer()
+
+    async hk_set(hex_key, u8_content) ::
+      let resp = await fetch @ url_base,
+        @{} method: 'PUT'
+            headers: @{}
+              'x-hk': hex_key
+            body: u8_content
+
+      if ! resp.ok ::
+        let {url, status, statusText} = resp
+        let err = new Error(`${statusText || status}`)
+        err.url = resp.url
+        err.status = status
+        return err
+
+      await cache_store.put @
+        as_req(hex_key),
+        new Response @ u8_content,
+          @{} status: 200
+              headers: @{}
+                'Content-Type': 'application/octet-stream'
+                'Content-Length': u8_content.byteLength
+

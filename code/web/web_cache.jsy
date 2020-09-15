@@ -24,12 +24,11 @@ export async function bkc_with_web_cache(cache_store, url_base, req_init) ::
           await resp.arrayBuffer()
 
     async hk_set(hex_key, u8_content) ::
-      let resp = new Response @ u8_content,
-        @{} status: 200
-            headers: @{}
-              'Content-Type': 'application/octet-stream'
-              'Content-Length': u8_content.byteLength
-
       await cache_store.put @
-        as_req(hex_key), resp
+        as_req(hex_key),
+        new Response @ u8_content,
+          @{} status: 200
+              headers: @{}
+                'Content-Type': 'application/octet-stream'
+                'Content-Length': u8_content.byteLength
 

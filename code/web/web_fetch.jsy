@@ -23,9 +23,10 @@ export async function bkc_with_web_fetch(url_base, req_init) ::
         return new Uint8Array @ await resp.arrayBuffer()
 
     async hk_set(hex_key, u8_content) ::
-      let resp = await fetch @
-        as_req(hex_key),
-        @{} method: 'PUT',
+      let resp = await fetch @ url_base,
+        @{} method: 'PUT'
+            headers: @{}
+              'x-hk': hex_key
             body: u8_content
 
       if ! resp.ok ::
