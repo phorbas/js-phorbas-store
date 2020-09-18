@@ -1,4 +1,4 @@
-# PHORBAS Store (Abstraction)
+# PHORBAS Store
 
 A PHORBAS store is an associative 1:1 binary key to binary content data storage
 abstraction. Keys are binary as a result of cryptographic hashing from 
@@ -15,8 +15,8 @@ handles the principles of **Persistent**, **Binary key/content**, **Addressable*
 ## API & Use
 
 - See [`test/api_example.mjs`](test/api_example.mjs).
-- Store API docs [`docs/store_api.mjs`](docs/store_api.mjs).
-- Backend storage API docs [`docs/bkc_api.mjs`](docs/bkc_api.mjs).
+- Store API docs [`docs/store_api.md`](docs/store_api.md).
+- Backend storage API docs [`docs/bkc_api.md`](docs/bkc_api.md).
 
 
 ## Storage Implementations
