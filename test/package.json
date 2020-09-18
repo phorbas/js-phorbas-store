@@ -12,6 +12,7 @@
     "@phorbas/store": "file:..",
     "@rollup/plugin-commonjs": "^15.0.0",
     "aws4fetch": "^1.0.12",
+    "cbor-codec": "^0.2.3",
     "keyv": "^4.0.1",
     "qsrv": "^0.1.7"
   },

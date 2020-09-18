@@ -1,5 +1,3 @@
-import {bkc_binkey_api} from '../_utils.jsy'
-
 export default bkc_with_lmdb
 export async function bkc_with_lmdb(env, dbi='phorbas') ::
   if 'string' === typeof dbi ::

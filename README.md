@@ -12,6 +12,13 @@ handles the principles of **Persistent**, **Binary key/content**, **Addressable*
  [PHORBAS HAMT]: https://github.com/phorbas/js-phorbas-hamt
 
 
+## API & Use
+
+- See [`test/api_example.mjs`](test/api_example.mjs).
+- Store API docs [`docs/store_api.mjs`](docs/store_api.mjs).
+- Backend storage API docs [`docs/bkc_api.mjs`](docs/bkc_api.mjs).
+
+
 ## Storage Implementations
 
 #### Local

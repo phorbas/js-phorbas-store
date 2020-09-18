@@ -35,8 +35,8 @@ export const phorbas_store_proto = @{}
     return opt.as_key ? k : k.k21pair()
 
 
-  async store_utf8_at(k2loc, utf8) ::
-    return this.store_content_at(k2loc, utf8_to_u8(utf8))
+  async store_utf8_at(key, utf8) ::
+    await this.store_content_at(key, utf8_to_u8(utf8))
 
   async store_content_at(key, u8) ::
     const {stg, sync} = this
@@ -78,6 +78,9 @@ export const phorbas_store_proto = @{}
     const {stg, opaque} = this
     if undefined !== opaque ::
       @ {k2loc: ref} = await opaque.from_k21pair(ref)
+
+    else if Array.isArray(ref) ::
+      ref = ref[0] // k2loc = k21pair[0]
 
     const [[, ans]] = await this.bkc_exists([ref])
     return ans
