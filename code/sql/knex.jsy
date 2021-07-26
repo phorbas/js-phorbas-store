@@ -10,7 +10,7 @@ export async function bkc_with_knex(knex, opt={}) ::
 
       const col_key = key_type
         ? t.specificType('bc', key_type)
-        : t.string('key')
+        : t.string('hk')
 
       col_key.unique().notNullable().primary()
 
@@ -25,8 +25,8 @@ export async function bkc_with_knex(knex, opt={}) ::
 
     async hk_has(hex_key) ::
       const ans = await knex(table)
-        .select('key')
-        .where('key', hex_key)
+        .select('hk')
+        .where('hk', hex_key)
         .first()
 
       return null != ans ? 1 : 0
@@ -34,7 +34,7 @@ export async function bkc_with_knex(knex, opt={}) ::
     async hk_get(hex_key) ::
       const ans = await knex(table)
         .select('bc')
-        .where('key', hex_key)
+        .where('hk', hex_key)
         .first()
 
       if null != ans ::
@@ -48,11 +48,11 @@ export async function bkc_with_knex(knex, opt={}) ::
           u8_content
 
       try ::
-        await knex(table).insert({key: hex_key, bc})
+        await knex(table).insert({hk: hex_key, bc})
       catch err ::
         try ::
           await knex(table)
-            .where({key: hex_key})
+            .where({hk: hex_key})
             .update({bc})
         catch err2 ::
           return err

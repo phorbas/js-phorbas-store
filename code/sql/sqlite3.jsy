@@ -4,13 +4,13 @@ export default bkc_with_sqlite3
 export async function bkc_with_sqlite3(db, opt={}) ::
   const table = opt.table || 'phorbas_kv'
   ::
-    const sql_create = `CREATE TABLE IF NOT EXISTS "${table}" ( "key" TEXT PRIMARY KEY, "bc" BLOB );`
+    const sql_create = `CREATE TABLE IF NOT EXISTS "${table}" ( "hk" TEXT PRIMARY KEY, "bc" BLOB );`
     await new Promise @\ resolve, reject ::
       db.run @ sql_create, err => err ? reject(err) : resolve()
 
-  const sql_has = `SELECT 1 FROM "${table}" WHERE "key"=?`
-  const sql_get = `SELECT "key", "bc" FROM "${table}" WHERE "key"=?`
-  const sql_set = `INSERT OR REPLACE INTO "${table}" ("key", "bc") VALUES (?, ?)`
+  const sql_has = `SELECT 1 FROM "${table}" WHERE "hk"=?`
+  const sql_get = `SELECT "hk", "bc" FROM "${table}" WHERE "hk"=?`
+  const sql_set = `INSERT OR REPLACE INTO "${table}" ("hk", "bc") VALUES (?, ?)`
 
   return bkc_hexkey_api @:
 
