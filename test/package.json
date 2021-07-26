@@ -1,21 +1,21 @@
 {
   "private": true,
   "dependencies": {
-    "encoding-down": "^6.3.0",
+    "encoding-down": "^7.0.0",
     "level-mem": "^5.0.1",
-    "levelup": "^4.4.0",
-    "memdown": "^5.1.0",
-    "mocha": "^8.1.3"
+    "levelup": "^5.0.1",
+    "memdown": "^6.0.0",
+    "mocha": "^9.0.3"
   },
   "devDependencies": {
     "@phorbas/opaque": "file:../../phorbas-opaque",
     "@phorbas/store": "file:..",
-    "@rollup/plugin-commonjs": "^15.0.0",
-    "aws4fetch": "^1.0.12",
-    "cbor-codec": "^0.2.3",
-    "u8-utils": "^0.3.7",
-    "keyv": "^4.0.1",
-    "qsrv": "^0.1.7"
+    "@rollup/plugin-commonjs": "^19.0.2",
+    "aws4fetch": "^1.0.13",
+    "cbor-codec": "^0.8.0",
+    "keyv": "^4.0.3",
+    "qsrv": "^0.1.7",
+    "u8-utils": "^0.3.8"
   },
   "scripts": {
     "start": "npx tmex $PWD -rn dkr_deps watch serve http-store ",
