@@ -14,7 +14,7 @@ export const phorbas_store_proto = @{}
   with_opaque(opaque) :: return this.with({opaque})
 
 
-  // api-compatible with a phorbase store backend
+  // api-compatible with a phorbas store backend
   async bkc_store(u8_pair_list) ::
     return this.stg.bkc_store(u8_pair_list)
   async bkc_fetch(u8_key_list) ::
