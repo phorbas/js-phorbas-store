@@ -25,7 +25,7 @@ export function web_responses_bkc(stg, opt={}) ::
     async resp_has(request) ::
       try ::
         let hex_key = hk_for(request)
-        let [[u8_key, exists]] =
+        let [[, exists]] =
           await stg.bkc_exists @#
             as_u8_key(hex_key)
 
@@ -41,7 +41,7 @@ export function web_responses_bkc(stg, opt={}) ::
     async resp_get(request) ::
       try ::
         let hex_key = hk_for(request)
-        let [[u8_key, u8_body]] =
+        let [[, u8_body]] =
           await stg.bkc_fetch @#
             as_u8_key(hex_key)
 
@@ -58,7 +58,7 @@ export function web_responses_bkc(stg, opt={}) ::
       try ::
         let hex_key = hk_for(request)
         let u8_body = await u8_body_for_stream(request)
-        let [[u8_key, error]] =
+        let [[, error]] =
           await stg.bkc_store @#
             [as_u8_key(hex_key), u8_body]
 
