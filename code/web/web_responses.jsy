@@ -20,7 +20,8 @@ export function web_responses_bkc(stg, opt={}) ::
     set: @{} 'Content-Type': 'application/json', ... opt.hdr.common, ... opt.hdr.set
 
   return @{}
-    hdr, Response: opt.Response || globalThis.Response
+    Response: opt.Response || globalThis.Response
+    hdr, hk_for
 
     async resp_has(request) ::
       try ::

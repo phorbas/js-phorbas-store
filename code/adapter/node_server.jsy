@@ -10,40 +10,63 @@ export function cors_middleware_for_bkc(stg, opt={}) ::
       'Access-Control-Max-Age': cors.max_age || '10',
       ... hdr.common
 
-    hdr.cors = @{}
-      ... hdr.common
+    hdr.options = @{}
       'Access-Control-Allow-Methods': cors.methods || 'HEAD, GET, POST, PUT, OPTIONS',
       'Access-Control-Allow-Headers': cors.headers || 'Content-Type, Content-Length, x-hk',
+      ... hdr.options
       ... hdr.cors
 
     opt = @{} ... opt, cors, hdr
 
-  let inner = middleware_for_bkc(stg, opt)
-  inner.resp_cors = async (res, resp) => ::
-    resp.writeHead(200, inner.hdr.cors).end()
-  return inner
+  return middleware_for_bkc(stg, opt)
 
 
 export function middleware_for_bkc(stg, opt={}) ::
   opt = @{} Response, ...opt
-  const as_evt = opt.as_evt || as_http_request_event
+  const as_evt = opt.as_evt || as_mini_reqevt
 
   const inner = web_respondwith_bkc(stg, opt)
+  ::
+    let {hdr} = inner
+    hdr.options = @{} ... hdr.common, ... hdr.options
+
   return @{} __proto__: inner, as_evt,
     resp_has: (req, resp) => inner.resp_has @ as_evt(req, resp)
     resp_get: (req, resp) => inner.resp_get @ as_evt(req, resp)
     resp_set: (req, resp) => inner.resp_set @ as_evt(req, resp)
+    resp_options: (req, resp) => ::
+      resp.writeHead(200, inner.hdr.options).end()
+
+    get handler() ::
+      return (req, resp) => this.method_for(req.method)(req, resp)
+
+    method_for(method) ::
+      switch (method) ::
+        case 'HEAD':
+          return this.resp_has
+        case 'GET':
+          return this.resp_get
+        case 'PUT': case 'POST':
+          return this.resp_set
+        case 'OPTIONS':
+          return this.resp_options
+        default:
+          return this.resp_500
 
   function Response(body, {status, headers}={}) ::
     return { body, status, headers }
 
-
-export function as_http_request_event(request, response) ::
+export function as_mini_reqevt(request, _resp_) ::
+  let {url, headers: h} = request
   return @{}
-    request, url: request.url,
-    async respondWith(ans) ::
-      ans = await ans
-      response
-        .writeHead(ans.status, ans.headers || {})
-        .end(ans.body)
+    __proto__: _mini_reqevt
+    url: `${h.origin||''}${url}`
+    request, _resp_
+
+const _mini_reqevt = /* #__PURE__ */ @{}
+  async respondWith(ans) ::
+    ans = await ans
+    await this._resp_
+      .writeHead(ans.status, ans.headers || {})
+      .end(ans.body)
 
