@@ -2,10 +2,10 @@ import {bkc_hexkey_api} from '../_utils.jsy'
 
 export default bkc_with_web_cache_fetch
 export async function bkc_with_web_cache_fetch(cache_store, url_base, req_init) ::
+  const opt_match = @{} ignoreMethod: true
   const as_req = hex_key =>
     new Request(new URL(hex_key, url_base), req_init)
 
-  const opt_match = @{} ignoreMethod: true
   cache_store = await cache_store
   return bkc_hexkey_api @:
 
@@ -41,9 +41,8 @@ export async function bkc_with_web_cache_fetch(cache_store, url_base, req_init) 
 
     async hk_set(hex_key, u8_content) ::
       let resp = await fetch @ url_base,
-        @{} method: 'PUT'
-            headers: @{}
-              'x-hk': hex_key
+        @{} method: 'POST'
+            headers: { 'x-hk': hex_key }
             body: u8_content
 
       if ! resp.ok ::

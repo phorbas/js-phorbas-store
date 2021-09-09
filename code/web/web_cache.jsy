@@ -4,7 +4,7 @@ export default bkc_with_web_cache
 export async function bkc_with_web_cache(cache_store, url_base, req_init) ::
   const opt_match = @{} ignoreMethod: true
   const as_req = hex_key =>
-    new Request @ new URL(hex_key, url_base), req_init
+    new Request(new URL(hex_key, url_base), req_init)
 
   cache_store = await cache_store
   return bkc_hexkey_api @:
