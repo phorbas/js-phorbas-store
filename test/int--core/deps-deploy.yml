@@ -21,3 +21,8 @@ services:
       MINIO_ACCESS_KEY: AKIAIOSFODNN7EXAMPLE
       MINIO_SECRET_KEY: wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
 
+  phorbas_core:
+    image: integ_phorbas_store_core
+    ports: ["9099:9099"]
+    command: 'npm -s run serve'
+

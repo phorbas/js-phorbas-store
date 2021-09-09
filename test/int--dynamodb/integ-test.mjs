@@ -19,7 +19,7 @@ validate_backend('dynamodb direct local', {
       bkc_with_dynamodb_direct( new AWS.DynamoDB(ddb_cfg) )
   })
 
-validate_backend.only('dynamodb batch local', {
+validate_backend('dynamodb batch local', {
   max_item_size: 400000,
   create: ()=>
     bkc_with_dynamodb_batch( new AWS.DynamoDB(ddb_cfg) )

@@ -33,14 +33,14 @@ validate_backend('web_cache', {
       {})
   }})
 
-validate_backend('web_fetch with `node test/http-test-store.cjs`', {
+validate_backend('web_fetch with `node int--core/node-http-store.mjs`', {
   async create () {
     return await bkc_with_web_fetch(
       new URL('http://127.0.0.1:9099/some/pre/fix/'),
       {})
   }})
 
-validate_backend('web_cache_fetch with `node test/http-test-store.cjs`', {
+validate_backend('web_cache_fetch with `node int--core/node-http-store.mjs`', {
   async create () {
     await caches.delete('phorbas-unittest-two')
     return await bkc_with_web_cache_fetch(

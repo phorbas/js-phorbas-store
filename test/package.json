@@ -1,32 +1,25 @@
 {
   "private": true,
   "dependencies": {
-    "encoding-down": "^7.0.0",
+    "aws4fetch": "^1.0.13",
     "level-mem": "^5.0.1",
-    "levelup": "^5.0.1",
-    "memdown": "^6.0.0",
-    "mocha": "^9.0.3"
+    "mocha": "^9.1.1",
+    "node-fetch": "^2.6.2"
   },
   "devDependencies": {
-    "@phorbas/opaque": "file:../../phorbas-opaque",
+    "@phorbas/opaque": "file:../../opaque",
     "@phorbas/store": "file:..",
-    "@rollup/plugin-commonjs": "^19.0.2",
-    "aws4fetch": "^1.0.13",
-    "cbor-codec": "^0.8.0",
-    "keyv": "^4.0.3",
-    "qsrv": "^0.1.7",
-    "u8-utils": "^0.3.8"
+    "qsrv": "^0.1.9"
   },
   "scripts": {
-    "start": "npx tmex $PWD -rn dkr_deps watch serve http-store ",
-    "serve": "qsrv -f unittest.html -- __unittest.iife.js",
-    "http-store": "node ./http-test-store.cjs",
     "prebuild": "test -d ./node_modules || npm -s install",
     "build": "../node_modules/.bin/rollup --config",
     "clean": "rm ./__unittest.*",
     "watch": "npm -s run build -- --watch",
-    "dkr_deps": "docker stack deploy -c deps-deploy.yml integ_phorbas_store",
-    "dkr_prune": "docker stack deploy --prune -c deps-deploy.yml integ_phorbas_store",
+    "dkr_deps": "cd int--core; npm -s run dkr_deps",
+    "dkr_prune": "docker stack deploy --prune -c int--core/deps-deploy.yml integ_phorbas_store",
+    "preserve": "npm -s run dkr_deps",
+    "serve": "qsrv -f unittest.html -- __unittest.iife.js",
     "pretest": "npm -s run build",
     "test": "npm -s run test:one",
     "test:one": "NODE_OPTIONS=--enable-source-maps  mocha ./__unittest.node.cjs",

@@ -1,11 +1,5 @@
-import {cbor_encode, cbor_decode} from 'cbor-codec'
-import {opaque_basic, opaque_tahoe, init_opaque_shared_codec} from '@phorbas/opaque'
+import {opaque_basic, opaque_tahoe} from '@phorbas/opaque'
 import {phorbas_store, bkc_with_js_map} from '@phorbas/store'
-
-init_opaque_shared_codec({
-  encode: cbor_encode,
-  decode: cbor_decode,
-})
 
 async function main_example(opaque, sync=new Set()) {
   let store = await phorbas_store(

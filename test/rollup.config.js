@@ -1,14 +1,12 @@
 import {builtinModules} from 'module'
 import rpi_dgnotify from 'rollup-plugin-dgnotify'
 import rpi_resolve from '@rollup/plugin-node-resolve'
-//import rpi_commonjs from '@rollup/plugin-commonjs'
 
 
 const _cfg_ = {
   plugins: [
     rpi_dgnotify(),
     rpi_resolve(),
-    //rpi_commonjs(),
   ]}
 
 const cfg_node = { ..._cfg_,
