@@ -1,4 +1,4 @@
-FROM node:14-stretch-slim as base
+FROM node:16-stretch-slim as base
 WORKDIR /app
 
 COPY ./integ-package.json /app/package.json

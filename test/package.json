@@ -18,7 +18,7 @@
     "watch": "npm -s run build -- --watch",
     "dkr_deps": "cd int--core; npm -s run dkr_deps",
     "dkr_prune": "docker stack deploy --prune -c int--core/deps-deploy.yml integ_phorbas_store",
-    "preserve": "npm -s run dkr_deps",
+    "preserve": "npm -s run build ; npm -s run dkr_deps",
     "serve": "qsrv -f unittest.html -- __unittest.iife.js",
     "pretest": "npm -s run build",
     "test": "npm -s run test:one",
