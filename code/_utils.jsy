@@ -1,4 +1,4 @@
-import {u8_to_hex} from 'u8-utils'
+import {u8_to_hex, hex_to_u8} from 'u8-utils'
 export {u8_to_hex, hex_to_u8, utf8_to_u8, u8_to_utf8} from 'u8-utils'
 
 
@@ -12,6 +12,15 @@ export function as_hex(u8_key) ::
     hk = u8_to_hex(u8_key)
     _wm_hex_cache.set(u8_key, hk)
   return hk
+
+
+export function as_u8_key(hex_key) ::
+  if 'string' !== typeof hex_key ::
+    throw new TypeError()
+
+  let u8_key = hex_to_u8(hex_key)
+  _wm_hex_cache.set(u8_key, hex_key)
+  return u8_key
 
 
 // `bkc_hexkey_api` transforms

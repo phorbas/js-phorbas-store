@@ -21,21 +21,19 @@
   "type": "module",
   "module": "./esm/index.mjs",
   "exports": {
-    "./": "./",
+    "./esm/*": "./esm/*",
     ".": "./esm/index.mjs"
   },
   "dependencies": {},
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^13.0.4",
     "aws4fetch": "^1.0.13",
-    "rollup": "^2.54.0",
+    "rollup": "^2.56.3",
     "rollup-plugin-dgnotify": "^0.1.6",
-    "rollup-plugin-jsy": "^1.7.2",
+    "rollup-plugin-jsy": "^1.7.3",
     "u8-utils": "^0.3.8"
   },
   "scripts": {
-    "start": "npx tmex $PWD -rn _cli watch",
-    "_cli": "true",
     "clean": "rm -rf ./cjs/* ./esm/* ./umd/*",
     "build": "rollup --config",
     "watch": "npm -s run build -- --watch",

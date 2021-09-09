@@ -1,0 +1,49 @@
+import {web_respondwith_bkc} from '../web/web_responses.jsy'
+export * from '../web/web_responses.jsy'
+
+export function cors_middleware_for_bkc(stg, opt={}) ::
+  ::
+    let hdr = @{} ... opt.hdr
+    let cors = opt.cors || {}
+    hdr.common = @{}
+      'Access-Control-Allow-Origin': cors.origin || '*',
+      'Access-Control-Max-Age': cors.max_age || '10',
+      ... hdr.common
+
+    hdr.cors = @{}
+      ... hdr.common
+      'Access-Control-Allow-Methods': cors.methods || 'HEAD, GET, POST, PUT, OPTIONS',
+      'Access-Control-Allow-Headers': cors.headers || 'Content-Type, Content-Length, x-hk',
+      ... hdr.cors
+
+    opt = @{} ... opt, cors, hdr
+
+  let inner = middleware_for_bkc(stg, opt)
+  inner.resp_cors = async (res, resp) => ::
+    resp.writeHead(200, inner.hdr.cors).end()
+  return inner
+
+
+export function middleware_for_bkc(stg, opt={}) ::
+  opt = @{} Response, ...opt
+  const as_evt = opt.as_evt || as_http_request_event
+
+  const inner = web_respondwith_bkc(stg, opt)
+  return @{} __proto__: inner, as_evt,
+    resp_has: (req, resp) => inner.resp_has @ as_evt(req, resp)
+    resp_get: (req, resp) => inner.resp_get @ as_evt(req, resp)
+    resp_set: (req, resp) => inner.resp_set @ as_evt(req, resp)
+
+  function Response(body, {status, headers}={}) ::
+    return { body, status, headers }
+
+
+export function as_http_request_event(request, response) ::
+  return @{}
+    request, url: request.url,
+    async respondWith(ans) ::
+      ans = await ans
+      response
+        .writeHead(ans.status, ans.headers || {})
+        .end(ans.body)
+

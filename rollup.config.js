@@ -46,8 +46,9 @@ add_jsy('js_map')
 
 add_jsy('web_db', {category: 'web/', plat_web: true})
 add_jsy('web_cache', {category: 'web/', plat_web: true})
-add_jsy('web_fetch', {category: 'web/', plat_web: true})
+add_jsy('web_fetch', {category: 'web/', plat_node: true, plat_web: true})
 add_jsy('web_cache_fetch', {category: 'web/', plat_web: true})
+add_jsy('web_responses', {category: 'web/', all: true})
 
 add_jsy('fs', {category: 'local/'})
 add_jsy('fsp', {category: 'local/'})
@@ -55,6 +56,7 @@ add_jsy('lmdb', {category: 'local/', plat_node: true})
 
 add_jsy('level', {category: 'adapter/', plat_node: true})
 add_jsy('keyv', {category: 'adapter/', plat_node: true})
+add_jsy('node_server', {category: 'adapter/', plat_node: true})
 
 add_jsy('minio', {category: 'nosql/', plat_node: true})
 add_jsy('s3_aws4fetch', {category: 'nosql/', all: true})

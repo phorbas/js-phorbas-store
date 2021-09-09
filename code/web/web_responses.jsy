@@ -1,0 +1,111 @@
+import {u8_concat} from 'u8-utils'
+import {as_u8_key, bkc_storage_verify} from '../_utils.jsy'
+
+
+export function web_respondwith_bkc(stg, opt={}) ::
+  let inner = web_responses_bkc(stg, opt)
+  return @{} __proto__: inner,
+    resp_has: event => event.respondWith @ inner.resp_has(event.request)
+    resp_get: event => event.respondWith @ inner.resp_get(event.request)
+    resp_set: event => event.respondWith @ inner.resp_set(event.request)
+
+
+export function web_responses_bkc(stg, opt={}) ::
+  bkc_storage_verify(stg)
+
+  const hk_for = opt.hk_for || iso_request_hk
+  const hdr = @{} ... opt.hdr,
+    has: @{} 'Content-Type': 'application/json', ... opt.hdr.common, ... opt.hdr.has
+    get: @{} 'Content-Type': 'application/octet-stream', ... opt.hdr.common, ... opt.hdr.get
+    set: @{} 'Content-Type': 'application/json', ... opt.hdr.common, ... opt.hdr.set
+
+  return @{}
+    hdr, Response: opt.Response || globalThis.Response
+
+    async resp_has(request) ::
+      try ::
+        let hex_key = hk_for(request)
+        let [[u8_key, exists]] =
+          await stg.bkc_exists @#
+            as_u8_key(hex_key)
+
+        return new this.Response @
+          JSON.stringify({hex_key, exists}),
+          @{} status: exists ? 200 : 404
+              headers: hdr.has
+
+      catch err ::
+        return this.resp_500(err, 'has')
+
+
+    async resp_get(request) ::
+      try ::
+        let hex_key = hk_for(request)
+        let [[u8_key, u8_body]] =
+          await stg.bkc_fetch @#
+            as_u8_key(hex_key)
+
+        return new this.Response @ u8_body,
+          @{} status: u8_body ? 200 : 404
+              headers: @{} ... hdr.get,
+                'Content-length': u8_body ? u8_body.byteLength : 0
+
+      catch err ::
+        return this.resp_500(err, 'get')
+
+
+    async resp_set(request) ::
+      try ::
+        let hex_key = hk_for(request)
+        let u8_body = await u8_body_for_stream(request)
+        let [[u8_key, error]] =
+          await stg.bkc_store @#
+            [as_u8_key(hex_key), u8_body]
+
+        return new this.Response @
+          JSON.stringify({hex_key, ok: !error, error}),
+          @{} status: error ? 400 : 200
+              headers: hdr.set
+
+      catch err ::
+        return this.resp_500(err, 'set')
+
+
+    on_error: opt.on_error
+    resp_500(err, stg_op) ::
+      if this.on_error ::
+        this.on_error(err, stg_op)
+      return new this.Response('', {status: 500})
+
+
+const _rx_hk = /\/([0-9A-Fa-f]+)$/
+export function iso_request_hk({url, headers: h}) ::
+  let hk = 'function' === typeof h.get
+    ? h.get('x-hk') : h['x-hk']
+
+  if ! hk ::
+    let m = _rx_hk.exec(`${url}`)
+    hk = m && m[1]
+  return hk
+
+
+export async function u8_body_for_stream(aiter_src) ::
+  if ! aiter_src[Symbol.asyncIterator] ::
+    // adapter for ReadableStream while asyncIterator is finalized
+    aiter_src = aiter_reader @ aiter_src.getReader()
+
+  let parts = []
+  for await let chunk of aiter_src ::
+    parts.push(chunk)
+  return u8_concat(parts)
+
+
+async function * aiter_reader(reader) ::
+  try ::
+    while 1 ::
+      let { done, value } = await reader.read()
+      if done :: return
+      yield value
+  finally ::
+    reader.releaseLock()
+
