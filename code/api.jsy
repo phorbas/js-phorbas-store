@@ -6,12 +6,12 @@ export async function phorbas_store_api(stg, kw_init) ::
   return @{} __proto__: phorbas_store_proto, stg, ... kw_init
 
 
-export const phorbas_store_proto = @{}
-  sync: {add() {}}
+export const phorbas_store_proto = /* #__PURE__ */ @{}
+  get codec() :: return this.opaque.codec
+  with_opaque(opaque) :: return @{} __proto__: this, opaque
 
-  with(kw_init) :: return @{} __proto__: this, ... kw_init
-  with_sync(sync) :: return this.with({sync})
-  with_opaque(opaque) :: return this.with({opaque})
+  sync: {add() {}}
+  with_sync(sync) :: return @{} __proto__: this, sync
 
 
   // api-compatible with a phorbas store backend
@@ -23,20 +23,46 @@ export const phorbas_store_proto = @{}
     return this.stg.bkc_exists(u8_key_list)
 
 
+  // utf8 content API
+
   async store_utf8(utf8, opt) ::
     return this.store_content(utf8_to_u8(utf8), opt)
 
+  async store_utf8_at(key, utf8) ::
+    await this.store_content_at(key, utf8_to_u8(utf8))
+
+  async fetch_utf8(ref) ::
+    const u8_res = await this.fetch_content(ref)
+    if u8_res ::
+      return u8_to_utf8(u8_res)
+
+
+  // obj codec content API
+
+  async store_obj(obj, opt) ::
+    let u8 = this.codec.encode(obj)
+    return this.store_content(u8, opt)
+
+  async store_obj_at(key, obj) ::
+    let u8 = this.codec.encode(obj)
+    return this.store_content_at(key, u8)
+
+  async fetch_obj(ref) ::
+    const u8_res = await this.fetch_content(ref)
+    if u8_res ::
+      return this.codec.decode(u8_res)
+
+
+  // u8 content API
+
   async store_content(u8, opt={}) ::
-    let k = await @ opt.rand
+    let key = await @ opt.rand
       ? this.opaque.from_random()
       : this.opaque.from_u8(u8)
 
-    await this.store_content_at(k, u8)
-    return opt.as_key ? k : k.k21pair()
+    await this.store_content_at(key, u8)
+    return opt.as_key ? key : key.k21pair()
 
-
-  async store_utf8_at(key, utf8) ::
-    await this.store_content_at(key, utf8_to_u8(utf8))
 
   async store_content_at(key, u8) ::
     const {stg, sync} = this
@@ -56,11 +82,6 @@ export const phorbas_store_proto = @{}
     sync.add(k2loc)
 
 
-  async fetch_utf8(ref) ::
-    const u8_res = await this.fetch_content(ref)
-    if u8_res ::
-      return u8_to_utf8(u8_res)
-
   async fetch_content(ref) ::
     const {stg, opaque} = this
     if undefined !== opaque ::
@@ -73,6 +94,7 @@ export const phorbas_store_proto = @{}
 
     const [[, u8_res]] = await this.bkc_fetch([ref])
     return u8_res
+
 
   async exists(ref) ::
     const {stg, opaque} = this
