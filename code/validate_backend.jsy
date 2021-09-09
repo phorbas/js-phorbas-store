@@ -33,8 +33,8 @@ export const _as_test_suite = validate_fn =>
           ()=> validate_fn(...args)
 
 
-export default validate_backend
 export const validate_backend = _as_test_suite(_validate_backend)
+export default validate_backend
 
 function _validate_backend(opt) ::
     if 'function' === typeof opt ::
