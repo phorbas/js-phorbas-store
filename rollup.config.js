@@ -5,29 +5,24 @@ import rpi_resolve from '@rollup/plugin-node-resolve'
 //import { terser as rpi_terser } from 'rollup-plugin-terser'
 
 
+const _rpis_ = (defines, ...args) => [
+  rpi_jsy({defines}),
+  rpi_resolve(),
+  ...args,
+  rpi_dgnotify()]
+
+
 const _cfg_ = {
   external: [],
-  plugins: [
-    rpi_jsy({defines: {PLAT_ESM: true}}),
-    rpi_resolve(),
-    rpi_dgnotify(),
-  ]}
+  plugins: _rpis_({PLAT_ESM: true}) }
 
 const cfg_node = {
-  external: id => builtinModules.includes(id),
-  plugins: [
-    rpi_jsy({defines: {PLAT_NODEJS: true}}),
-    rpi_resolve(),
-    rpi_dgnotify(),
-  ]}
+  external: id => /^node:/.test(id) || builtinModules.includes(id),
+  plugins: _rpis_({PLAT_NODEJS: true}) }
 
 const cfg_web = {
   external: [],
-  plugins: [
-    rpi_jsy({defines: {PLAT_WEB: true}}),
-    rpi_resolve(),
-    rpi_dgnotify(),
-  ]}
+  plugins: _rpis_({PLAT_WEB: true}) }
 
 const cfg_web_min = 'undefined'===typeof rpi_terser ? null
   : { ... cfg_web, plugins: [ ... cfg_web.plugins, rpi_terser() ]}
