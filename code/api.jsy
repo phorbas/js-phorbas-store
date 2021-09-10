@@ -2,16 +2,19 @@ import {bkc_storage_verify, utf8_to_u8, u8_to_utf8} from './_utils.jsy'
 
 export {phorbas_store_api as phorbas_store}
 export async function phorbas_store_api(stg, kw_init) ::
-  bkc_storage_verify(stg = await stg)
-  return @{} __proto__: phorbas_store_proto, stg, ... kw_init
+  return new PhorbasStoreAPI(await stg, kw_init)
 
 
-export const phorbas_store_proto = /* #__PURE__ */ @{}
+export class PhorbasStoreAPI ::
+  constructor(stg, kw_init) ::
+    bkc_storage_verify(stg)
+    return Object.assign @ this,
+      {stg}, kw_init
+
+  with(kw) :: return @{} __proto__: this, ... kw
+  with_sync(sync) :: return this.with @: sync
+  with_opaque(opaque) :: return this.with @: opaque
   get codec() :: return this.opaque.codec
-  with_opaque(opaque) :: return @{} __proto__: this, opaque
-
-  sync: {add() {}}
-  with_sync(sync) :: return @{} __proto__: this, sync
 
 
   // api-compatible with a phorbas store backend
@@ -39,18 +42,20 @@ export const phorbas_store_proto = /* #__PURE__ */ @{}
 
   // obj codec content API
 
+  encode_obj(obj) :: return this.opaque.codec.encode(obj)
+  decode_obj(u8) :: return u8 && this.opaque.codec.decode(u8)
+
   async store_obj(obj, opt) ::
-    let u8 = this.codec.encode(obj)
+    let u8 = this.encode_obj(obj)
     return this.store_content(u8, opt)
 
   async store_obj_at(key, obj) ::
-    let u8 = this.codec.encode(obj)
+    let u8 = this.encode_obj(obj)
     return this.store_content_at(key, u8)
 
   async fetch_obj(ref) ::
-    const u8_res = await this.fetch_content(ref)
-    if u8_res ::
-      return this.codec.decode(u8_res)
+    let u8 = await this.fetch_content(ref)
+    return this.decode_obj(u8)
 
 
   // u8 content API
@@ -79,7 +84,8 @@ export const phorbas_store_proto = /* #__PURE__ */ @{}
     if null != err ::
       throw err
 
-    sync.add(k2loc)
+    if undefined !== sync ::
+      sync.add(k2loc)
 
 
   async fetch_content(ref) ::

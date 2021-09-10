@@ -24,6 +24,19 @@ async function main_example(opaque, sync=new Set()) {
 
   console.log('backend round-trip binary:',
     await store.bkc_fetch([some_key[0]]))
+
+
+  let other_key = await store.store_obj({
+    crazy_idea: 'hello PHORBAS!',
+    some_key })
+
+  console.log('other_key:', other_key)
+
+  console.log('other_key exists: %o',
+    await store.exists(other_key))
+
+  let rt_obj = await store.fetch_obj(other_key)
+  console.log('round-trip object:', rt_obj)
 }
 
 

@@ -10,7 +10,7 @@ const _cfg_ = {
   ]}
 
 const cfg_node = { ..._cfg_,
-  external: id => builtinModules.includes(id),
+  external: id => /^node:/.test(id) || builtinModules.includes(id),
 }
 
 const cfg_web = { ..._cfg_,
