@@ -1,26 +1,26 @@
 import {phorbas_store} from '@phorbas/store/esm/index.mjs'
 
-async function _use_phorbas_store(store) {
-  store = await store
+async function _use_phorbas_store(stg) {
+  stg = await stg
 
-  let some_key = await store.store_utf8('hello PHORBAS!')
-  await store.exists(some_key)
+  let some_key = await stg.store_utf8('hello PHORBAS!')
+  await stg.exists(some_key)
 
-  await store.fetch_utf8(some_key)
+  await stg.fetch_utf8(some_key)
 
-  await store.fetch_content(some_key)
+  await stg.fetch_content(some_key)
 
-  await store.bkc_fetch([some_key[0]])
+  await stg.bkc_fetch([some_key[0]])
 
 
-  let other_key = await store.store_obj({
+  let other_key = await stg.store_obj({
     crazy_idea: 'hello PHORBAS!',
     some_key })
-  await store.exists(other_key)
+  await stg.exists(other_key)
 
-  let rt_obj = await store.fetch_obj(other_key)
+  let rt_obj = await stg.fetch_obj(other_key)
 
-  await store.bkc_fetch(rt_obj.some_key)
+  await stg.bkc_fetch(rt_obj.some_key)
 }
 
 export function bind_validate_phorbas_store(validate_backend, db_opaque) {

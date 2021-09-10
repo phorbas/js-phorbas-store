@@ -1,0 +1,9 @@
+{
+  "private": true,
+  "version": "0.0.0",
+  "dependencies": {
+    "@phorbas/opaque": "file:../../opaque",
+    "@phorbas/store": "file:.."
+  },
+  "scripts": {}
+}
