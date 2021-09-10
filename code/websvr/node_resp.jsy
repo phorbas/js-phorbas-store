@@ -47,8 +47,8 @@ export const mini_node_reqevt = @{}
   Response: MiniResponse
 
   as_handler(resp_fn) ::
-    return (request, response) => ::
-      let ans = resp_fn(request)
+    return (request, response, ...args) => ::
+      let ans = resp_fn(request, ...args)
       return _node_respondWith(ans, response)
 
 

@@ -28,94 +28,109 @@ validate_phorbas_store(
   () => bkc_with_js_map())
 
 
-validate_backend('fetch with `node int--core/node-http-store.mjs`',
-  () => bkc_with_fetch(new URL('http://127.0.0.1:9099/browser/some/pre/fix/')) )
+describe('fetch specific', () => {
+  validate_backend('fetch with param `node int--core/node-http-store.mjs`',
+    () => bkc_with_fetch(new URL('http://127.0.0.1:9099/browser/param/a/b/c/')) )
 
-validate_phorbas_store(
-  'phorbas_store with fetch with `node int--core/node-http-store.mjs`',
-  () => bkc_with_fetch(new URL('http://127.0.0.1:9099/browser/other/prefix/')) )
+  validate_backend('fetch with shared `node int--core/node-http-store.mjs`',
+    () => bkc_with_fetch(new URL('http://127.0.0.1:9099/browser/shared/d/e/f/')) )
 
+  validate_phorbas_store(
+    'phorbas_store with fetch with param `node int--core/node-http-store.mjs`',
+    () => bkc_with_fetch(new URL('http://127.0.0.1:9099/browser/param/other/prefix/')) )
 
-validate_backend('web_db',
-  ()=>
-    bkc_with_web_db({
-      db: 'test-phorbas',
-      store: 'kv-phorbas',
-      wipe: false}) )
-
-validate_phorbas_store(
-  'phorbas_store with web_db',
-  ()=> bkc_with_web_db({db: 'test-phorbas-store', wipe: false}) )
+  validate_phorbas_store(
+    'phorbas_store with fetch with shared `node int--core/node-http-store.mjs`',
+    () => bkc_with_fetch(new URL('http://127.0.0.1:9099/browser/shared/yet/another/')) )
+})
 
 
-validate_backend('web_cache', {
-  async create() {
-    await caches.delete('phorbas-unittest')
-    return await bkc_with_web_cache(
-      caches.open('phorbas-unittest'),
-      new URL('/some/pre/fix/', location),
-      {})
-  }})
+describe('web specific', () => {
+  validate_backend('web_db',
+    ()=>
+      bkc_with_web_db({
+        db: 'test-phorbas',
+        store: 'kv-phorbas',
+        wipe: false}) )
 
-validate_backend('web_cache_fetch with `node int--core/node-http-store.mjs`', {
-  async create () {
-    await caches.delete('phorbas-unittest-two')
-    return await bkc_with_web_cache_fetch(
-      caches.open('phorbas-unittest-two'),
-      new URL('http://127.0.0.1:9099/some/pre/fix/'),
-      {})
-  }})
-
-validate_backend('fs with @isomorphic-git/lightning-fs', {
-  create() {
-    const lfs = new LightningFS('test-fs', {wipe: true})
-    return bkc_with_fs({ base: '/', fs : lfs })
-  }})
-
-validate_backend('fsp with @isomorphic-git/lightning-fs', {
-  create() {
-    const lfs = new LightningFS('test-fsp', {wipe: true})
-    return bkc_with_fsp({ base: '/', fsp : lfs.promises })
-  }})
+  validate_phorbas_store(
+    'phorbas_store with web_db',
+    ()=> bkc_with_web_db({db: 'test-phorbas-store', wipe: false}) )
 
 
-// demo access secrets for local Minio integration testing
-const _creds_s3_integ_test = {
-  accessKeyId: 'AKIAIOSFODNN7EXAMPLE',
-  secretAccessKey: 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY',
-}
+  validate_backend('web_cache', {
+    async create() {
+      await caches.delete('phorbas-unittest')
+      return await bkc_with_web_cache(
+        caches.open('phorbas-unittest'),
+        new URL('/some/pre/fix/', location),
+        {})
+    }})
 
-async function _testclient_aws4fetch(url_bucket) {
-  const s3_aws4fetch = new AwsClient({ service: 's3', ... _creds_s3_integ_test })
+  validate_backend('web_cache_fetch with `node int--core/node-http-store.mjs`', {
+    async create () {
+      await caches.delete('phorbas-unittest-two')
+      return await bkc_with_web_cache_fetch(
+        caches.open('phorbas-unittest-two'),
+        new URL('http://127.0.0.1:9099/some/pre/fix/'),
+        {})
+    }})
+})
 
-  try {
-    await s3_aws4fetch.fetch(new URL('/', url_bucket))
-  } catch (err) {
-    console.warn('NOTE: "s3 with s3_aws4fetch" suite requires running int--minio docker dependencies')
-    throw new Error(`Unable to connect to int--minio integration test servers`)
+describe('3rd party libraries', () => {
+  validate_backend('fs with @isomorphic-git/lightning-fs', {
+    create() {
+      const lfs = new LightningFS('test-fs', {wipe: true})
+      return bkc_with_fs({ base: '/', fs : lfs })
+    }})
+
+  validate_backend('fsp with @isomorphic-git/lightning-fs', {
+    create() {
+      const lfs = new LightningFS('test-fsp', {wipe: true})
+      return bkc_with_fsp({ base: '/', fsp : lfs.promises })
+    }})
+})
+
+
+describe('S3 variants', () => {
+  // demo access secrets for local Minio integration testing
+  const _creds_s3_integ_test = {
+    accessKeyId: 'AKIAIOSFODNN7EXAMPLE',
+    secretAccessKey: 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY',
   }
 
-  return s3_aws4fetch
-}
+  async function _testclient_aws4fetch(url_bucket) {
+    const s3_aws4fetch = new AwsClient({ service: 's3', ... _creds_s3_integ_test })
 
-async function _bkc_minio_s3_aws4fetch() {
-  const url_bucket = new URL('http://127.0.0.1:9000/phorbas-s3-aws4fetch/')
-  // ensure the Minio server is alive
-  const s3_aws4fetch = await _testclient_aws4fetch(url_bucket)
+    try {
+      await s3_aws4fetch.fetch(new URL('/', url_bucket))
+    } catch (err) {
+      console.warn('NOTE: "s3 with s3_aws4fetch" suite requires running int--minio docker dependencies')
+      throw new Error(`Unable to connect to int--minio integration test servers`)
+    }
 
-  return bkc_with_s3_aws4fetch(url_bucket, s3_aws4fetch, {autocreate: true})
-}
+    return s3_aws4fetch
+  }
 
-async function _bkc_minio_s3_fetch() {
-  const url_bucket = new URL('http://127.0.0.1:9000/phorbas-s3-fetch/')
-  // ensure the Minio server is alive
-  await _testclient_aws4fetch(url_bucket)
+  async function _bkc_minio_s3_aws4fetch() {
+    const url_bucket = new URL('http://127.0.0.1:9000/phorbas-s3-aws4fetch/')
+    // ensure the Minio server is alive
+    const s3_aws4fetch = await _testclient_aws4fetch(url_bucket)
 
-  return bkc_with_s3_fetch(url_bucket, {autocreate: true, ... _creds_s3_integ_test})
-}
+    return bkc_with_s3_aws4fetch(url_bucket, s3_aws4fetch, {autocreate: true})
+  }
 
-validate_backend('s3 with s3_aws4fetch', _bkc_minio_s3_aws4fetch)
-validate_backend('s3 with s3_fetch', _bkc_minio_s3_fetch)
+  async function _bkc_minio_s3_fetch() {
+    const url_bucket = new URL('http://127.0.0.1:9000/phorbas-s3-fetch/')
+    // ensure the Minio server is alive
+    await _testclient_aws4fetch(url_bucket)
 
-validate_phorbas_store('phorbas_store with s3_fetch', _bkc_minio_s3_aws4fetch)
-validate_phorbas_store('phorbas_store with s3_fetch', _bkc_minio_s3_fetch)
+    return bkc_with_s3_fetch(url_bucket, {autocreate: true, ... _creds_s3_integ_test})
+  }
+
+  validate_backend('s3 with s3_aws4fetch', _bkc_minio_s3_aws4fetch)
+  validate_backend('s3 with s3_fetch', _bkc_minio_s3_fetch)
+
+  validate_phorbas_store('phorbas_store with s3_fetch', _bkc_minio_s3_aws4fetch)
+  validate_phorbas_store('phorbas_store with s3_fetch', _bkc_minio_s3_fetch)
+})

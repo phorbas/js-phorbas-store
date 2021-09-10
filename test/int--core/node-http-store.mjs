@@ -1,19 +1,59 @@
 import { createServer } from 'http'
-import { bkc_with_js_map } from '@phorbas/store'
-import { node_responses_bkc, with_cors } from '@phorbas/store/esm/node/node_resp.mjs'
+import { opaque_basic, opaque_tahoe } from '@phorbas/opaque'
+import { phorbas_store, bkc_with_js_map } from '@phorbas/store'
+// import { node_responses_bkc, with_cors } from '@phorbas/store/esm/node/node_resp.mjs'
+import {
+  node_responses_bkc, opaque_node_responses, with_cors
+} from '@phorbas/store/esm/node/opaque_node_resp.mjs'
 
-const my_cors_stg =
-  node_responses_bkc(
-    await bkc_with_js_map(),
-    {
-      cors: { origin: '*', max_age: 60 },
-      on_error(err, stg_op) { console.error(stg_op, err) },
-      extend: [with_cors],
-    })
+
+const opaque = 0 ? opaque_basic : opaque_tahoe
+
+const stg = await bkc_with_js_map()
+const store_api = await phorbas_store(stg, {opaque})
+
+const common_resp_opts = {
+  cors: { origin: '*', max_age: 60 },
+  on_error(err, stg_op) { console.error(stg_op, err) },
+  extend: [with_cors] }
+
+const my_cors_stg_shared =
+  node_responses_bkc(stg, common_resp_opts)
+
+const my_cors_stg_param =
+  node_responses_bkc(null, common_resp_opts)
+
+const my_cors_opaque_shared =
+  opaque_node_responses(store_api, common_resp_opts)
+
+const my_cors_opaque_param =
+  opaque_node_responses(null, common_resp_opts)
+
 
 function demo_handler(req, resp) {
-  console.log(`[${req.method}] hk: "${my_cors_stg.hk_for(req)}"`);
-  return my_cors_stg.handler(req, resp)
+  let [, path0, path1] = /^\/(\w+)\/(\w+)/.exec(req.url) || []
+
+  console.log({path0, path1})
+  if ('opaque' === path0) {
+    if ('shared' === path1) {
+      console.log(`OPAQUE [${req.method}, shared] hk: "${my_cors_opaque_shared.hk_for(req)}"`);
+      return my_cors_opaque_shared.handle_by_method(req, resp)
+    } else {
+      console.log(`OPAQUE [${req.method}, param] hk: "${my_cors_opaque_param.hk_for(req)}"`);
+      return my_cors_opaque_param.handle_by_method(req, resp, store_api)
+    }
+
+  } else {
+
+    if ('shared' === path1) {
+      console.log(`STG [${req.method}, shared] hk: "${my_cors_stg_shared.hk_for(req)}"`);
+      return my_cors_stg_shared.handle_by_method(req, resp)
+    } else {
+      console.log(`STG [${req.method}, param] hk: "${my_cors_stg_param.hk_for(req)}"`);
+      return my_cors_stg_param.handle_by_method(req, resp, stg)
+    }
+
+  }
 }
 
 let tiny_svr = createServer({})

@@ -4,16 +4,18 @@ export * from './web_resp.jsy'
 
 
 export function opaque_web_responses(store_api, opt={}) ::
-  storage_api_verify(store_api)
+  if null != store_api ::
+    storage_api_verify(store_api)
+
   return @{}
     __proto__: _basic_responses(opt)
     store_api
 
-    async resp_has(request) ::
+    async resp_has(request, store_api=this.store_api) ::
       try ::
         let hex_key = this.hk_for(request)
         let exists =
-          await this.store_api.exists @
+          await store_api.exists @
             as_u8_key(hex_key)
 
         let {hdr} = this
@@ -25,11 +27,11 @@ export function opaque_web_responses(store_api, opt={}) ::
         return this._resp_500(err, 'has')
 
 
-    async resp_get(request) ::
+    async resp_get(request, store_api=this.store_api) ::
       try ::
         let hex_key = this.hk_for(request)
         let [mime, u8_body] =
-          await this.store_api.fetch_obj @
+          await store_api.fetch_obj @
             as_u8_key(hex_key), []
 
         let {hdr} = this
@@ -44,13 +46,13 @@ export function opaque_web_responses(store_api, opt={}) ::
         return this._resp_500(err, 'get')
 
 
-    async resp_set(request) ::
+    async resp_set(request, store_api=this.store_api) ::
       try ::
         let mime = request.headers['content-type']
         let u8_body = await u8_body_for_stream(request)
 
         let k21pair =
-          await this.store_api.store_obj @#
+          await store_api.store_obj @#
             mime, u8_body
 
         let hk21pair = k21pair.map(k => u8_to_hex(k))

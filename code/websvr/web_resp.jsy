@@ -5,17 +5,18 @@ export { as_u8_key, u8_to_hex } from '../_utils.jsy'
 
 
 export function web_responses_bkc(stg, opt={}) ::
-  bkc_storage_verify(stg)
+  if null != stg ::
+    bkc_storage_verify(stg)
 
   return @{}
     __proto__: _basic_responses(opt)
     stg
 
-    async resp_has(request) ::
+    async resp_has(request, stg=this.stg) ::
       try ::
         let hex_key = this.hk_for(request)
         let [[, exists]] =
-          await this.stg.bkc_exists @#
+          await stg.bkc_exists @#
             as_u8_key(hex_key)
 
         let {hdr} = this
@@ -27,11 +28,11 @@ export function web_responses_bkc(stg, opt={}) ::
         return this._resp_500(err, 'has')
 
 
-    async resp_get(request) ::
+    async resp_get(request, stg=this.stg) ::
       try ::
         let hex_key = this.hk_for(request)
         let [[, u8_body]] =
-          await this.stg.bkc_fetch @#
+          await stg.bkc_fetch @#
             as_u8_key(hex_key)
 
         let {hdr} = this
@@ -46,12 +47,12 @@ export function web_responses_bkc(stg, opt={}) ::
         return this._resp_500(err, 'get')
 
 
-    async resp_set(request) ::
+    async resp_set(request, stg=this.stg) ::
       try ::
         let hex_key = this.hk_for(request)
         let u8_body = await u8_body_for_stream(request)
         let [[, error]] =
-          await this.stg.bkc_store @#
+          await stg.bkc_store @#
             [as_u8_key(hex_key), u8_body]
 
         let {hdr} = this
@@ -63,6 +64,13 @@ export function web_responses_bkc(stg, opt={}) ::
         return this._resp_500(err, 'set')
 
 
+const _wm_hdlr_ = new WeakMap()
+function _hdlr_ns_for(proto) ::
+  let ns = _wm_hdlr_.get(proto)
+  if undefined === ns ::
+    _wm_hdlr_.set @ proto, ns = new Map()
+  return ns
+
 export function _basic_responses(opt={}) ::
   const {hdr} = opt, hk_for = opt.hk_for || iso_request_hk
   return @{}
@@ -70,21 +78,30 @@ export function _basic_responses(opt={}) ::
     hdr, hk_for
 
     _resp_by_method: @{}
-      HEAD: 'resp_has'
-      GET: 'resp_get'
-      PUT: 'resp_set'
-      POST: 'resp_set'
-      OPTIONS: 'resp_options'
+      HEAD: 'has'
+      GET: 'get'
+      PUT: 'set'
+      POST: 'set'
+      OPTIONS: 'options'
 
     as_handler: opt.as_handler || @ fn => fn
-    method_for(method, as_handler=this.as_handler) ::
-      let k = this._resp_by_method[method]
-      let resp_fn = this[k || 'resp_500'].bind(this)
-      return as_handler ? as_handler(resp_fn) : resp_fn
+    method_for(method) ::
+      let k = `resp_${this._resp_by_method[method] || method}`
+      return (this[k] || this.resp_500).bind(this)
 
-    get handler() ::
-      return (request, ... args) =>
-        this.method_for(request.method)(request, ...args)
+    handler_for(method, as_handler=this.as_handler) ::
+      let ns =_hdlr_ns_for(this)
+      let k = `hdl_${method}`
+      let fn_hdl = ns.get(k)
+      if undefined === fn_hdl ::
+        fn_hdl = this.as_handler @
+          this.method_for(method)
+        ns.set @ this, fn_hdl
+      return fn_hdl
+
+    handle_by_method(request, ... args) ::
+      let fn_hdl = this.handler_for(request.method)
+      return fn_hdl(request, ...args)
 
     async resp_options(request) ::
       let {hdr} = this
