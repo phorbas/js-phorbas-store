@@ -1,8 +1,10 @@
-import validate_backend from '@phorbas/store/esm/web/validate_backend.mjs'
+import ky from 'ky'
+import {validate_backend, mini_expect} from '@phorbas/store/esm/web/validate_backend.mjs'
 
 import {AwsClient} from 'aws4fetch'
 import 'https://cdn.jsdelivr.net/npm/@isomorphic-git/lightning-fs@4.2.2/dist/lightning-fs.min.js'
 
+import {validate_opaque} from './unit/fetch_opaque.mjs'
 import {bind_validate_phorbas_store} from './unit/phorbas_store.mjs'
 import {opaque_basic, opaque_tahoe} from '@phorbas/opaque/esm/web/index.mjs'
 import bkc_with_js_map from '@phorbas/store/esm/js_map.mjs'
@@ -22,6 +24,8 @@ const validate_phorbas_store = bind_validate_phorbas_store(
 
 validate_backend('js_map', ()=>
   bkc_with_js_map() )
+
+validate_opaque('websvr opaque', {expect: mini_expect, ky})
 
 validate_phorbas_store(
   'phorbas_store with js_map',

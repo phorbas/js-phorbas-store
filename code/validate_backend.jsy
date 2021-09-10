@@ -218,6 +218,9 @@ const expect = @{}
   func: val =>
     expect.__check @ val, 'function', 'function' === typeof val
 
+  string: val =>
+    expect.__check @ val, 'string', 'string' === typeof val
+
   promise: val =>
     expect.__check @ val, 'Promise', null != val && 'function' === typeof val.then
 
@@ -229,3 +232,4 @@ const expect = @{}
       throw new TypeError(`Expected ${msg}`)
     return val
 
+export {expect as mini_expect}
