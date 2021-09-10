@@ -1,0 +1,135 @@
+import {u8_concat} from 'u8-utils'
+import { as_u8_key, u8_to_hex, bkc_storage_verify} from '../_utils.jsy'
+
+export { as_u8_key, u8_to_hex } from '../_utils.jsy'
+
+
+export function web_respondWith_bkc(stg, opt={}) ::
+  let proto = web_responses_bkc(stg, opt)
+  return _respondWith_impl(proto)
+
+export function _respondWith_impl(proto) ::
+  return @{} __proto__: proto,
+    ... proto.rebind @ fn_name =>
+          evt => evt.respondWith @ proto[fn_name](evt.request)
+
+
+export function web_responses_bkc(stg, opt={}) ::
+  bkc_storage_verify(stg)
+
+  return @{}
+    __proto__: _basic_responses(opt)
+    stg
+
+    async resp_has(request) ::
+      try ::
+        let hex_key = this.hk_for(request)
+        let [[, exists]] =
+          await this.stg.bkc_exists @#
+            as_u8_key(hex_key)
+
+        let {hdr} = this
+        return new this.Response @ null,
+          @{} status: exists ? 200 : 404
+              headers: @{} ... hdr.common, ... hdr.has
+
+      catch err ::
+        return this._resp_500(err, 'has')
+
+
+    async resp_get(request) ::
+      try ::
+        let hex_key = this.hk_for(request)
+        let [[, u8_body]] =
+          await this.stg.bkc_fetch @#
+            as_u8_key(hex_key)
+
+        let {hdr} = this
+        return new this.Response @ u8_body,
+          @{} status: u8_body ? 200 : 404
+              headers: @{} 
+                'Content-Type': 'application/octet-stream',
+                ... hdr.common, ... hdr.get,
+                'Content-Length': u8_body ? u8_body.byteLength : 0
+
+      catch err ::
+        return this._resp_500(err, 'get')
+
+
+    async resp_set(request) ::
+      try ::
+        let hex_key = this.hk_for(request)
+        let u8_body = await u8_body_for_stream(request)
+        let [[, error]] =
+          await this.stg.bkc_store @#
+            [as_u8_key(hex_key), u8_body]
+
+        let {hdr} = this
+        return new this.Response @ null,
+          @{} status: error ? 400 : 200
+              headers: @{} ... hdr.common, ... hdr.set
+
+      catch err ::
+        return this._resp_500(err, 'set')
+
+
+export function _basic_responses(opt={}) ::
+  const {hdr} = opt, hk_for = opt.hk_for || iso_request_hk
+  return @{}
+    Response: opt.Response || globalThis.Response
+    hdr, hk_for
+
+    _resp_ops: @[] 'resp_has', 'resp_get', 'resp_set', 'resp_options', 'resp_500'
+
+    rebind(cb_bind, res={}) ::
+      for let fn_name of this._resp_ops ::
+        res[fn_name] = cb_bind(fn_name, this)
+      return res
+
+    async resp_options(request) ::
+      let {hdr} = this
+      return new this.Response @ null,
+        @{} status: 200
+            headers: @{} ... hdr.common, ... hdr.options
+
+    resp_500(err, stg_op) ::
+      return this._resp_500(err, stg_op)
+
+    on_error: opt.on_error
+    _resp_500(err, stg_op) ::
+      if this.on_error ::
+        this.on_error(err, stg_op)
+      return new this.Response('', {status: 500})
+
+
+const _rx_hk = /\/([0-9A-Fa-f]+)$/
+export function iso_request_hk({url, headers: h}) ::
+  let hk = 'function' === typeof h.get
+    ? h.get('x-hk') : h['x-hk']
+
+  if ! hk ::
+    let m = _rx_hk.exec(`${url}`)
+    hk = m && m[1]
+  return hk
+
+
+export async function u8_body_for_stream(aiter_src) ::
+  if ! aiter_src[Symbol.asyncIterator] ::
+    // adapter for ReadableStream while asyncIterator is finalized
+    aiter_src = aiter_reader @ aiter_src.getReader()
+
+  let parts = []
+  for await let chunk of aiter_src ::
+    parts.push(chunk)
+  return u8_concat(parts)
+
+
+async function * aiter_reader(reader) ::
+  try ::
+    while 1 ::
+      let { done, value } = await reader.read()
+      if done :: return
+      yield value
+  finally ::
+    reader.releaseLock()
+

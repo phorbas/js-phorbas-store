@@ -43,7 +43,10 @@ export class PhorbasStoreAPI ::
   // obj codec content API
 
   encode_obj(obj) :: return this.opaque.codec.encode(obj)
-  decode_obj(u8) :: return u8 && this.opaque.codec.decode(u8)
+  decode_obj(u8, absent) ::
+    return u8
+      ? this.opaque.codec.decode(u8)
+      : absent
 
   async store_obj(obj, opt) ::
     let u8 = this.encode_obj(obj)
@@ -53,9 +56,9 @@ export class PhorbasStoreAPI ::
     let u8 = this.encode_obj(obj)
     return this.store_content_at(key, u8)
 
-  async fetch_obj(ref) ::
+  async fetch_obj(ref, absent) ::
     let u8 = await this.fetch_content(ref)
-    return this.decode_obj(u8)
+    return u8 ? this.decode_obj(u8) : absent
 
 
   // u8 content API

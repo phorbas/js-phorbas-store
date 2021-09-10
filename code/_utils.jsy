@@ -108,3 +108,12 @@ export function bkc_storage_verify(stg) ::
   _is_fn(stg.bkc_store)
   return stg
 
+// storage api verification
+export function storage_api_verify(store_api) ::
+  // bkc_storage_verify(store_api) // also true
+  _is_fn(store_api.exists)
+  _is_fn(store_api.store_content)
+  _is_fn(store_api.store_content_at)
+  _is_fn(store_api.fetch_content)
+  return store_api
+

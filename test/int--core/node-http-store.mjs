@@ -1,13 +1,16 @@
 import { createServer } from 'http'
 import { bkc_with_js_map } from '@phorbas/store'
-import { cors_middleware_for_bkc } from '@phorbas/store/esm/node/node_server.mjs'
+import { node_respondWith_bkc, node_responses_bkc, with_cors } from '@phorbas/store/esm/node/node_resp.mjs'
+
+const _node_alt_bkc = 1 ? node_respondWith_bkc : node_responses_bkc
 
 const my_cors_stg =
-  cors_middleware_for_bkc(
+  _node_alt_bkc(
     await bkc_with_js_map(),
     {
       cors: { origin: '*', max_age: 60 },
       on_error(err, stg_op) { console.error(stg_op, err) },
+      extend: [with_cors],
     })
 
 function demo_handler(req, res) {

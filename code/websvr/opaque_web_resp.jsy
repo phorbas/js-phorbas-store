@@ -1,0 +1,72 @@
+import { as_u8_key, u8_to_hex, storage_api_verify  } from '../_utils.jsy'
+import { _basic_responses, _respondWith_impl, u8_body_for_stream } from './web_resp.jsy'
+export * from './web_resp.jsy'
+
+
+export function opaque_web_respondWith(store_api, opt={}) ::
+  let proto = opaque_web_responses(store_api, opt)
+  return _respondWith_impl(proto)
+
+
+export function opaque_web_responses(store_api, opt={}) ::
+  storage_api_verify(store_api)
+  return @{}
+    __proto__: _basic_responses(opt)
+    store_api
+
+    async resp_has(request) ::
+      try ::
+        let hex_key = this.hk_for(request)
+        let exists =
+          await this.store_api.exists @
+            as_u8_key(hex_key)
+
+        let {hdr} = this
+        return new this.Response @ null,
+          @{} status: exists ? 200 : 404
+              headers: @{} ...hdr.common, ... hdr.has
+
+      catch err ::
+        return this._resp_500(err, 'has')
+
+
+    async resp_get(request) ::
+      try ::
+        let hex_key = this.hk_for(request)
+        let [mime, u8_body] =
+          await this.store_api.fetch_obj @
+            as_u8_key(hex_key), []
+
+        let {hdr} = this
+        return new this.Response @ u8_body,
+          @{} status: u8_body ? 200 : 404
+              headers: @{} 
+                'Content-Type': mime || 'application/octet-stream'
+                ...hdr.common, ... hdr.get,
+                'Content-Length': u8_body ? u8_body.byteLength : 0
+
+      catch err ::
+        return this._resp_500(err, 'get')
+
+
+    async resp_set(request) ::
+      try ::
+        let mime = request.headers['content-type']
+        let u8_body = await u8_body_for_stream(request)
+
+        let k21pair =
+          await this.store_api.store_obj @#
+            mime, u8_body
+
+        let hk21pair = k21pair.map(k => u8_to_hex(k))
+
+        let {hdr} = this
+        return new this.Response @ null,
+          @{} status: 200
+              headers: @{} ...hdr.common, ... hdr.set
+                'x-hk2': hk21pair[0]
+                'x-hk1': hk21pair[1]
+
+      catch err ::
+        return this._resp_500(err, 'set')
+
