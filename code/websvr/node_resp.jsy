@@ -1,58 +1,10 @@
-import {web_respondWith_bkc, web_responses_bkc} from './web_resp.jsy'
+import {web_responses_bkc} from './web_resp.jsy'
 export * from './web_resp.jsy'
-
-
-const _resp_by_method = /* #__PURE__ */ @{}
-  HEAD: 'resp_has'
-  GET: 'resp_get'
-  PUT: 'resp_set'
-  POST: 'resp_set'
-  OPTIONS: 'resp_options'
-
 
 
 export function node_responses_bkc(stg, opt={}) ::
   opt = _use_reqevt(opt)
-  let proto = web_responses_bkc(stg, opt)
-  return _node_responses_impl(proto, opt)
-
-export function _node_responses_impl(proto) ::
-  return @{} __proto__: proto,
-
-    ... proto.rebind @ fn_name =>
-          @\ req, resp ::>
-            let ans = await proto[fn_name](req)
-            resp
-              .writeHead(ans.status, ans.headers || {})
-              .end(ans.body)
-
-    get handler() ::
-      return (req, resp) => this.method_for(req.method)(req, resp)
-
-    method_for(method) ::
-      let k = _resp_by_method[method]
-      return this[k || 'resp_500']
-
-
-
-export function node_respondWith_bkc(stg, opt={}) ::
-  opt = _use_reqevt(opt)
-  let proto = web_respondWith_bkc(stg, opt)
-  return _node_respondWith_impl(proto, opt)
-
-export function _node_respondWith_impl(proto, {as_evt}) ::
-  return @{} __proto__: proto, as_evt,
-
-    ... proto.rebind @ fn_name =>
-          (req, resp) => proto[fn_name](as_evt(req, resp))
-
-    get handler() ::
-      return (req, resp) => this.method_for(req.method)(req, resp)
-
-    method_for(method) ::
-      let k = _resp_by_method[method]
-      return this[k || 'resp_500']
-
+  return web_responses_bkc(stg, opt)
 
 
 export function with_cors(opt) ::
@@ -75,24 +27,33 @@ export function with_cors(opt) ::
   return opt
 
 
+export async function _node_respondWith(ans, response) ::
+  ans = await ans
+  response
+    .writeHead(ans.status, ans.headers || {})
+    .end(ans.body)
 
-const _mini_reqevt_api = /* #__PURE__ */ @{}
-  Response: /*constructor*/ function (body, {status, headers}={}) ::
-    return { body, status, headers }
+export function as_mini_reqevt(request, response) ::
+  let {url, headers: h} = request
+  return @{}
+    request, url: `${h.origin||''}${url}`
+    respondWith: ans =>
+      _node_respondWith(ans, response)
 
-  as_evt(request, _resp_) ::
-    let {url, headers: h} = request
-    return @{}
-      request, url: `${h.origin||''}${url}`
-      async respondWith(ans) ::
-        ans = await ans
-        _resp_
-          .writeHead(ans.status, ans.headers || {})
-          .end(ans.body)
+function MiniResponse(body, {status, headers}={}) ::
+  return { body, status, headers }
+
+export const mini_node_reqevt = @{}
+  Response: MiniResponse
+
+  as_handler(resp_fn) ::
+    return (request, response) => ::
+      let ans = resp_fn(request)
+      return _node_respondWith(ans, response)
 
 
-export function _use_reqevt(opt, reqevt_api=_mini_reqevt_api) ::
-  opt = @{} ... reqevt_api, ... opt
+export function _use_reqevt(opt, {as_handler, Response}=mini_node_reqevt) ::
+  opt = @{} Response, as_handler, ... opt
   for let fn_with_opt of opt.extend || [] ::
     opt = fn_with_opt(opt)
   return opt

@@ -1,11 +1,6 @@
 import { as_u8_key, u8_to_hex, storage_api_verify  } from '../_utils.jsy'
-import { _basic_responses, _respondWith_impl, u8_body_for_stream } from './web_resp.jsy'
+import { _basic_responses, u8_body_for_stream } from './web_resp.jsy'
 export * from './web_resp.jsy'
-
-
-export function opaque_web_respondWith(store_api, opt={}) ::
-  let proto = opaque_web_responses(store_api, opt)
-  return _respondWith_impl(proto)
 
 
 export function opaque_web_responses(store_api, opt={}) ::

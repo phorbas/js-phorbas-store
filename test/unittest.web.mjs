@@ -7,9 +7,9 @@ import {bind_validate_phorbas_store} from './unit/phorbas_store.mjs'
 import {opaque_basic, opaque_tahoe} from '@phorbas/opaque/esm/web/index.mjs'
 import bkc_with_js_map from '@phorbas/store/esm/js_map.mjs'
 
+import bkc_with_fetch from '@phorbas/store/esm/web/fetch.mjs'
 import bkc_with_web_db from '@phorbas/store/esm/web/web_db.mjs'
 import bkc_with_web_cache from '@phorbas/store/esm/web/web_cache.mjs'
-import bkc_with_web_fetch from '@phorbas/store/esm/web/web_fetch.mjs'
 import bkc_with_web_cache_fetch from '@phorbas/store/esm/web/web_cache_fetch.mjs'
 
 import bkc_with_fs from '@phorbas/store/esm/fs.mjs'
@@ -28,6 +28,14 @@ validate_phorbas_store(
   () => bkc_with_js_map())
 
 
+validate_backend('fetch with `node int--core/node-http-store.mjs`',
+  () => bkc_with_fetch(new URL('http://127.0.0.1:9099/browser/some/pre/fix/')) )
+
+validate_phorbas_store(
+  'phorbas_store with fetch with `node int--core/node-http-store.mjs`',
+  () => bkc_with_fetch(new URL('http://127.0.0.1:9099/browser/other/prefix/')) )
+
+
 validate_backend('web_db',
   ()=>
     bkc_with_web_db({
@@ -38,13 +46,6 @@ validate_backend('web_db',
 validate_phorbas_store(
   'phorbas_store with web_db',
   ()=> bkc_with_web_db({db: 'test-phorbas-store', wipe: false}) )
-
-validate_backend('web_fetch with `node int--core/node-http-store.mjs`',
-  () => bkc_with_web_fetch(new URL('http://127.0.0.1:9099/some/pre/fix/')) )
-
-validate_phorbas_store(
-  'phorbas_store with web_fetch with `node int--core/node-http-store.mjs`',
-  () => bkc_with_web_fetch(new URL('http://127.0.0.1:9099/other/prefix/')) )
 
 
 validate_backend('web_cache', {

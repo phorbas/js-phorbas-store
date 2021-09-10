@@ -1,0 +1,46 @@
+import {bkc_hexkey_api} from '../_utils.jsy'
+
+export function bkc_with_fetch_request(url_base, opts={}) ::
+  const Request = opts.Request || Request
+  return _bkc_with_fetch @
+    opts.fetch || fetch, opts.fetch_opts,
+    hex_key => new Request(new URL(hex_key, url_base), opts.req_init)
+
+export default  bkc_with_fetch
+export function bkc_with_fetch(url_base, opts={}) ::
+  return _bkc_with_fetch @
+    opts.fetch || fetch, opts.fetch_opts,
+    hex_key => new URL(hex_key, url_base)
+
+export async function _bkc_with_fetch(fetch, fetch_opts, as_req) ::
+  return bkc_hexkey_api @:
+
+    async hk_has(hex_key) ::
+      let resp = await fetch @ as_req(hex_key),
+        @{} ... fetch_opts
+            method: 'HEAD', headers: {'x-hk': hex_key}
+
+      return resp.ok ? 1 : 0
+
+    async hk_get(hex_key) ::
+      let resp = await fetch @ as_req(hex_key),
+        @{} ... fetch_opts
+            method: 'GET', headers: {'x-hk': hex_key}, 
+
+      if resp.ok ::
+        return new Uint8Array @ await resp.arrayBuffer()
+
+    async hk_set(hex_key, u8_content) ::
+      let resp = await fetch @ as_req(''),
+        @{} ... fetch_opts
+            method: 'POST', headers: {'x-hk': hex_key}
+            body: u8_content
+
+      if ! resp.ok ::
+        let {url, status, statusText} = resp
+        let err = new Error(`${statusText || status}`)
+        err.url = resp.url
+        err.status = status
+        return err
+
+

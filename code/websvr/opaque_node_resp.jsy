@@ -1,16 +1,10 @@
-import { _node_responses_impl, _node_respondWith_impl, _use_reqevt } from './node_resp.jsy'
-import { opaque_web_responses, opaque_web_respondWith } from './opaque_web_resp.jsy'
+import { _use_reqevt } from './node_resp.jsy'
+import { opaque_web_responses } from './opaque_web_resp.jsy'
 export * from './node_resp.jsy'
 export * from './opaque_web_resp.jsy'
 
 
 export function opaque_node_responses(store_api, opt={}) ::
   opt = _use_reqevt(opt)
-  let proto = opaque_web_responses(store_api, opt)
-  return _node_responses_impl(proto, opt)
-
-export function opaque_node_respondWith(store_api, opt={}) ::
-  opt = _use_reqevt(opt)
-  let proto = opaque_web_respondWith(store_api, opt)
-  return _node_respondWith_impl(proto, opt)
+  return opaque_web_responses(store_api, opt)
 

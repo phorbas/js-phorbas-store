@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+  <meta charset='utf-8' />
+  <meta name='viewport' content='width=device-width, initial-scale=1'>
+  <title>JSY-Web Development Sandbox</title>
+
+  <link rel='icon' href='data:image/png;base64,' />
+  <link rel='stylesheet' crossorigin='anonymous' href='https://cdn.jsdelivr.net/npm/hiq@4.1.9/dist/hiq.css' integrity='sha256-lmhDSTOvoVL6vf39JzQIJnJiey65rv7M/AW/2+PDzzs=' />
+
+</head>
+
+<body>
+<main class='container'>
+  <h1>Console is where it's happen'</h1>
+</main>
+
+<script type=module>
+  import ky from 'https://cdn.skypack.dev/ky?dts'
+  let url_dest = 'http://127.0.0.1:9090/opaque/mn/op/qr/'
+  Object.assign(window, {ky, url_dest})
+
+  let str = "Bingo there my friend"
+  let type = 'text/plain; charset=UTF-8'
+  let body_blob_str = new Blob([str], {type})
+  let u8 = new TextEncoder().encode(str)
+  let body_blob_u8 = new Blob([u8], {type})
+
+  if (1) _using_fetch()
+  else _using_ky()
+
+  async function _using_fetch() {
+    let q1 = await fetch(url_dest, {
+        method: 'POST', mode: 'cors',
+        body: body_blob_str })
+
+    console.log('Q1:', q1 = await q1)
+    console.log('Q1 headers: %o', ... [... q1.headers])
+
+    let q1_hk2 = q1.headers.get('x-hk2')
+    let q1_hk1 = q1.headers.get('x-hk1')
+    console.log({q1_hk2, q1_hk1})
+
+    Object.assign(window, {
+      q1, q1_hk2, q1_hk1,
+      q_has: (hk=q1_hk1) => fetch(new URL(hk, url_dest), {method: 'HEAD'}),
+      q_get: (hk=q1_hk1) => fetch(new URL(hk, url_dest)),
+    })
+  }
+
+  async function _using_ky() {
+    let post_arg = {}
+    if (1) {
+      post_arg.body = 0
+        ? body_blob_str
+        : body_blob_u8
+    } else if (1) {
+      post_arg.json = {
+        a: 'bingo', b: 1942, c: false}
+    }
+
+    let q1 = ky.post(url_dest, post_arg)
+
+    console.log('Q1:', q1 = await q1)
+    console.log('Q1 headers: %o', ... [... q1.headers])
+
+    let q1_hk2 = q1.headers.get('x-hk2')
+    let q1_hk1 = q1.headers.get('x-hk1')
+    console.log({q1_hk2, q1_hk1})
+
+    Object.assign(window, {
+      q1, q1_hk2, q1_hk1,
+      q_has: (hk=q1_hk1) => ky.head(new URL(hk, url_dest)),
+      q_get: (hk=q1_hk1) => ky.get(new URL(hk, url_dest)),
+    })
+  }
+</script>
+<script src='/livereload.js'></script>
+</body>
+</html>
+

@@ -1,11 +1,9 @@
 import { createServer } from 'http'
 import { bkc_with_js_map } from '@phorbas/store'
-import { node_respondWith_bkc, node_responses_bkc, with_cors } from '@phorbas/store/esm/node/node_resp.mjs'
-
-const _node_alt_bkc = 1 ? node_respondWith_bkc : node_responses_bkc
+import { node_responses_bkc, with_cors } from '@phorbas/store/esm/node/node_resp.mjs'
 
 const my_cors_stg =
-  _node_alt_bkc(
+  node_responses_bkc(
     await bkc_with_js_map(),
     {
       cors: { origin: '*', max_age: 60 },
@@ -13,9 +11,9 @@ const my_cors_stg =
       extend: [with_cors],
     })
 
-function demo_handler(req, res) {
+function demo_handler(req, resp) {
   console.log(`[${req.method}] hk: "${my_cors_stg.hk_for(req)}"`);
-  return my_cors_stg.handler(req, res)
+  return my_cors_stg.handler(req, resp)
 }
 
 let tiny_svr = createServer({})
@@ -23,4 +21,3 @@ let tiny_svr = createServer({})
   .on('request', demo_handler)
   .listen(9099, '0.0.0.0')
 
-export {tiny_svr}

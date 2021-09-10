@@ -4,16 +4,6 @@ import { as_u8_key, u8_to_hex, bkc_storage_verify} from '../_utils.jsy'
 export { as_u8_key, u8_to_hex } from '../_utils.jsy'
 
 
-export function web_respondWith_bkc(stg, opt={}) ::
-  let proto = web_responses_bkc(stg, opt)
-  return _respondWith_impl(proto)
-
-export function _respondWith_impl(proto) ::
-  return @{} __proto__: proto,
-    ... proto.rebind @ fn_name =>
-          evt => evt.respondWith @ proto[fn_name](evt.request)
-
-
 export function web_responses_bkc(stg, opt={}) ::
   bkc_storage_verify(stg)
 
@@ -79,12 +69,22 @@ export function _basic_responses(opt={}) ::
     Response: opt.Response || globalThis.Response
     hdr, hk_for
 
-    _resp_ops: @[] 'resp_has', 'resp_get', 'resp_set', 'resp_options', 'resp_500'
+    _resp_by_method: @{}
+      HEAD: 'resp_has'
+      GET: 'resp_get'
+      PUT: 'resp_set'
+      POST: 'resp_set'
+      OPTIONS: 'resp_options'
 
-    rebind(cb_bind, res={}) ::
-      for let fn_name of this._resp_ops ::
-        res[fn_name] = cb_bind(fn_name, this)
-      return res
+    as_handler: opt.as_handler || @ fn => fn
+    method_for(method, as_handler=this.as_handler) ::
+      let k = this._resp_by_method[method]
+      let resp_fn = this[k || 'resp_500'].bind(this)
+      return as_handler ? as_handler(resp_fn) : resp_fn
+
+    get handler() ::
+      return (request, ... args) =>
+        this.method_for(request.method)(request, ...args)
 
     async resp_options(request) ::
       let {hdr} = this

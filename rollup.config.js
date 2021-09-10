@@ -39,9 +39,9 @@ add_jsy('validate_backend', {plat_node: true, plat_web: true})
 
 add_jsy('js_map')
 
+add_jsy('fetch', {category: 'web/', plat_node: true, plat_web: true})
 add_jsy('web_db', {category: 'web/', plat_web: true})
 add_jsy('web_cache', {category: 'web/', plat_web: true})
-add_jsy('web_fetch', {category: 'web/', plat_node: true, plat_web: true})
 add_jsy('web_cache_fetch', {category: 'web/', plat_web: true})
 
 add_jsy('web_resp', {category: 'websvr/', all: true})

@@ -7,7 +7,7 @@
     "levelup": "*",
     "minio": "*",
     "mocha": "*",
-    "node-fetch": "*",
+    "node-fetch": "^2.6.2",
     "proxy-agent": "*",
     "s3leveldown": "*"
   },
