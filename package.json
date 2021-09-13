@@ -1,6 +1,6 @@
 {
   "name": "@phorbas/store",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "description": "Persistent, hashed, opaque, replicable, binary key/content, addressable, storage",
   "license": "BSD-2-Clause",
   "author": "Shane Holloway <shane.holloway@ieee.org>",
@@ -13,10 +13,8 @@
     "url": "git+ssh://git@github.com/phorbas/js-phorbas-store.git"
   },
   "files": [
-    "cjs/",
     "code/",
-    "esm/",
-    "umd/"
+    "esm/"
   ],
   "type": "module",
   "module": "./esm/index.mjs",
@@ -34,7 +32,7 @@
     "u8-utils": "^0.3.8"
   },
   "scripts": {
-    "clean": "rm -rf ./cjs/* ./esm/* ./umd/*",
+    "clean": "rm -rf ./esm/*",
     "build": "rollup --config",
     "watch": "npm -s run build -- --watch",
     "pretest": "npm -s run build",
