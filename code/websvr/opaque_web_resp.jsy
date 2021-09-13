@@ -48,12 +48,14 @@ export function opaque_web_responses(store_api, opt={}) ::
 
     async resp_set(request, store_api=this.store_api) ::
       try ::
+        let hex_key = this.hk_for(request)
         let mime = request.headers['content-type']
         let u8_body = await u8_body_for_stream(request)
 
-        let k21pair =
-          await store_api.store_obj @#
-            mime, u8_body
+        let obj = [mime, u8_body]
+        let k21pair = ! hex_key
+          ? await store_api.store_obj(obj)
+          : await store_api.store_obj_at(hex_key, obj)
 
         let hk21pair = k21pair.map(k => u8_to_hex(k))
 
