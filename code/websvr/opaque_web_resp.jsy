@@ -55,9 +55,14 @@ export function opaque_web_responses(store_api, opt={}) ::
         let obj = [mime, u8_body]
         let k21pair = ! hex_key
           ? await store_api.store_obj(obj)
-          : await store_api.store_obj_at(hex_key, obj)
 
-        let hk21 = k21pair.map(k => as_hex_key(k))
+          : await store_api.store_obj_at @
+              as_u8_key(hex_key), obj, {k1: true}
+
+        if ! k21pair ::
+          return new this.Response('', {status: 400})
+
+        let hk21 = k21pair.map @ as_hex_key
 
         let {hdr} = this
         return new this.Response @

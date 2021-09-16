@@ -31,8 +31,8 @@ export class PhorbasStoreAPI ::
   async store_utf8(utf8, opt) ::
     return this.store_content(utf8_to_u8(utf8), opt)
 
-  async store_utf8_at(key, utf8) ::
-    await this.store_content_at(key, utf8_to_u8(utf8))
+  async store_utf8_at(key, utf8, opt) ::
+    await this.store_content_at(key, utf8_to_u8(utf8), opt)
 
   async fetch_utf8(ref) ::
     const u8_res = await this.fetch_content(ref)
@@ -52,9 +52,9 @@ export class PhorbasStoreAPI ::
     let u8 = this.encode_obj(obj)
     return this.store_content(u8, opt)
 
-  async store_obj_at(key, obj) ::
+  async store_obj_at(key, obj, opt) ::
     let u8 = this.encode_obj(obj)
-    return this.store_content_at(key, u8)
+    return this.store_content_at(key, u8, opt)
 
   async fetch_obj(ref, absent) ::
     let u8 = await this.fetch_content(ref)
@@ -68,11 +68,13 @@ export class PhorbasStoreAPI ::
       ? this.opaque.from_random()
       : this.opaque.from_u8(u8)
 
-    await this.store_content_at(key, u8)
-    return opt.as_key ? key : key.k21pair()
+    return await this.store_content_at(key, u8, opt)
 
 
-  async store_content_at(key, u8) ::
+  async store_content_at(key, u8, opt) ::
+    if opt && opt.k1 ::
+      key = await this.opaque.from_k1ref(key)
+
     const {stg, sync} = this
 
     let k2loc
@@ -89,6 +91,9 @@ export class PhorbasStoreAPI ::
 
     if undefined !== sync ::
       sync.add(k2loc)
+
+    if opt ::
+      return opt.as_key ? key : key.k21pair()
 
 
   async fetch_content(ref) ::
