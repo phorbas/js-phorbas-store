@@ -57,14 +57,16 @@ export function opaque_web_responses(store_api, opt={}) ::
           ? await store_api.store_obj(obj)
           : await store_api.store_obj_at(hex_key, obj)
 
-        let hk21pair = k21pair.map(k => as_hex_key(k))
+        let hk21 = k21pair.map(k => as_hex_key(k))
 
         let {hdr} = this
-        return new this.Response @ null,
+        return new this.Response @
+          JSON.stringify({hk21}),
           @{} status: 200
               headers: @{} ...hdr.common, ... hdr.set
-                'x-hk2': hk21pair[0]
-                'x-hk1': hk21pair[1]
+                'Content-Type': 'application/json',
+                'x-hk2': hk21[0]
+                'x-hk1': hk21[1]
 
       catch err ::
         return this._resp_500(err, 'set')
