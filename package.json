@@ -17,10 +17,9 @@
     "esm/"
   ],
   "type": "module",
-  "module": "./esm/index.mjs",
   "exports": {
-    "./esm/*": "./esm/*",
-    ".": "./esm/index.mjs"
+    ".": "./esm/index.mjs",
+    "./esm/*": "./esm/*"
   },
   "dependencies": {},
   "devDependencies": {
