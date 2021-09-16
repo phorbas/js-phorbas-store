@@ -3,7 +3,7 @@ export {u8_to_hex, hex_to_u8, utf8_to_u8, u8_to_utf8} from 'u8-utils'
 
 
 const _wm_hex_cache = new WeakMap()
-export function as_hex(u8_key) ::
+export function as_hex_key(u8_key) ::
   if 'string' === typeof u8_key ::
     throw new TypeError()
 
@@ -33,7 +33,7 @@ export const bkc_hexkey_api = api => @:
       const ans = []
       for let u8_key of u8_key_list ::
         ans.push @# u8_key,
-          api.hk_has @ as_hex(u8_key)
+          api.hk_has @ as_hex_key(u8_key)
 
       for const tpl of ans ::
         tpl[1] = await tpl[1]
@@ -43,7 +43,7 @@ export const bkc_hexkey_api = api => @:
       const ans = []
       for let u8_key of u8_key_list ::
         ans.push @# u8_key,
-          api.hk_get @ as_hex(u8_key)
+          api.hk_get @ as_hex_key(u8_key)
 
       for const tpl of ans ::
         tpl[1] = await tpl[1]
@@ -53,7 +53,7 @@ export const bkc_hexkey_api = api => @:
       const ans = []
       for let [u8_key, u8_content] of u8_pair_list ::
         ans.push @# u8_key,
-          api.hk_set @ as_hex(u8_key), u8_content
+          api.hk_set @ as_hex_key(u8_key), u8_content
 
       for const tpl of ans ::
         tpl[1] = await tpl[1]

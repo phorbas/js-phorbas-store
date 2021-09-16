@@ -1,6 +1,9 @@
-import {bkc_hexkey_api, as_hex} from '../_utils.jsy'
+import {bkc_hexkey_api, as_hex_key, as_u8_key} from '../_utils.jsy'
+
+export {as_hex_key, as_u8_key}
 
 export default bkc_with_ioredis_pipeline
+
 
 export async function bkc_with_ioredis_direct(ioredis) ::
   return bkc_hexkey_api @:
@@ -27,7 +30,7 @@ export async function bkc_with_ioredis_pipeline(ioredis) ::
     async bkc_exists(u8_key_list) ::
       const ops = []
       for let u8_key of u8_key_list ::
-        ops.push @# 'exists', as_hex(u8_key)
+        ops.push @# 'exists', as_hex_key(u8_key)
 
       const res = await ioredis.pipeline(ops).exec()
 
@@ -39,7 +42,7 @@ export async function bkc_with_ioredis_pipeline(ioredis) ::
     async bkc_fetch(u8_key_list) ::
       const ops = []
       for let u8_key of u8_key_list ::
-        ops.push @# 'getBuffer', as_hex(u8_key)
+        ops.push @# 'getBuffer', as_hex_key(u8_key)
 
       const res = await ioredis.pipeline(ops).exec()
 
@@ -55,7 +58,7 @@ export async function bkc_with_ioredis_pipeline(ioredis) ::
 
       for let [u8_key, u8_content] of u8_pair_list ::
         ops.push @# 'setBuffer',
-          as_hex(u8_key),
+          as_hex_key(u8_key),
           Buffer.from(u8_content)
 
       const res = await ioredis.pipeline(ops).exec()

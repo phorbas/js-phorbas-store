@@ -1,6 +1,7 @@
-import { as_u8_key, u8_to_hex, storage_api_verify  } from '../_utils.jsy'
+import { as_u8_key, as_hex_key, storage_api_verify  } from '../_utils.jsy'
 import { _basic_responses, u8_body_for_stream } from './web_resp.jsy'
 export * from './web_resp.jsy'
+export { as_u8_key, as_hex_key }
 
 
 export function opaque_web_responses(store_api, opt={}) ::
@@ -57,7 +58,7 @@ export function opaque_web_responses(store_api, opt={}) ::
           ? await store_api.store_obj(obj)
           : await store_api.store_obj_at(hex_key, obj)
 
-        let hk21pair = k21pair.map(k => u8_to_hex(k))
+        let hk21pair = k21pair.map(k => as_hex_key(k))
 
         let {hdr} = this
         return new this.Response @ null,

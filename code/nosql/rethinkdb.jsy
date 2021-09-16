@@ -1,4 +1,6 @@
-import {bkc_hexkey_api, as_hex} from '../_utils.jsy'
+import {bkc_hexkey_api, as_hex_key, as_u8_key} from '../_utils.jsy'
+
+export {as_hex_key, as_u8_key}
 
 export default bkc_with_rethinkdb_batch
 
@@ -42,7 +44,7 @@ export async function bkc_with_rethinkdb_batch(opt={}) ::
     async bkc_exists(u8_key_list) ::
       const ans=[], ops=[], ns={}
       for let u8_key of u8_key_list ::
-        let tip = [u8_key, 0], hex_key = as_hex(u8_key)
+        let tip = [u8_key, 0], hex_key = as_hex_key(u8_key)
         ns[hex_key] = tip
         ops.push(hex_key)
         ans.push(tip)
@@ -59,7 +61,7 @@ export async function bkc_with_rethinkdb_batch(opt={}) ::
     async bkc_fetch(u8_key_list) ::
       const ans=[], ops=[], ns={}
       for let u8_key of u8_key_list ::
-        let tip = [u8_key], hex_key = as_hex(u8_key)
+        let tip = [u8_key], hex_key = as_hex_key(u8_key)
         ns[hex_key] = tip
         ops.push(hex_key)
         ans.push(tip)
@@ -77,7 +79,7 @@ export async function bkc_with_rethinkdb_batch(opt={}) ::
       const ans = [], ops=[]
 
       for let [u8_key, u8_content] of u8_pair_list ::
-        const hex_key = as_hex(u8_key)
+        const hex_key = as_hex_key(u8_key)
         ans.push @# u8_key
         ops.push @:
           id: hex_key

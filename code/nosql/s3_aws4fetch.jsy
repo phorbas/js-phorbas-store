@@ -1,5 +1,7 @@
-import {bkc_hexkey_api} from '../_utils.jsy'
+import {bkc_hexkey_api, as_hex_key, as_u8_key} from '../_utils.jsy'
 import {AwsClient} from 'aws4fetch'
+
+export {as_hex_key, as_u8_key}
 
 export default bkc_with_s3_fetch
 export async function bkc_with_s3_fetch(url_bucket, opt={}) ::

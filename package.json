@@ -17,6 +17,7 @@
     "esm/"
   ],
   "type": "module",
+  "module": "./esm/index.mjs",
   "exports": {
     ".": "./esm/index.mjs",
     "./esm/*": "./esm/*"

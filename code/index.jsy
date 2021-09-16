@@ -1,4 +1,4 @@
 export * from './_utils.jsy'
-export * from './js_map.jsy'
+export {bkc_with_js_map} from './js_map.jsy'
 export * from './abstract.jsy'
 export * from './api.jsy'

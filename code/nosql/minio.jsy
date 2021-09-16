@@ -1,4 +1,6 @@
-import {bkc_hexkey_api} from '../_utils.jsy'
+import {bkc_hexkey_api, as_hex_key, as_u8_key} from '../_utils.jsy'
+
+export {as_hex_key, as_u8_key}
 
 export default bkc_with_minio
 export async function bkc_with_minio(minio, opt={}) ::

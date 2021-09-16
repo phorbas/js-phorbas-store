@@ -1,7 +1,7 @@
 import { _use_reqevt } from './node_resp.jsy'
 import { opaque_web_responses } from './opaque_web_resp.jsy'
 export * from './node_resp.jsy'
-export * from './opaque_web_resp.jsy'
+export { opaque_web_responses }
 
 
 export function opaque_node_responses(store_api, opt={}) ::

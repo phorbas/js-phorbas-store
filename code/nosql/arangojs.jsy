@@ -1,10 +1,12 @@
-import {bkc_hexkey_api, as_hex} from '../_utils.jsy'
+import {bkc_hexkey_api, as_hex_key, as_u8_key} from '../_utils.jsy'
 
 #IF PLAT_NODEJS
   import {u8_to_base64, base64_to_u8} from 'u8-utils/esm/node/base64.mjs'
 
 #ELIF PLAT_WEB
   import {u8_to_base64, base64_to_u8} from 'u8-utils/esm/web/base64.js'
+
+export {as_hex_key, as_u8_key}
 
 export default bkc_with_arangojs
 export async function bkc_with_arangojs(adb_collection) ::
