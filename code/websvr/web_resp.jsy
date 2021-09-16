@@ -1,7 +1,7 @@
 import {u8_concat} from 'u8-utils'
 import { as_u8_key, u8_to_hex, bkc_storage_verify} from '../_utils.jsy'
 
-export { as_u8_key, u8_to_hex } from '../_utils.jsy'
+export { as_u8_key, u8_to_hex }
 
 
 export function web_responses_bkc(stg, opt={}) ::

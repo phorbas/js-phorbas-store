@@ -1,7 +1,6 @@
 import { as_u8_key, as_hex_key, storage_api_verify  } from '../_utils.jsy'
 import { _basic_responses, u8_body_for_stream } from './web_resp.jsy'
 export * from './web_resp.jsy'
-export { as_u8_key, as_hex_key }
 
 
 export function opaque_web_responses(store_api, opt={}) ::
