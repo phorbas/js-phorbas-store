@@ -14,7 +14,7 @@ export function with_cors(opt) ::
     'Access-Control-Allow-Origin': cors.origin || '*',
     'Access-Control-Max-Age': cors.max_age || '10',
     'Access-Control-Allow-Methods': cors.methods || 'HEAD, GET, POST, PUT, OPTIONS',
-    'Access-Control-Allow-Headers': cors.allow_headers || cors.headers || 'Content-Type, Content-Length, x-hk, x-hk1, x-hk2',
+    'Access-Control-Allow-Headers': cors.allow_headers || cors.headers || 'Authorization, Content-Type, Content-Length, x-hk, x-hk1, x-hk2',
     'Access-Control-Expose-Headers': cors.expose_headers || cors.headers || 'x-hk, x-hk1, x-hk2',
     ... hdr.common
 
