@@ -30,7 +30,7 @@ export function opaque_web_responses(store_api, opt={}) ::
     async resp_get(request, store_api=this.store_api) ::
       try ::
         let hex_key = this.hk_for(request)
-        let [mime, u8_body] =
+        let [mime, u8_body, content_hdrs] =
           await store_api.fetch_obj @
             as_u8_key(hex_key), []
 
@@ -38,7 +38,9 @@ export function opaque_web_responses(store_api, opt={}) ::
         return new this.Response @ u8_body,
           @{} status: u8_body ? 200 : 404
               headers: @{} 
+                ... content_hdrs
                 'Content-Type': mime || 'application/octet-stream'
+                'X-Content-Type-Options': 'nosniff'
                 ...hdr.common, ... hdr.get,
                 'Content-Length': u8_body ? u8_body.byteLength : 0
 
@@ -49,15 +51,18 @@ export function opaque_web_responses(store_api, opt={}) ::
     async resp_set(request, store_api=this.store_api) ::
       try ::
         let hex_key = this.hk_for(request)
-        let mime = request.headers['content-type']
+        let req_hdr = request.headers
+        let mime = req_hdr['content-type']
         let u8_body = await u8_body_for_stream(request)
 
-        let obj = [mime, u8_body]
+        let content_obj = @[] mime, u8_body,
+          _content_headers_for(req_hdr, opt.inc_headers)
+
         let k21pair = ! hex_key
-          ? await store_api.store_obj(obj)
+          ? await store_api.store_obj(content_obj)
 
           : await store_api.store_obj_at @
-              as_u8_key(hex_key), obj, {k1: true}
+              as_u8_key(hex_key), content_obj, {k1: true}
 
         if ! k21pair ::
           return new this.Response('', {status: 400})
@@ -75,4 +80,12 @@ export function opaque_web_responses(store_api, opt={}) ::
 
       catch err ::
         return this._resp_500(err, 'set')
+
+function _content_headers_for(req_hdr, inc_headers=['Content-Encoding']) ::
+  let res = {}
+  for let key of inc_headers ::
+    let h = req_hdr[key]
+    if h :: res[key] = h
+
+  return res
 
