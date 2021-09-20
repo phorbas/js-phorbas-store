@@ -44,8 +44,11 @@ if (process.env.PHORBAS_AWS_S3_BUCKET)
 
 
 async function setup_s3_env(Bucket) {
-  const s3_awssdk = new AWS.S3({
-    s3ForcePathStyle: true })
+  const cfg = { s3ForcePathStyle: true }
+  if (process.env.AWS_ENDPOINT) 
+    cfg.endpoint = process.env.AWS_ENDPOINT
+
+  const s3_awssdk = new AWS.S3(cfg)
 
   return bkc_with_level(
     levelup(
