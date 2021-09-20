@@ -6,6 +6,7 @@
     "ky": "^0.28.5",
     "level-mem": "^5.0.1",
     "levelup": "^5.0.1",
+    "minio": "^7.0.19",
     "mocha": "^9.1.1",
     "node-fetch": "^2.6.2",
     "s3leveldown": "^2.2.1"

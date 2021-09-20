@@ -6,7 +6,9 @@ import {bind_validate_phorbas_store} from './unit/phorbas_store.mjs'
 import {opaque_basic, opaque_tahoe} from '@phorbas/opaque/esm/node/index.mjs'
 import bkc_with_js_map from '@phorbas/store/esm/js_map.mjs'
 import bkc_with_level from '@phorbas/store/esm/node/level.mjs'
+import bkc_with_minio from '@phorbas/store/esm/node/minio.mjs'
 
+const Minio = require('minio')
 const AWS = require('aws-sdk')
 const levelup = require('levelup')
 const s3leveldown = require('s3leveldown')
@@ -34,7 +36,7 @@ validate_phorbas_store(
   ()=> bkc_with_level( level_mem() ))
 
 
-if (process.env.PHORBAS_AWS_S3_BUCKET)
+if (process.env.PHORBAS_AWS_S3_BUCKET) {
   validate_backend('AWS s3 with levelup(s3leveldown())', {
     create: ()=> setup_s3_env(process.env.PHORBAS_AWS_S3_BUCKET),
     slow: suite => {
@@ -42,6 +44,29 @@ if (process.env.PHORBAS_AWS_S3_BUCKET)
       suite.timeout(5000)
     }})
 
+  if (process.env.AWS_ENDPOINT)
+    validate_backend('AWS s3 with minio', {
+      create: async ()=> {
+        const bucket = process.env.PHORBAS_AWS_S3_BUCKET
+        const ep_url = new URL(process.env.AWS_ENDPOINT)
+        const endPoint = ep_url.hostname
+        const endPort = ep_url.port
+
+        const cfg = {
+          useSSL: ep_url.protocol == 'https:',
+          port: +endPort,
+          accessKey: process.env.AWS_ACCESS_KEY_ID, 
+          secretKey: process.env.AWS_SECRET_ACCESS_KEY }
+
+        if (endPoint) cfg.endPoint = endPoint
+        const minio = new Minio.Client(cfg)
+        return bkc_with_minio(minio, {bucket})
+      },
+      slow: suite => {
+        suite.slow(3000)
+        suite.timeout(5000)
+      }})
+}
 
 async function setup_s3_env(Bucket) {
   const cfg = { s3ForcePathStyle: true }
