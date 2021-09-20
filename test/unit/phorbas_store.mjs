@@ -24,13 +24,17 @@ async function _use_phorbas_store(stg) {
 }
 
 export function bind_validate_phorbas_store(validate_backend, db_opaque) {
-  return function validate_phorbas_store(tst_grp_name, bkc_create) {
-    describe(tst_grp_name, () => {
+  return function validate_phorbas_store(tst_grp_name, bkc_create, slow) {
+    describe(tst_grp_name, function() {
+      if (undefined !== slow) slow(this)
 
-      validate_backend(tst_grp_name,
-        ()=> phorbas_store(bkc_create()))
+      validate_backend(tst_grp_name, {
+        create: ()=> phorbas_store(bkc_create()),
+        slow})
 
-      describe('using opaque api', () => {
+      describe('using opaque api', function() {
+        if (undefined !== slow) slow(this)
+
         for (let [opaque_name, opaque] of Object.entries(db_opaque)) {
           it(`with ${opaque_name}`,
             ()=> _use_phorbas_store(

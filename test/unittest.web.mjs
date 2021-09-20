@@ -109,8 +109,8 @@ describe('S3 variants', () => {
     try {
       await s3_aws4fetch.fetch(new URL('/', url_bucket))
     } catch (err) {
-      console.warn('NOTE: "s3 with s3_aws4fetch" suite requires running int--minio docker dependencies')
-      throw new Error(`Unable to connect to int--minio integration test servers`)
+      console.warn('NOTE: "s3 with s3_aws4fetch" suite requires running int--core docker dependencies')
+      throw new Error(`Unable to connect to int--core integration test servers`)
     }
 
     return s3_aws4fetch

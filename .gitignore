@@ -7,3 +7,5 @@ examples/package-lock.json
 npm-debug.log
 .hggitignore
 __unittest*
+tags
+.envrc

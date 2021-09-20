@@ -51,7 +51,9 @@ function _validate_backend(opt) ::
         await opt.done(_ctx_)
         _stg_ = _ctx_ = undefined
 
-    opt.skip_api || describe @ 'api', @::
+    opt.skip_api || describe @ 'api', function() ::
+      if (undefined !== opt.slow) opt.slow(this)
+
       it @ 'bkc_exists', @::>
         expect.func @ _stg_.bkc_exists
 
@@ -102,7 +104,8 @@ function _validate_backend(opt) ::
           expect.ok @ undefined === err, 'unexpected errors during write'
 
 
-    opt.skip_one || describe @ 'one', @::
+    opt.skip_one || describe @ 'one', function() ::
+      if (undefined !== opt.slow) opt.slow(this)
 
       it @ 'round-trip one', @::>
         let rk_src_key = rand_u8_key()
@@ -139,7 +142,8 @@ function _validate_backend(opt) ::
           expect.ok @ all_u8_match, 'All u8 bytes should match'
 
 
-    opt.skip_sequences || describe @ 'sequences', @::
+    opt.skip_sequences || describe @ 'sequences', function() ::
+      if (undefined !== opt.slow) opt.slow(this)
 
       it @ 'round-trip 3 random u8 pairs', @::>
 

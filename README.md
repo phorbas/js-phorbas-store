@@ -60,7 +60,7 @@ Also see SQLite and Level-based adapters for local / embedded alternatives.
 
 |    | Technology / Library | Implementation
 |----|----------------------|----------------
-| ✅ | [MinIO](https://min.io/) <br/> [minio](https://github.com/minio/minio-js#readme) | impl: [code/nosql/minio.jsy](code/nosql/minio.jsy) <br/> test: [test/int--minio/integ-test.mjs](test/int--minio/integ-test.mjs)
+| ✅ | [MinIO](https://min.io/) <br/> [minio](https://github.com/minio/minio-js#readme) | impl: [code/nosql/minio.jsy](code/nosql/minio.jsy) <br/> test: [test/int--s3api/integ-test.mjs](test/int--s3api/integ-test.mjs)
 | ✅ | [AWS S3](https://aws.amazon.com/s3/) or compatible <br/> [aws4fetch](https://github.com/mhart/aws4fetch) | impl: [code/nosql/s3_aws4fetch.jsy](code/nosql/s3_aws4fetch.jsy) <br/> test: [test/unittest.web.mjs](test/unittest.web.mjs)
 
 Also see `s3leveldown` Level-based adapter.
@@ -92,7 +92,7 @@ Also see `s3leveldown` Level-based adapter.
 | ✅ | [RocksDB](https://rocksdb.org/) <br/> [rocksdb](https://github.com/Level/rocksdb) | impl: [code/adapter/level.jsy](code/adapter/level.jsy) <br/> test: [test/int--level/integ-test.mjs](test/int--level/integ-test.mjs)
 | ✅ | [Medea](https://github.com/medea/medea) <br/> [medeadown](https://github.com/medea/medeadown) | impl: [code/adapter/level.jsy](code/adapter/level.jsy) <br/> test: [test/int--level/integ-test.mjs](test/int--level/integ-test.mjs)
 | ✅ | [Redis](https://redis.io/) <br/> [redisdown](https://github.com/hmalphettes/redisdown#readme) | impl: [code/adapter/level.jsy](code/adapter/level.jsy) <br/> test: [test/int--redis/integ-test.mjs](test/int--redis/integ-test.mjs)
-| ✅ | [AWS S3](https://aws.amazon.com/s3/) or compatible <br/> [s3leveldown](https://github.com/loune/s3leveldown) | impl: [code/adapter/level.jsy](code/adapter/level.jsy) <br/> test: [test/int--minio/integ-test.mjs](test/int--minio/integ-test.mjs)
+| ✅ | [AWS S3](https://aws.amazon.com/s3/) or compatible <br/> [s3leveldown](https://github.com/loune/s3leveldown) | impl: [code/adapter/level.jsy](code/adapter/level.jsy) <br/> test: [test/int--s3api/integ-test.mjs](test/int--s3api/integ-test.mjs)
 | ✅ | [SQLite](https://www.sqlite.org/index.html) <br/> [level][level] and []() | impl: [code/adapter/level.jsy](code/adapter/level.jsy) <br/> test: [test/int--sqlite3/integ-test.mjs](test/int--sqlite3/integ-test.mjs)
 
 
