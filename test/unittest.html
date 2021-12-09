@@ -16,7 +16,7 @@
   window.require = module => window[module] || window[module.replace('-', '_')]
   mocha.setup({ ui: 'bdd' })
 </script>
-<script type=module src='./__unittest.web.mjs'></script>
+<script type=module src='./esm/unittest.web.js'></script>
 <script type=module>
   mocha.run()
 </script>

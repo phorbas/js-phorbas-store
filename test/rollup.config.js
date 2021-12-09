@@ -10,19 +10,20 @@ const _cfg_ = {
   ]}
 
 const cfg_node = { ..._cfg_,
-  external: id => /^node:/.test(id) || builtinModules.includes(id),
+  external: id => /^\w+:/.test(id) || builtinModules.includes(id),
 }
 
 const cfg_web = { ..._cfg_,
-  external: id => /https?:/.test(id),
+  external: id => /\w+:/.test(id),
   context: 'window',
 }
 
 
 export default [
-  { ... cfg_node, input: `./unittest.node.mjs`,
-    output: { file: './__unittest.node.cjs', format: 'cjs', sourcemap: true }},
+  { ... cfg_node, input: {'unittest.node': `./unittest.node.mjs`},
+    preserveEntrySignatures: false,
+    output: { dir: './cjs/', format: 'cjs', sourcemap: true }},
 
-  { ... cfg_web, input: `./unittest.web.mjs`,
-    output: { file: './__unittest.web.mjs', format: 'esm', sourcemap: true }},
+  { ... cfg_web, input: {'unittest.web': `./unittest.web.mjs`},
+    output: { dir: './esm/', format: 'esm', sourcemap: true }},
 ]
