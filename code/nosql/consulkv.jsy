@@ -1,0 +1,35 @@
+import {bkc_hexkey_api, as_hex_key, as_u8_key} from '../_utils.jsy'
+
+export {as_hex_key, as_u8_key}
+
+export default bkc_with_consulkv
+
+
+export async function bkc_with_consulkv(consulkv, opt={}) ::
+  let opt_pre = '' + (opt.pre || 'phorbas/')
+  return bkc_hexkey_api @:
+
+    async hk_has(hex_key) ::
+      let res = await consulkv.get @:
+        raw: true, ... opt.has
+        key: opt_pre + hex_key,
+
+      return null != res ? 1 : 0
+
+    async hk_get(hex_key) ::
+      let res = await consulkv.get @:
+        buffer: true, ... opt.get
+        key: opt_pre + hex_key,
+
+      if null != res ::
+        return Uint8Array.from(res.Value)
+
+    async hk_set(hex_key, u8_content) ::
+      try ::
+        await consulkv.set @:
+          ... opt.set
+          key: opt_pre + hex_key
+          value: Buffer.from(u8_content)
+      catch err ::
+        return err
+

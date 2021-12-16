@@ -18,9 +18,9 @@
   },
   "scripts": {
     "prebuild": "test -d ./node_modules || npm -s install",
-    "build": "../node_modules/.bin/rollup --config",
+    "build": "npx rollup --config",
+    "watch": "npx rollup --config --watch",
     "clean": "rm ./esm/* ./cjs/*",
-    "watch": "npm -s run build -- --watch",
     "dkr_deps": "cd int--core; npm -s run dkr_deps",
     "dkr_prune": "docker stack deploy --prune -c int--core/deps-deploy.yml integ_phorbas_store",
     "preserve": "npm -s run build ; npm -s run dkr_deps",
