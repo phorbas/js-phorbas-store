@@ -1,0 +1,68 @@
+import {bkc_hexkey_api, as_hex_key, as_u8_key} from '../_utils.jsy'
+
+export {as_hex_key, as_u8_key}
+
+export default bkc_with_pouchdb
+
+const _mode_direct = @{}
+  to_attach: u8 => u8
+  from_attach: buf => Uint8Array.from(buf)
+
+const _mode_blob = @{}
+  to_attach: (u8, type) =>
+    new Blob([u8], {type})
+
+  from_attach: async blob =>
+    new Uint8Array(await blob.arrayBuffer())
+
+export async function bkc_with_pouchdb(pouchdb, opt={}) ::
+  let opt_path = '' + (opt.path || 'phorbas/')
+  let opt_pre = opt.pre || 'phorbas-'
+  let opt_ext = opt.ext || '.cbor'
+  let opt_mime = opt.mime || 'application/x-phorbas+cbor'
+
+  let {to_attach, from_attach} =
+    'undefined' === typeof Blob
+      ? _mode_direct
+      : _mode_blob
+
+  return bkc_hexkey_api @:
+
+    async hk_has(hex_key) ::
+      let docId = opt_path + hex_key
+      let attachmentId = opt_pre + hex_key + opt_ext
+      try ::
+        let {_attachments} = await pouchdb.get(docId)
+        return _attachments[attachmentId] ? 1 : 0
+      catch err ::
+        if 404 !== err.status ::
+          throw err
+        return 0
+
+    async hk_get(hex_key) ::
+      let docId = opt_path + hex_key
+      let attachmentId = opt_pre + hex_key + opt_ext
+      try ::
+        let res = await pouchdb.getAttachment(docId, attachmentId)
+        if null != res ::
+          return from_attach(res)
+      catch err ::
+        if 404 !== err.status ::
+          throw err
+
+    async hk_set(hex_key, u8_content) ::
+      let docId = opt_path + hex_key
+      try ::
+        var {_rev} = await pouchdb.get(docId)
+      catch err ::
+        if 404 !== err.status ::
+          return err
+
+      let attachmentId = opt_pre + hex_key + opt_ext
+      try ::
+        await pouchdb.putAttachment @
+          docId, attachmentId, _rev,
+          to_attach(u8_content, opt_mime), opt_mime
+      catch err ::
+        return err
+

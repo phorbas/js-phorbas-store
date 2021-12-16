@@ -5,8 +5,12 @@ import {validate_opaque} from './unit/fetch_opaque.mjs'
 import {bind_validate_phorbas_store} from './unit/phorbas_store.mjs'
 import {opaque_basic, opaque_tahoe} from '@phorbas/opaque/esm/node/index.mjs'
 import bkc_with_js_map from '@phorbas/store/esm/js_map.mjs'
+import bkc_with_pouchdb from '@phorbas/store/esm/pouchdb.mjs'
 import bkc_with_level from '@phorbas/store/esm/node/level.mjs'
 import bkc_with_minio from '@phorbas/store/esm/node/minio.mjs'
+
+const PouchDB = require('pouchdb')
+PouchDB.plugin(require('pouchdb-adapter-memory'))
 
 const Minio = require('minio')
 const AWS = require('aws-sdk')
@@ -21,6 +25,10 @@ const level_mem = require('level-mem')
 
 validate_backend('js_map',
   ()=> bkc_with_js_map())
+
+validate_backend('pouchdb in-memory',
+  ()=> bkc_with_pouchdb(
+    new PouchDB('phorbas-pouch', {adapter: 'memory'})))
 
 validate_backend('level with level-mem',
   ()=> bkc_with_level( level_mem() ))

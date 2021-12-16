@@ -4,15 +4,19 @@ import {validate_backend, mini_expect} from '@phorbas/store/esm/web/validate_bac
 import {AwsClient} from 'aws4fetch'
 import 'https://cdn.jsdelivr.net/npm/@isomorphic-git/lightning-fs@4.2.2/dist/lightning-fs.min.js'
 
+import 'pouchdb/dist/pouchdb.js'
+
 import {validate_opaque} from './unit/fetch_opaque.mjs'
 import {bind_validate_phorbas_store} from './unit/phorbas_store.mjs'
 import {opaque_basic, opaque_tahoe} from '@phorbas/opaque/esm/web/index.mjs'
 import bkc_with_js_map from '@phorbas/store/esm/js_map.mjs'
 
+import bkc_with_web_cache_fetch from '@phorbas/store/esm/web/web_cache_fetch.mjs'
 import bkc_with_fetch from '@phorbas/store/esm/web/fetch.mjs'
 import bkc_with_web_db from '@phorbas/store/esm/web/web_db.mjs'
 import bkc_with_web_cache from '@phorbas/store/esm/web/web_cache.mjs'
-import bkc_with_web_cache_fetch from '@phorbas/store/esm/web/web_cache_fetch.mjs'
+
+import bkc_with_pouchdb from '@phorbas/store/esm/pouchdb.mjs'
 
 import bkc_with_fs from '@phorbas/store/esm/fs.mjs'
 import bkc_with_fsp from '@phorbas/store/esm/fsp.mjs'
@@ -80,6 +84,11 @@ describe('web specific', () => {
         {})
     }})
 })
+
+
+validate_backend('pouchdb in-memory',
+  ()=> bkc_with_pouchdb(new PouchDB('phorbas-pouch')))
+
 
 describe('3rd party libraries', () => {
   validate_backend('fs with @isomorphic-git/lightning-fs', {
