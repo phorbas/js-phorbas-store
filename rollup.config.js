@@ -11,18 +11,13 @@ const _rpis_ = (defines, ...args) => [
   ...args,
   rpi_dgnotify()]
 
+const external = id => /^\w+:/.test(id) || builtinModules.includes(id)
 
-const _cfg_ = {
-  external: [],
-  plugins: _rpis_({PLAT_ESM: true}) }
+const _cfg_ = { external, plugins: _rpis_({PLAT_ESM: true}) }
 
-const cfg_node = {
-  external: id => /^node:/.test(id) || builtinModules.includes(id),
-  plugins: _rpis_({PLAT_NODEJS: true}) }
+const cfg_node = { external, plugins: _rpis_({PLAT_NODEJS: true}) }
 
-const cfg_web = {
-  external: [],
-  plugins: _rpis_({PLAT_WEB: true}) }
+const cfg_web = { external, plugins: _rpis_({PLAT_WEB: true}) }
 
 const cfg_web_min = 'undefined'===typeof rpi_terser ? null
   : { ... cfg_web, plugins: [ ... cfg_web.plugins, rpi_terser() ]}

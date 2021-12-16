@@ -1,0 +1,51 @@
+import {u8_json_codec, u8_random_p} from 'u8-utils'
+import {utf8_to_u8, u8_to_utf8} from './_utils.jsy'
+import {bkc_storage_verify, PhorbasBase} from './abstract.jsy'
+
+export {phorbas_kv_store as phorbas_kv}
+export async function phorbas_kv_store(stg, kw_init) ::
+  return new PhorbasKV @ await stg,
+    @{} codec: u8_json_codec
+    kw_init
+
+
+export class PhorbasKV extends PhorbasBase ::
+  with_sync(sync) :: return this.with @: sync
+
+  /// API from PhorbasBase
+  /// utf8 content
+  // async store_utf8(utf8, opt) ::
+  // async store_utf8_at(key, utf8, opt) ::
+  // async fetch_utf8(ref) ::
+
+  /// obj codec content API
+  // encode_obj(obj) ::
+  // decode_obj(u8, absent) ::
+  // async store_obj(obj, opt) ::
+  // async store_obj_at(key, obj, opt) ::
+  // async fetch_obj(ref, absent) ::
+
+
+  // u8 content API
+
+  key_from() :: return u8_random_p(6)
+
+  async store_content_at(key, u8, opt) ::
+    let [[, err]] = await this.bkc_store([[key, u8]])
+    if null != err ::
+      throw err
+
+    let {sync} = this
+    if undefined !== sync ::
+      sync.add(key)
+
+    return key
+
+  async fetch_content(key) ::
+    let [[, u8_res]] = await this.bkc_fetch([key])
+    return u8_res
+
+  async exists(key) ::
+    let [[, ans]] = await this.bkc_exists([key])
+    return ans
+

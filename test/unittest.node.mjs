@@ -3,6 +3,7 @@ import {validate_backend, mini_expect} from '@phorbas/store/esm/node/validate_ba
 
 import {validate_opaque} from './unit/fetch_opaque.mjs'
 import {bind_validate_phorbas_store} from './unit/phorbas_store.mjs'
+import {bind_validate_phorbas_kv_store} from './unit/phorbas_kv_store.mjs'
 import {opaque_basic, opaque_tahoe} from '@phorbas/opaque/esm/node/index.mjs'
 import bkc_with_js_map from '@phorbas/store/esm/js_map.mjs'
 import bkc_with_pouchdb from '@phorbas/store/esm/pouchdb.mjs'
@@ -17,8 +18,12 @@ const AWS = require('aws-sdk')
 const levelup = require('levelup')
 const s3leveldown = require('s3leveldown')
 
-const validate_phorbas_store = bind_validate_phorbas_store(
-  validate_backend, {opaque_basic, opaque_tahoe})
+const validate_phorbas_store =
+  bind_validate_phorbas_store(
+    validate_backend, {opaque_basic, opaque_tahoe})
+
+const validate_phorbas_kv_store =
+  bind_validate_phorbas_kv_store(validate_backend)
 
 const level_mem = require('level-mem')
 
@@ -41,6 +46,15 @@ validate_phorbas_store(
 
 validate_phorbas_store(
   'phorbas_store with level-mem',
+  ()=> bkc_with_level( level_mem() ))
+
+
+validate_phorbas_kv_store(
+  'phorbas_kv_store with js_map',
+  () => bkc_with_js_map())
+
+validate_phorbas_kv_store(
+  'phorbas_kv_store with level-mem',
   ()=> bkc_with_level( level_mem() ))
 
 
