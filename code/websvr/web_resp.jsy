@@ -40,6 +40,7 @@ export function web_responses_bkc(stg, opt={}) ::
           @{} status: u8_body ? 200 : 404
               headers: @{} 
                 'Content-Type': 'application/octet-stream',
+                'X-Content-Type-Options': 'nosniff'
                 ... hdr.common, ... hdr.get,
                 'Content-Length': u8_body ? u8_body.byteLength : 0
 
