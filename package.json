@@ -1,6 +1,6 @@
 {
   "name": "@phorbas/store",
-  "version": "0.2.13",
+  "version": "0.2.14",
   "description": "Persistent, hashed, opaque, replicable, binary key/content, addressable, storage",
   "license": "BSD-2-Clause",
   "author": "Shane Holloway <shane.holloway@ieee.org>",
@@ -32,7 +32,7 @@
     "rollup": "^2.61.1",
     "rollup-plugin-dgnotify": "^0.1.6",
     "rollup-plugin-jsy": "^1.7.3",
-    "u8-utils": "^0.3.13"
+    "u8-utils": "^0.3.15"
   },
   "scripts": {
     "clean": "rm -rf ./esm/*",
