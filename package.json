@@ -1,6 +1,6 @@
 {
   "name": "@phorbas/store",
-  "version": "0.2.12",
+  "version": "0.2.13",
   "description": "Persistent, hashed, opaque, replicable, binary key/content, addressable, storage",
   "license": "BSD-2-Clause",
   "author": "Shane Holloway <shane.holloway@ieee.org>",
@@ -22,7 +22,9 @@
     ".": "./esm/index.mjs",
     "./esm/*": "./esm/*"
   },
-  "workspaces": ["examples"],
+  "workspaces": [
+    "examples"
+  ],
   "dependencies": {},
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^13.1.1",
