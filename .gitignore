@@ -2,6 +2,7 @@ cjs/
 esm/
 umd/
 dist/
+var/
 node_modules/
 examples/package-lock.json
 npm-debug.log

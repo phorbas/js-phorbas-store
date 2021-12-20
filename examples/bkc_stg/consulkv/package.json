@@ -1,0 +1,13 @@
+{
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "dependencies": {
+    "consul": "^0.40.0"
+  },
+  "scripts": {
+    "dkr_deps": "docker stack deploy -c deps-deploy.yml phorbas_store_examples",
+    "prestart": "test -d ./node_modules || npm -s install ; npm run dkr_deps",
+    "start": "node ./demo_bkc_stg.mjs"
+  }
+}

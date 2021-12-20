@@ -1,0 +1,12 @@
+{
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "dependencies": {
+    "sqlite3": "^4.2.0"
+  },
+  "scripts": {
+    "prestart": "test -d ./node_modules || npm -s install",
+    "start": "node ./demo_bkc_stg.mjs"
+  }
+}

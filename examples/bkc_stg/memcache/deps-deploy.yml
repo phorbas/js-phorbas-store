@@ -1,0 +1,5 @@
+version: '3.7'
+services:
+  memcache:
+    image: memcached:1.6
+    ports: ['11211:11211']
