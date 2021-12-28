@@ -66,6 +66,8 @@ export class PhorbasStoreAPI extends PhorbasBase ::
 
 
   async fetch_content(ref) ::
+    if ! ref :: return
+
     let {opaque} = this
     if undefined !== opaque ::
       let k = await opaque.from_k21pair(ref)
@@ -75,11 +77,14 @@ export class PhorbasStoreAPI extends PhorbasBase ::
     else if Array.isArray(ref) ::
       ref = ref[0] // k2loc = k21pair[0]
 
-    let [[, u8_res]] = await this.bkc_fetch([ref])
-    return u8_res
+    if ref ::
+      let [[, u8_res]] = await this.bkc_fetch([ref])
+      return u8_res
 
 
   async exists(ref) ::
+    if ! ref :: return
+
     let {opaque} = this
     if undefined !== opaque ::
       @ {k2loc: ref} = await opaque.from_k21pair(ref)
@@ -87,6 +92,7 @@ export class PhorbasStoreAPI extends PhorbasBase ::
     else if Array.isArray(ref) ::
       ref = ref[0] // k2loc = k21pair[0]
 
-    let [[, ans]] = await this.bkc_exists([ref])
-    return ans
+    if ref ::
+      let [[, ans]] = await this.bkc_exists([ref])
+      return ans
 

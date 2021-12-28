@@ -42,10 +42,12 @@ export class PhorbasKV extends PhorbasBase ::
     return key
 
   async fetch_content(key) ::
-    let [[, u8_res]] = await this.bkc_fetch([key])
-    return u8_res
+    if key ::
+      let [[, u8_res]] = await this.bkc_fetch([key])
+      return u8_res
 
   async exists(key) ::
-    let [[, ans]] = await this.bkc_exists([key])
-    return ans
+    if key ::
+      let [[, ans]] = await this.bkc_exists([key])
+      return ans
 
