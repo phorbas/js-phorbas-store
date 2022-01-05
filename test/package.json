@@ -1,7 +1,7 @@
 {
   "private": true,
   "dependencies": {
-    "aws-sdk": "^2.1045.0",
+    "aws-sdk": "^2.1050.0",
     "aws4fetch": "^1.0.13",
     "ky": "^0.28.7",
     "level-mem": "^6.0.1",
@@ -16,7 +16,7 @@
   "devDependencies": {
     "@phorbas/opaque": "file:../../opaque",
     "@phorbas/store": "file:..",
-    "qsrv": "^0.1.9"
+    "qsrv": "^0.2.0"
   },
   "scripts": {
     "prebuild": "test -d ./node_modules || npm -s install",
