@@ -1,10 +1,12 @@
-import { _use_reqevt } from './node_resp.jsy'
+import { _use_reqevt, mini_node_reqevt } from './node_resp.jsy'
 import { opaque_web_responses } from './opaque_web_resp.jsy'
+
+export { as_u8_key, u8_to_hex, as_hex_key } from '../_utils.jsy'
+export { opaque_web_responses } from './opaque_web_resp.jsy'
 export * from './node_resp.jsy'
-export { opaque_web_responses }
 
 
 export function opaque_node_responses(store_api, opt={}) ::
-  opt = _use_reqevt(opt)
+  opt = _use_reqevt(opt, mini_node_reqevt)
   return opaque_web_responses(store_api, opt)
 

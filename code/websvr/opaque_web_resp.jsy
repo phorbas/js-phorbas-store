@@ -1,6 +1,7 @@
-import { as_u8_key, as_hex_key, storage_api_verify  } from '../_utils.jsy'
-import { _basic_responses, u8_body_for_stream } from './web_resp.jsy'
-export * from './web_resp.jsy'
+import { as_u8_key, u8_to_hex, as_hex_key, storage_api_verify  } from '../_utils.jsy'
+import { websvr_basic_responses, u8_body_for_stream } from './basic_resp.jsy'
+
+export { as_u8_key, u8_to_hex, as_hex_key } from '../_utils.jsy'
 
 
 export function opaque_web_responses(store_api, opt={}) ::
@@ -8,10 +9,10 @@ export function opaque_web_responses(store_api, opt={}) ::
     storage_api_verify(store_api)
 
   return @{}
-    __proto__: _basic_responses(opt)
+    __proto__: websvr_basic_responses(opt)
     store_api
 
-    async resp_has(request, store_api=this.store_api) ::
+    async resp_HEAD(request, store_api=this.store_api) ::
       try ::
         let hex_key = this.hk_for(request)
         let exists =
@@ -27,7 +28,7 @@ export function opaque_web_responses(store_api, opt={}) ::
         return this._resp_500(err, 'has')
 
 
-    async resp_get(request, store_api=this.store_api) ::
+    async resp_GET(request, store_api=this.store_api) ::
       try ::
         let hex_key = this.hk_for(request)
         let [mime, u8_body, content_hdrs] =
@@ -48,7 +49,8 @@ export function opaque_web_responses(store_api, opt={}) ::
         return this._resp_500(err, 'get')
 
 
-    async resp_set(request, store_api=this.store_api) ::
+    get resp_POST() :: return this.resp_PUT
+    async resp_PUT(request, store_api=this.store_api) ::
       try ::
         let hex_key = this.hk_for(request)
         let req_hdr = request.headers

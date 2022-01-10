@@ -3,7 +3,7 @@ export * from './web_resp.jsy'
 
 
 export function node_responses_bkc(stg, opt={}) ::
-  opt = _use_reqevt(opt)
+  opt = _use_reqevt(opt, mini_node_reqevt)
   return web_responses_bkc(stg, opt)
 
 
@@ -42,11 +42,11 @@ export function as_mini_reqevt(request, response) ::
     respondWith: ans =>
       _node_respondWith(ans, response)
 
-function MiniResponse(body, {status, headers}={}) ::
-  return { body, status, headers }
 
 export const mini_node_reqevt = @{}
-  Response: MiniResponse
+  Response:
+    function MiniResponse(body, {status, headers}={}) ::
+      return { body, status, headers }
 
   as_handler(resp_fn) ::
     return (request, response, ...args) => ::
@@ -54,7 +54,7 @@ export const mini_node_reqevt = @{}
       return _node_respondWith(ans, response)
 
 
-export function _use_reqevt(opt, {as_handler, Response}=mini_node_reqevt) ::
+export function _use_reqevt(opt, {as_handler, Response}) ::
   opt = @{} Response, as_handler, ... opt
   for let fn_with_opt of opt.extend || [] ::
     opt = fn_with_opt(opt)
