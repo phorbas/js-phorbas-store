@@ -1,8 +1,8 @@
-import { websvr_core_bkc } from './web_resp.jsy'
+import { websvr_core_bkc } from './websvr_core_bkc.jsy'
 import { _use_node_reqevt, with_cors } from './basic_node_resp.jsy'
 
 export { with_cors }
-export * from './web_resp.jsy'
+export * from './websvr_core_bkc.jsy'
 
 
 export default websvr_node_bkc

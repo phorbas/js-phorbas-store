@@ -1,8 +1,8 @@
-import { websvr_core_opaque } from './opaque_web_resp.jsy'
+import { websvr_core_opaque } from './websvr_core_opaque.jsy'
 import { _use_node_reqevt, with_cors } from './basic_node_resp.jsy'
 
 export { with_cors }
-export * from './opaque_web_resp.jsy'
+export * from './websvr_core_opaque.jsy'
 
 
 export default websvr_node_opaque
