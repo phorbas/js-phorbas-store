@@ -65,4 +65,3 @@ export function websvr_core_bkc(stg, opt={}) ::
       catch err ::
         return this._resp_500(err, 'set')
 
-

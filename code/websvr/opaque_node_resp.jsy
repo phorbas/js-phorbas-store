@@ -1,13 +1,12 @@
-import { _use_reqevt, mini_node_reqevt } from './node_resp.jsy'
 import { websvr_core_opaque } from './opaque_web_resp.jsy'
+import { _use_node_reqevt, with_cors } from './basic_node_resp.jsy'
 
-export { as_u8_key, u8_to_hex, as_hex_key } from '../_utils.jsy'
-export { websvr_core_opaque } from './opaque_web_resp.jsy'
-export * from './node_resp.jsy'
+export { with_cors }
+export * from './opaque_web_resp.jsy'
 
 
 export default websvr_node_opaque
 export function websvr_node_opaque(store_api, opt={}) ::
-  opt = _use_reqevt(opt, mini_node_reqevt)
+  opt = _use_node_reqevt(opt)
   return websvr_core_opaque(store_api, opt)
 

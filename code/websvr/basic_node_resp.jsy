@@ -1,0 +1,58 @@
+export function with_cors(opt) ::
+  let hdr = opt.hdr || {}, cors = opt.cors || {}
+
+  hdr.common = @{}
+    'Access-Control-Allow-Origin': cors.origin || '*',
+    'Access-Control-Max-Age': cors.max_age || '10',
+    'Access-Control-Allow-Methods': cors.methods || 'HEAD, GET, POST, PUT, OPTIONS',
+    'Access-Control-Allow-Headers': cors.allow_headers || cors.headers || 'Authorization, Content-Type, Content-Length, x-hk, x-hk1, x-hk2',
+    'Access-Control-Expose-Headers': cors.expose_headers || cors.headers || 'x-hk, x-hk1, x-hk2',
+    //'Access-Control-Allow-Credentials': cors.allow_creds || 'true'
+    //'Vary': cors.vary || 'Origin, Cookie'
+    ... hdr.common
+
+  hdr.options = @{}
+    ... hdr.options
+    ... hdr.cors
+
+  opt.hdr = hdr
+  opt.cors = cors
+  return opt
+
+
+const mini_node_reqevt = @{}
+  Response:
+    function MiniResponse(body, {status, headers}={}) ::
+      return { body, status, headers }
+
+  as_handler(resp_fn) ::
+    return async (request, response, ...args) => ::
+      let ans = await resp_fn(request, ...args)
+      response
+        .writeHead(ans.status, ans.headers || {})
+        .end(ans.body)
+
+
+export function _use_node_reqevt(opt) ::
+  let {as_handler, Response} = opt.reqevt || mini_node_reqevt
+  opt = @{} Response, as_handler, ... opt
+  for let fn_with_opt of opt.extend || [] ::
+    opt = fn_with_opt(opt)
+  return opt
+
+
+/*
+// Adapter so NodeJS can act more like a ServiceWorker.
+// However, no longer needed by this implementation
+
+export function as_mini_reqevt(request, response) ::
+  let {url, headers: h} = request
+  return @{}
+    request, url: `${h.origin||''}${url}`
+    async respondWith(ans) ::
+      ans = await ans
+      response
+        .writeHead(ans.status, ans.headers || {})
+        .end(ans.body)
+*/
+

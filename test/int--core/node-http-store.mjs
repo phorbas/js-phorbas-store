@@ -1,10 +1,8 @@
 import { createServer } from 'http'
 import { opaque_basic, opaque_tahoe } from '@phorbas/opaque'
 import { phorbas_store, bkc_with_js_map } from '@phorbas/store'
-// import { node_responses_bkc, with_cors } from '@phorbas/store/esm/node/node_resp.mjs'
-import {
-  websvr_node_bkc, websvr_node_opaque, with_cors
-} from '@phorbas/store/esm/node/opaque_node_resp.mjs'
+import { websvr_node_bkc, with_cors } from '@phorbas/store/esm/node/node_resp.mjs'
+import { websvr_node_opaque, /* with_cors */ } from '@phorbas/store/esm/node/opaque_node_resp.mjs'
 
 
 const opaque = 0 ? opaque_basic : opaque_tahoe
