@@ -3,7 +3,7 @@ import { opaque_basic, opaque_tahoe } from '@phorbas/opaque'
 import { phorbas_store, bkc_with_js_map } from '@phorbas/store'
 // import { node_responses_bkc, with_cors } from '@phorbas/store/esm/node/node_resp.mjs'
 import {
-  node_responses_bkc, opaque_node_responses, with_cors
+  websvr_node_bkc, websvr_node_opaque, with_cors
 } from '@phorbas/store/esm/node/opaque_node_resp.mjs'
 
 
@@ -18,16 +18,16 @@ const common_resp_opts = {
   extend: [with_cors] }
 
 const my_cors_stg_shared =
-  node_responses_bkc(stg, common_resp_opts)
+  websvr_node_bkc(stg, common_resp_opts)
 
 const my_cors_stg_param =
-  node_responses_bkc(null, common_resp_opts)
+  websvr_node_bkc(null, common_resp_opts)
 
 const my_cors_opaque_shared =
-  opaque_node_responses(store_api, common_resp_opts)
+  websvr_node_opaque(store_api, common_resp_opts)
 
 const my_cors_opaque_param =
-  opaque_node_responses(null, common_resp_opts)
+  websvr_node_opaque(null, common_resp_opts)
 
 
 function demo_handler(req, resp) {

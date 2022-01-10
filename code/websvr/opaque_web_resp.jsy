@@ -1,15 +1,16 @@
-import { as_u8_key, u8_to_hex, as_hex_key, storage_api_verify  } from '../_utils.jsy'
-import { websvr_basic_responses, u8_body_for_stream } from './basic_resp.jsy'
+import { as_u8_key, as_hex_pair, storage_api_verify } from '../_utils.jsy'
+import { _websvr_basic, u8_body_for_stream } from './basic_resp.jsy'
 
-export { as_u8_key, u8_to_hex, as_hex_key } from '../_utils.jsy'
+export { as_u8_key, as_hex_pair }
 
 
-export function opaque_web_responses(store_api, opt={}) ::
+export default websvr_core_opaque
+export function websvr_core_opaque(store_api, opt={}) ::
   if null != store_api ::
     storage_api_verify(store_api)
 
   return @{}
-    __proto__: websvr_basic_responses(opt)
+    __proto__: _websvr_basic(opt)
     store_api
 
     async resp_HEAD(request, store_api=this.store_api) ::
@@ -38,7 +39,7 @@ export function opaque_web_responses(store_api, opt={}) ::
         let {hdr} = this
         return new this.Response @ u8_body,
           @{} status: u8_body ? 200 : 404
-              headers: @{} 
+              headers: @{}
                 ... content_hdrs
                 'Content-Type': mime || 'application/octet-stream'
                 'X-Content-Type-Options': 'nosniff'
@@ -69,7 +70,7 @@ export function opaque_web_responses(store_api, opt={}) ::
         if ! k21pair ::
           return new this.Response('', {status: 400})
 
-        let hk21 = k21pair.map @ as_hex_key
+        let hk21 = as_hex_pair(k21pair)
 
         let {hdr} = this
         return new this.Response @

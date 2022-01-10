@@ -1,15 +1,16 @@
-import { as_u8_key, u8_to_hex, as_hex_key, bkc_storage_verify} from '../_utils.jsy'
-import { websvr_basic_responses, u8_body_for_stream } from './basic_resp.jsy'
+import { as_u8_key, as_hex_key, bkc_storage_verify} from '../_utils.jsy'
+import { _websvr_basic, u8_body_for_stream } from './basic_resp.jsy'
 
-export { as_u8_key, u8_to_hex, as_hex_key }
+export { as_u8_key, as_hex_key }
 
 
-export function web_responses_bkc(stg, opt={}) ::
+export default websvr_core_bkc
+export function websvr_core_bkc(stg, opt={}) ::
   if null != stg ::
     bkc_storage_verify(stg)
 
   return @{}
-    __proto__: websvr_basic_responses(opt)
+    __proto__: _websvr_basic(opt)
     stg
 
     async resp_HEAD(request, stg=this.stg) ::
@@ -38,7 +39,7 @@ export function web_responses_bkc(stg, opt={}) ::
         let {hdr} = this
         return new this.Response @ u8_body,
           @{} status: u8_body ? 200 : 404
-              headers: @{} 
+              headers: @{}
                 'Content-Type': 'application/octet-stream',
                 'X-Content-Type-Options': 'nosniff'
                 ... hdr.common, ... hdr.get,

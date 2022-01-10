@@ -1,10 +1,11 @@
-import {web_responses_bkc} from './web_resp.jsy'
+import { websvr_core_bkc } from './web_resp.jsy'
 export * from './web_resp.jsy'
 
 
-export function node_responses_bkc(stg, opt={}) ::
+export default websvr_node_bkc
+export function websvr_node_bkc(stg, opt={}) ::
   opt = _use_reqevt(opt, mini_node_reqevt)
-  return web_responses_bkc(stg, opt)
+  return websvr_core_bkc(stg, opt)
 
 
 export function with_cors(opt) ::

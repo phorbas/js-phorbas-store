@@ -1,18 +1,11 @@
 import { u8_concat } from 'u8-utils'
 
 
-export function websvr_basic_responses(opt={}) ::
+export function _websvr_basic(opt={}) ::
   const {hdr} = opt, hk_for = opt.hk_for || iso_request_hk
   return @{}
     Response: opt.Response || globalThis.Response
     hdr, hk_for
-
-    _resp_by_method: @{}
-      HEAD: 'has'
-      GET: 'get'
-      PUT: 'set'
-      POST: 'set'
-      OPTIONS: 'options'
 
     as_handler: opt.as_handler || @ fn => fn
     method_for(method) ::
