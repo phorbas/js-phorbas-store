@@ -2,20 +2,19 @@ import {bkc_hexkey_api, as_hex_key, as_u8_key} from '../_utils.jsy'
 
 export {as_hex_key, as_u8_key}
 
-const _enc_binary = {encoding: null}
-
 export default bkc_with_fs
 export async function bkc_with_fs(opt={}) ::
-  const {stat, readFile, writeFile} = opt.fs
-  const base = opt.base || ''
-  const ext = opt.ext || ''
+  let _enc_binary = {encoding: null}
+  let {stat, readFile, writeFile} = await opt.fs
+  let base = opt.base || './var/'
+  let ext = opt.ext || '.bin'
 
   return bkc_hexkey_api @:
 
     hk_has: hex_key =>
       new Promise @\ resolve, reject ::
         stat @ `${base}${hex_key}${ext}`,
-          @\ err ::
+          (err) => ::
             if ! err ::
               resolve(1)
             else if 'ENOENT' === err.code ::
@@ -24,9 +23,8 @@ export async function bkc_with_fs(opt={}) ::
 
     hk_get: hex_key =>
       new Promise @\ resolve, reject ::
-        readFile @ `${base}${hex_key}${ext}`,
-          _enc_binary,
-          @\ err, buf ::
+        readFile @ `${base}${hex_key}${ext}`, _enc_binary,
+          (err, buf) => ::
             if ! err ::
               resolve @ Uint8Array.from(buf)
             else if 'ENOENT' === err.code ::

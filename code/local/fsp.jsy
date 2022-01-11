@@ -2,13 +2,13 @@ import {bkc_hexkey_api, as_hex_key, as_u8_key} from '../_utils.jsy'
 
 export {as_hex_key, as_u8_key}
 
-const _enc_binary = {encoding: null}
 
 export default bkc_with_fsp
 export async function bkc_with_fsp(opt={}) ::
-  const {stat, readFile, writeFile} = opt.fsp
-  const base = opt.base || ''
-  const ext = opt.ext || ''
+  let _enc_binary = {encoding: null}
+  let {stat, readFile, writeFile} = await opt.fsp
+  let base = opt.base || './var/'
+  let ext = opt.ext || '.bin'
 
   return bkc_hexkey_api @:
 
