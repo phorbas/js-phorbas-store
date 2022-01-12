@@ -1,5 +1,5 @@
 import { as_u8_key, as_hex_pair, storage_api_verify } from '../_utils.jsy'
-import { _websvr_basic, u8_body_for_stream } from './basic_resp.jsy'
+import { _websvr_basic, u8_body_for_stream } from './basic_websvr.jsy'
 
 export { as_u8_key, as_hex_pair }
 

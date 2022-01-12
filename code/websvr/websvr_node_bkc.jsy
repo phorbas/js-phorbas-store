@@ -1,5 +1,5 @@
 import { websvr_core_bkc } from './websvr_core_bkc.jsy'
-import { _use_node_reqevt, with_cors } from './basic_node_resp.jsy'
+import { _use_node_reqevt, with_cors } from './basic_node_websvr.jsy'
 
 export { with_cors }
 export * from './websvr_core_bkc.jsy'
