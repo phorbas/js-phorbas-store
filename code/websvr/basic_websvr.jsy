@@ -48,7 +48,8 @@ export function iso_request_hk({url, headers: h}) ::
     ? h.get('x-hk') : h['x-hk']
 
   if ! hk ::
-    let m = _rx_hk.exec(`${url}`)
+    url = url.split('?', 1)[0]
+    let m = _rx_hk.exec(url)
     hk = m && m[1]
   return hk
 
