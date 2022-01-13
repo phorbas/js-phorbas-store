@@ -8,7 +8,7 @@ const knex = require('knex')
 // import bkc_with_keyv from '@phorbas/store/esm/node/keyv.mjs'
 
 
-for (const host of [ 'postgres_v12', 'postgres_v11', 'postgres_v10' ]) {
+for (const host of [ 'postgres_v14', 'postgres_v13', 'postgres_v12', 'postgres_v11', 'postgres_v10' ]) {
 
   validate_backend(
     `${host} with knex`,
@@ -29,19 +29,21 @@ for (const host of [ 'postgres_v12', 'postgres_v11', 'postgres_v10' ]) {
 }
 
 
-validate_backend(
-  `cockroach_v20 with knex`,
-  { 
-    create: ctx =>
-      bkc_with_knex(
-        ctx.kdb = knex({
-          client: 'pg', version: '9.6',
-          connection: 'postgresql://root@cockroach_v20:26257/defaultdb',
-          searchPath: ['knex','public'],
-        }) ),
+for (const host of [ 'cockroach_v21', 'cockroach_v20' ]) {
+  validate_backend(
+    `${host} with knex`,
+    { 
+      create: ctx =>
+        bkc_with_knex(
+          ctx.kdb = knex({
+            client: 'pg', version: '9.6',
+            connection: `postgresql://root@${host}:26257/defaultdb`,
+            searchPath: ['knex','public'],
+          }) ),
 
-    done: ctx => ctx.kdb.destroy(),
-  })
+      done: ctx => ctx.kdb.destroy(),
+    })
+}
 
 
 /*
