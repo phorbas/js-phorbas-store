@@ -1,7 +1,7 @@
 import validate_backend from '@phorbas/store/esm/node/validate_backend.mjs'
 
 import bkc_with_knex from '@phorbas/store/esm/node/knex.mjs'
-const knex = require('knex')
+import knex from 'knex'
 
 
 /// KeyV does NOT work properly with PostgreSQL and Phorbas's binary use case
@@ -24,8 +24,8 @@ const cockroach_hosts = [
 for (const host of postgres_hosts) {
 
   validate_backend(
-    `${host} with knex`,
-    { 
+    `${host} with knex (and pg driver)`,
+    {
       create: ctx =>
         bkc_with_knex(
           ctx.kdb = knex({
@@ -39,19 +39,56 @@ for (const host of postgres_hosts) {
 
       done: ctx => ctx.kdb.destroy(),
     })
+
+  //// pg-native does not work with our testsuite. Needs troublshooting.
+  // -- add "pg-native": "*" to dependencies of integ-package.json
+  // validate_backend.skip(
+  //   `${host} with knex (and pg-native driver)`,
+  //   {
+  //     create: ctx =>
+  //       bkc_with_knex(
+  //         ctx.kdb = knex({
+  //           client: 'pgnative',
+  //           connection: {
+  //             host,
+  //             user: 'postgres',
+  //             password: 'integ_pass',
+  //             database: 'phorbas_test'
+  //           }}) ),
+  //
+  //     done: ctx => ctx.kdb.destroy(),
+  //   })
 }
 
 
 for (const host of cockroach_hosts) {
   validate_backend(
-    `${host} with knex`,
-    { 
+    `${host} with knex (and postgres 9.6 dialect)`,
+    {
       create: ctx =>
         bkc_with_knex(
           ctx.kdb = knex({
-            client: 'pg', version: '9.6',
+            client: 'pg',
+            version: '9.6',
             connection: `postgresql://root@${host}:26257/defaultdb`,
             searchPath: ['knex','public'],
+          }) ),
+
+      done: ctx => ctx.kdb.destroy(),
+    })
+
+  validate_backend(
+    `${host} with knex (and cockroachdb dialect)`,
+    {
+      create: ctx =>
+        bkc_with_knex(
+          ctx.kdb = knex({
+            client: 'cockroachdb',
+            connection: {
+              host, port: 26257,
+              user: 'root', password: '',
+              database: 'defaultdb'
+            },
           }) ),
 
       done: ctx => ctx.kdb.destroy(),

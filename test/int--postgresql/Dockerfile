@@ -1,5 +1,12 @@
-FROM node:16-stretch-slim as base
+FROM node:16-slim as base
 WORKDIR /app
+
+### For pg-native installation
+## FROM node:16 as base
+## ...
+## RUN apt-get update
+## RUN apt-get install -y postgresql libpq-dev
+## RUN apt-get install -y node-gyp
 
 COPY ./integ-package.json /app/package.json
 RUN npm install

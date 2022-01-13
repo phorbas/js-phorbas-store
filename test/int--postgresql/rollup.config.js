@@ -2,8 +2,15 @@ import {builtinModules} from 'module'
 import rpi_dgnotify from 'rollup-plugin-dgnotify'
 import rpi_resolve from '@rollup/plugin-node-resolve'
 
+import pkg from './integ-package.json'
+pkg.dependencies ||= {} // ensure a dependencies dict
+
 const _cfg_ = {
-  external: id => builtinModules.includes(id),
+  external: id => (
+       /^\w+:/.test(id)
+    || builtinModules.includes(id)
+    || !! pkg.dependencies[id]
+    ),
   plugins: [
     rpi_dgnotify(),
     rpi_resolve(),
