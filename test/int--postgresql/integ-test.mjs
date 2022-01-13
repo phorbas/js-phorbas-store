@@ -4,11 +4,24 @@ import bkc_with_knex from '@phorbas/store/esm/node/knex.mjs'
 const knex = require('knex')
 
 
-// KeyV does NOT work properly with PostgreSQL and Phorbas's binary use case
+/// KeyV does NOT work properly with PostgreSQL and Phorbas's binary use case
 // import bkc_with_keyv from '@phorbas/store/esm/node/keyv.mjs'
 
 
-for (const host of [ 'postgres_v14', 'postgres_v13', 'postgres_v12', 'postgres_v11', 'postgres_v10' ]) {
+// List PostgreSQL versions to test -- see ./deps-deploy.yml
+const postgres_hosts = [
+    'postgres_v14', 'postgres_v13',
+    'postgres_v12', 'postgres_v11',
+    'postgres_v10', 'postgres_v9',
+  ]
+
+// List Cockroach SQL versions to test -- see ./deps-deploy.yml
+const cockroach_hosts = [
+    'cockroach_v21', 'cockroach_v20',
+  ]
+
+
+for (const host of postgres_hosts) {
 
   validate_backend(
     `${host} with knex`,
@@ -29,7 +42,7 @@ for (const host of [ 'postgres_v14', 'postgres_v13', 'postgres_v12', 'postgres_v
 }
 
 
-for (const host of [ 'cockroach_v21', 'cockroach_v20' ]) {
+for (const host of cockroach_hosts) {
   validate_backend(
     `${host} with knex`,
     { 

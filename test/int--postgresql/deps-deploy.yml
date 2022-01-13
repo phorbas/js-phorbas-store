@@ -30,6 +30,12 @@ services:
       POSTGRES_PASSWORD: integ_pass
       POSTGRES_DB: phorbas_test
 
+  postgres_v9:
+    image: postgres:9.6
+    environment:
+      POSTGRES_PASSWORD: integ_pass
+      POSTGRES_DB: phorbas_test
+
   cockroach_v21:
     image: cockroachdb/cockroach:v21.2.4
     command: start-single-node --insecure
