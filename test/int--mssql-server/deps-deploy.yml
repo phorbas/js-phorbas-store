@@ -1,0 +1,20 @@
+version: '3.7'
+services:
+  mssql_latest:
+    image: mcr.microsoft.com/mssql/server:latest
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: integ_pass # for userid "sa"
+
+  mssql_2019:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: integ_pass # for userid "sa"
+
+  mssql_2017:
+    image: mcr.microsoft.com/mssql/server:2017-latest
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: integ_pass # for userid "sa"
+

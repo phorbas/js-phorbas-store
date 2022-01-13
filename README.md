@@ -78,6 +78,7 @@ Also see `s3leveldown` Level-based adapter.
 | ❌ | [CrateDB](https://crate.io/) <br/> [knex.js][knex] | impl: [code/sql/knex.jsy](code/sql/knex.jsy) <br/> test: [test/int--postgres/integ-test.mjs](test/int--postgres/integ-test.mjs) <br/> **note:** Crate SQL lacks BLOB in-table support
 | ✅ | [MariaDB](https://mariadb.org/) <br/> [knex.js][knex] | impl: [code/sql/knex.jsy](code/sql/knex.jsy) <br/> test: [test/int--mysql/integ-test.mjs](test/int--mysql/integ-test.mjs) <br/> **note:** Uses MEDIUMBLOB
 | ✅ | [MySQL](https://www.mysql.com/) <br/> [knex.js][knex] | impl: [code/sql/knex.jsy](code/sql/knex.jsy) <br/> test: [test/int--mysql/integ-test.mjs](test/int--mysql/integ-test.mjs) <br/> **note:** Uses MEDIUMBLOB
+| ✅ | [Microsoft SQL Server](https://github.com/Microsoft/mssql-docker) <br/> [knex.js][knex] | impl: [code/sql/knex.jsy](code/sql/knex.jsy) <br/> test: [test/int--mssql-server/integ-test.mjs](test/int--mssql-server/integ-test.mjs)
 
 
 
