@@ -19,3 +19,15 @@ services:
       MYSQL_ROOT_PASSWORD: integ_pass
       MYSQL_DATABASE: phorbas_test
 
+  mariadb_v10_6:
+    image: mariadb:10.6
+    environment:
+      MYSQL_ROOT_PASSWORD: integ_pass
+      MYSQL_DATABASE: phorbas_test
+
+  mariadb_v10_7:
+    image: mariadb:10.7
+    environment:
+      MYSQL_ROOT_PASSWORD: integ_pass
+      MYSQL_DATABASE: phorbas_test
+

@@ -8,13 +8,20 @@ const knex = require('knex')
 // import bkc_with_keyv from '@phorbas/store/esm/node/keyv.mjs'
 
 
+const mysql_hosts = [
+    'mysql_v5',
+    'mysql_v8',
+    'mariadb_v10_5',
+    'mariadb_v10_6',
+    'mariadb_v10_7',
+  ]
 
-for (const host of ['mysql_v5', 'mysql_v8', 'mariadb_v10_5']) {
-//for (const host of ['mysql_v5', 'mariadb_v10_5']) {
+
+for (const host of mysql_hosts) {
 
   validate_backend(
     `${host} with knex and mysql`,
-    { 
+    {
       create: ctx =>
         bkc_with_knex(
           ctx.kdb = knex({
@@ -32,7 +39,7 @@ for (const host of ['mysql_v5', 'mysql_v8', 'mariadb_v10_5']) {
 
   validate_backend(
     `${host} with knex and mysql2`,
-    { 
+    {
       create: ctx =>
         bkc_with_knex(
           ctx.kdb = knex({
