@@ -11,7 +11,7 @@ export async function bkc_with_knex(knex, opt={}) ::
       const {key_type, blob_type} = opt
 
       const col_key = key_type
-        ? t.specificType('bc', key_type)
+        ? t.specificType('hk', key_type)
         : t.string('hk')
 
       col_key.unique().notNullable().primary()
