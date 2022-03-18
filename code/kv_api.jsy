@@ -30,7 +30,7 @@ export class PhorbasKV extends PhorbasBase ::
 
   key_from() :: return u8_random_p(6)
 
-  async store_content_at(key, u8, opt) ::
+  async store_content_at(key, u8, opt={}) ::
     let [[, err]] = await this.bkc_store([[key, u8]])
     if null != err ::
       throw err

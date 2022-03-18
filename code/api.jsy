@@ -27,7 +27,7 @@ export class PhorbasStoreAPI extends PhorbasBase ::
 
   // u8 content API
 
-  key_from(u8, opt) ::
+  key_from(u8, opt={}) ::
     let opaque = this.opaque
     return opt.rand
       ? opaque.from_random()
@@ -41,7 +41,7 @@ export class PhorbasStoreAPI extends PhorbasBase ::
     return await this.store_content_at(key, u8, opt)
 
 
-  async store_content_at(key, u8, opt) ::
+  async store_content_at(key, u8, opt={}) ::
     if opt && opt.k1 ::
       key = await this.opaque.from_k1ref(key)
 
