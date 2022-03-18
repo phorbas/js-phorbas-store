@@ -50,6 +50,18 @@ export class PhorbasBase ::
       return u8_to_utf8(u8_res)
 
 
+  async store_json(json_obj, opt) ::
+    return this.store_utf8(JSON.stringify(json_obj), opt)
+
+  async store_json_at(key, json_obj, opt) ::
+    await this.store_content_at(key, JSON.stringify(json_obj), opt)
+
+  async fetch_json(ref) ::
+    let utf8_res = await this.fetch_utf8(ref)
+    if utf8_res ::
+      return JSON.parse(utf8_res)
+
+
   /// obj codec content API
 
   encode_obj(obj) ::

@@ -5,6 +5,7 @@ async function _use_phorbas_kv_store(stg) {
 
   let tst_msg = 'hello PHORBAS!'
   let some_key = await stg.store_utf8(tst_msg)
+  let some_json_key = await stg.store_json({tst_msg})
 
   await stg.exists(some_key)
   await stg.fetch_content(some_key)
@@ -13,6 +14,10 @@ async function _use_phorbas_kv_store(stg) {
   let rt_msg = await stg.fetch_utf8(some_key)
   if (tst_msg != rt_msg)
     throw new Error('Failed roundtrip rt_msg message')
+
+  let rt_json = await stg.fetch_json(some_json_key)
+  if (JSON.stringify({tst_msg}) != JSON.stringify(rt_json))
+    throw new Error('Failed roundtrip rt_json message')
 
 
   let another_key = await stg.store_obj({
