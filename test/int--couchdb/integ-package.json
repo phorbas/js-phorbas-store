@@ -1,0 +1,13 @@
+{
+  "private": true,
+  "version": "0.0.0",
+  "dependencies": {
+    "mocha": "*",
+    "nano": "*",
+    "pouchdb": "*"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "NODE_OPTIONS=--enable-source-maps mocha cjs/integ-test.cjs"
+  }
+}

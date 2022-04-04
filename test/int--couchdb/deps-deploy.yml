@@ -1,0 +1,16 @@
+version: '3.7'
+services:
+  some_couchdb_v2:
+    image: couchdb:2
+    ports: ['5983:5984']
+    environment:
+      COUCHDB_USER: "admin"
+      COUCHDB_PASSWORD: "please"
+
+  some_couchdb_v3:
+    image: couchdb:3
+    ports: ['5984:5984']
+    environment:
+      COUCHDB_USER: "admin"
+      COUCHDB_PASSWORD: "please"
+

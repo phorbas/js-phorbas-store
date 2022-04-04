@@ -61,6 +61,7 @@ add_jsy('arangojs', {category: 'nosql/', plat_node: true, plat_web: true})
 add_jsy('dynamodb', {category: 'nosql/', plat_node: true, plat_web: true})
 add_jsy('consulkv', {category: 'nosql/', plat_node: true})
 add_jsy('pouchdb', {category: 'nosql/', all: true})
+add_jsy('couchdb', {category: 'nosql/', plat_node: true})
 
 add_jsy('sqlite3', {category: 'sql/', plat_node: true})
 add_jsy('knex', {category: 'sql/', all: true})

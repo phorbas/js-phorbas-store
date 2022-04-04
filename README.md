@@ -45,7 +45,7 @@ Also see SQLite and Level-based adapters for local / embedded alternatives.
 | ⚠️ | [ArangoDB](https://www.arangodb.com) <br/> [arangojs](https://github.com/arangodb/arangojs) | impl: [code/nosql/arangojs.jsy](code/nosql/arangojs.jsy) <br/> test: [test/int--arangodb/integ-test.mjs](test/int--arangodb/integ-test.mjs) <br/> **note:** Binary values encode in base64
 | ⚗️ | [Cassandra](https://cassandra.apache.org) <br/> [cassandra-driver](https://github.com/datastax/nodejs-driver#readme) | intended; need help setting up Docker integration testing
 | ⚗️ | [Couchbase](https://www.couchbase.com/) | intended
-| ⚗️ | [CouchDB](http://couchdb.apache.org) | intended
+| ✅ | [CouchDB](http://couchdb.apache.org) <br/> [nano](https://www.npmjs.com/package/nano) | impl: [code/nosql/couchdb.jsy](code/nosql/couchdb.jsy) <br/> test: [test/int--couchdb/integ-test.mjs](test/int--couchdb/integ-test.mjs)
 | ✅ | [Consul KV](https://www.consul.io/docs/dynamic-app-config/kv) <br/> [node-consul](https://www.npmjs.com/package/consul) | impl: [code/nosql/consulkv.jsy](code/nosql/consulkv.jsy) <br/> test: [test/int--consulkv/integ-test.mjs](test/int--consulkv/integ-test.mjs)
 | ✅ | [AWS DynamoDB](https://aws.amazon.com/dynamodb/) <br/> [aws-sdk](https://www.npmjs.com/package/aws-sdk) | impl: [code/nosql/dynamodb.jsy](code/nosql/dynamodb.jsy) <br/> test: [test/int--dynamodb/integ-test.mjs](test/int--dynamodb/integ-test.mjs)
 | ✅ | [LMDB](https://symas.com/lmdb/) <br/> [node-lmdb](https://github.com/Venemo/node-lmdb#readme) | impl: [code/nosql/lmdb.jsy](code/nosql/lmdb.jsy) <br/> test: [test/int--level/integ-test.mjs](test/int--level/integ-test.mjs)

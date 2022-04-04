@@ -1,0 +1,66 @@
+import {bkc_hexkey_api, as_hex_key, as_u8_key} from '../_utils.jsy'
+
+export {as_hex_key, as_u8_key}
+
+export default bkc_with_couchdb
+
+const _mode_direct = @{}
+  to_attach: u8 => u8
+  from_attach: buf => Uint8Array.from(buf)
+
+export async function bkc_with_couchdb(db_nano, opt={}) ::
+  if opt.database ::
+    // autocreate database, if not exists
+    await db_nano.db.create(opt.database).catch(()=>{})
+    db_nano = db_nano.use(opt.database)
+
+  let opt_path = '' + (opt.path || 'phorbas/')
+  let opt_pre = opt.pre || 'phorbas-'
+  let opt_ext = opt.ext || '.cbor'
+  let opt_mime = opt.mime || 'application/x-phorbas+cbor'
+
+  let {to_attach, from_attach} = _mode_direct
+
+  return bkc_hexkey_api @:
+
+    async hk_has(hex_key) ::
+      let docId = opt_path + hex_key
+      let attachmentId = opt_pre + hex_key + opt_ext
+      try ::
+        let {_attachments} = await db_nano.get(docId)
+        return _attachments[attachmentId] ? 1 : 0
+      catch err ::
+        if 'missing' != err.reason && 404 != err.statusCode ::
+          throw err
+        return 0
+
+    async hk_get(hex_key) ::
+      let docId = opt_path + hex_key
+      let attachmentId = opt_pre + hex_key + opt_ext
+      try ::
+        let res_att = await db_nano.attachment.get(docId, attachmentId)
+        if null != res_att ::
+          return from_attach(res_att)
+      catch err ::
+        if 'missing' != err.reason && 404 != err.statusCode ::
+          throw err
+
+    async hk_set(hex_key, u8_content) ::
+      let docId = opt_path + hex_key
+      try ::
+        let res_doc = await db_nano.get(docId)
+        var {_rev} = res_doc
+        //var {_rev} = await db_nano.get(docId)
+      catch err ::
+        if 'missing' != err.reason && 404 != err.statusCode ::
+          return err
+
+      let attachmentId = opt_pre + hex_key + opt_ext
+      try ::
+        await db_nano.attachment.insert @
+          docId, attachmentId,
+          to_attach(u8_content, opt_mime), opt_mime,
+          {rev: _rev}
+      catch err ::
+        return err
+
