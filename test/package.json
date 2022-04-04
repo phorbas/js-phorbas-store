@@ -1,13 +1,13 @@
 {
   "private": true,
   "dependencies": {
-    "aws-sdk": "^2.1050.0",
+    "aws-sdk": "^2.1106.0",
     "aws4fetch": "^1.0.13",
     "ky": "^0.28.7",
     "level-mem": "^6.0.1",
     "levelup": "^5.1.1",
-    "minio": "^7.0.25",
-    "mocha": "^9.1.3",
+    "minio": "^7.0.26",
+    "mocha": "^9.2.2",
     "node-fetch": "^3.1.1",
     "pouchdb": "^7.2.2",
     "pouchdb-adapter-memory": "^7.2.2",
@@ -16,7 +16,7 @@
   "devDependencies": {
     "@phorbas/opaque": "file:../../opaque",
     "@phorbas/store": "file:..",
-    "qsrv": "^0.2.0"
+    "qsrv": "^0.2.2"
   },
   "scripts": {
     "prebuild": "test -d ./node_modules || npm -s install",
