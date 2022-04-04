@@ -1,4 +1,4 @@
-import sqlite3 from 'sqlite3'
+import sqlite3 from '@vscode/sqlite3'
 import bkc_with_sqlite3 from '@phorbas/store/esm/node/sqlite3.mjs'
 
 let bkc_stg = await bkc_with_sqlite3(

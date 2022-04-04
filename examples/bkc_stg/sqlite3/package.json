@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "type": "module",
   "dependencies": {
-    "sqlite3": "^4.2.0"
+    "@vscode/sqlite3": "^5.0.8"
   },
   "scripts": {
     "prestart": "test -d ./node_modules || npm -s install",
