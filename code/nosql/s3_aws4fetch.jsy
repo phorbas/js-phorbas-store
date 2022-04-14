@@ -5,7 +5,8 @@ export {as_hex_key, as_u8_key}
 
 export default bkc_with_s3_fetch
 export async function bkc_with_s3_fetch(url_bucket, opt={}) ::
-  return bkc_with_s3_aws4fetch(url_bucket, new AwsClient({service: 's3', ... opt}), opt)
+  let fc = new AwsClient({service: 's3', ... opt})
+  return bkc_with_s3_aws4fetch(url_bucket, fc, opt)
 
 export async function bkc_with_s3_aws4fetch(url_bucket, aws4fetch, opt={}) ::
   url_bucket = new URL(url_bucket)
