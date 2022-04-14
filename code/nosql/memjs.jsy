@@ -4,20 +4,21 @@ export {as_hex_key, as_u8_key}
 
 export default bkc_with_memjs
 export async function bkc_with_memjs(memjs, store_options={}) ::
+  let opt_path = '' + (opt.path || '')
   return bkc_hexkey_api @:
 
     async hk_has(hex_key) ::
-      const {value} = await memjs.get(hex_key)
+      const {value} = await memjs.get(opt_path + hex_key)
       return null != value ? 1 : 0
 
     async hk_get(hex_key) ::
-      const {value: buf} = await memjs.get(hex_key)
+      const {value: buf} = await memjs.get(opt_path + hex_key)
       if null != buf ::
         return Uint8Array.from(buf)
 
     async hk_set(hex_key, u8_content) ::
       try ::
-        await memjs.set(hex_key,
+        await memjs.set(opt_path + hex_key,
           Buffer.from(u8_content),
           store_options || {})
       catch err ::
