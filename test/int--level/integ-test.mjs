@@ -12,6 +12,7 @@ const medeadown = require('medeadown')
 const lmdb = require('node-lmdb')
 
 
+console.log('level is', {level})
 validate_backend('level with level()', ()=>
   bkc_with_level(
     level('/var/phorbas/test-level')

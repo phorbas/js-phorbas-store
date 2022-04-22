@@ -1,14 +1,9 @@
 import validate_backend from '@phorbas/store/esm/node/validate_backend.mjs'
 
 import {bkc_with_ioredis_pipeline, bkc_with_ioredis_direct} from '@phorbas/store/esm/node/ioredis.mjs'
-import bkc_with_level from '@phorbas/store/esm/node/level.mjs'
 import bkc_with_keyv from '@phorbas/store/esm/node/keyv.mjs'
 
 const IORedis = require('ioredis')
-
-const levelup = require('levelup')
-const redisdown = require('redisdown')
-const encodingdown = require('encoding-down')
 
 const Keyv = require('keyv')
 const KeyvRedis = require('@keyv/redis')
@@ -16,7 +11,7 @@ const KeyvRedis = require('@keyv/redis')
 
 for (const host of ['redis_v5', 'redis_v6']) {
   validate_backend(
-    `${host} with ioredis`,
+    `${host} with ioredis_pipeline`,
     {
       create:
         ctx => bkc_with_ioredis_pipeline(
@@ -27,7 +22,7 @@ for (const host of ['redis_v5', 'redis_v6']) {
 
 
   validate_backend(
-    `${host} with ioredis`,
+    `${host} with ioredis_direct`,
     {
       create: 
         ctx => bkc_with_ioredis_direct(
@@ -38,29 +33,26 @@ for (const host of ['redis_v5', 'redis_v6']) {
 
 
   validate_backend(
-    `${host} with levelup(redisdown)`,
+    `${host} with path and ioredis_pipeline`,
     {
-      create: 
-        ctx => bkc_with_level(
-          ctx.lvldb = levelup(
-            redisdown('phorbas-test'),
-            {host}) ),
+      create:
+        ctx => bkc_with_ioredis_pipeline(
+          ctx.ioredis = new IORedis({host}),
+          {path: '/a/b/c'}),
       done:
-        ctx => ctx.lvldb.close()
+        ctx => ctx.ioredis.disconnect()
     })
 
 
   validate_backend(
-    `${host} with levelup(encdown(redisdown))`,
+    `${host} with path and ioredis_direct`,
     {
-      create:
-        ctx => bkc_with_level(
-          ctx.lvldb = levelup(
-            encodingdown(redisdown('phorbas-test')),
-            {host}) ),
-
+      create: 
+        ctx => bkc_with_ioredis_direct(
+          ctx.ioredis = new IORedis({host}),
+          {path: '/a/b/c'}),
       done:
-        ctx => ctx.lvldb.close()
+        ctx => ctx.ioredis.disconnect()
     })
 
 

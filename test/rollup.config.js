@@ -9,12 +9,15 @@ const _cfg_ = {
     rpi_resolve(),
   ]}
 
+const ignores = ['node-domexception']
 const cfg_node = { ..._cfg_,
-  external: id => /^\w+:/.test(id) || builtinModules.includes(id),
+  external: id => /^\w+:/.test(id)
+    || builtinModules.includes(id)
+    || ignores.includes(id),
 }
 
 const cfg_web = { ..._cfg_,
-  external: id => /\w+:/.test(id),
+  external: id => /\w+:/.test(id) || ignores.includes(id),
   context: 'window',
 }
 

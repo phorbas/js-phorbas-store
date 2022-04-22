@@ -1,6 +1,6 @@
 # vim: filetype=dockerfile
-# use 16-stretch to allow use of Python for npm dependencies
-FROM node:16-stretch as base
+# use node:16 to allow use of Python for npm dependencies
+FROM node:16 as base
 WORKDIR /app
 
 COPY ./integ-package.json /app/package.json

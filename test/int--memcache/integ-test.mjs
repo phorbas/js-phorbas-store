@@ -24,6 +24,20 @@ for (const host of ['memcache']) {
     })
 
   validate_backend(
+    `${host} with path and memjs`,
+    {
+      create:
+        ctx => bkc_with_memjs(
+          ctx.client = memjs.Client.create(`${host}:11211`),
+          {path: '/a/b/c'}),
+
+      done:
+        ctx => ctx.client.close(),
+
+      max_item_size: 64*1024,
+    })
+
+  validate_backend(
     `${host} with keyv-memcache`,
     {
       create:

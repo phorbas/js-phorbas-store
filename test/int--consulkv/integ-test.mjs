@@ -14,3 +14,8 @@ validate_backend(`consul kv`, {
   max_item_size: 512*1024,
 })
 
+validate_backend(`consul kv with path`, {
+  create: ()=> bkc_with_consulkv(consul.kv, {path: '/a/b/c'}),
+  max_item_size: 512*1024,
+})
+

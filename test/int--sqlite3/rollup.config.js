@@ -3,7 +3,7 @@ import rpi_dgnotify from 'rollup-plugin-dgnotify'
 import rpi_resolve from '@rollup/plugin-node-resolve'
 
 const _cfg_ = {
-  external: id => builtinModules.includes(id),
+  external: id => /^\w+:/.test(id) || builtinModules.includes(id),
   plugins: [
     rpi_dgnotify(),
     rpi_resolve(),
