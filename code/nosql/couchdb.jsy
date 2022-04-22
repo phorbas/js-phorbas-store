@@ -14,7 +14,7 @@ export async function bkc_with_couchdb(db_nano, opt={}) ::
     await db_nano.db.create(opt.database).catch(()=>{})
     db_nano = db_nano.use(opt.database)
 
-  let opt_path = '' + (opt.path || 'phorbas/')
+  let opt_path = '' + (opt.path || '/phorbas/')
   let opt_pre = opt.pre || 'phorbas-'
   let opt_ext = opt.ext || '.cbor'
   let opt_mime = opt.mime || 'application/x-phorbas+cbor'

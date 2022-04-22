@@ -6,7 +6,7 @@ export default bkc_with_consulkv
 
 
 export async function bkc_with_consulkv(consulkv, opt={}) ::
-  let opt_path = '' + (opt.path || 'phorbas/')
+  let opt_path = '' + (opt.path || '/phorbas/').replace(/^\/+/, '')
   return bkc_hexkey_api @:
 
     async hk_has(hex_key) ::

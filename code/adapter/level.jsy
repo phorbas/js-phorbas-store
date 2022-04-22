@@ -4,13 +4,13 @@ export {as_hex_key, as_u8_key}
 
 
 export default bkc_with_level
-export async function bkc_with_level(levelup) ::
+export async function bkc_with_level(levelup, opt={}) ::
   return levelup.supports.bufferKeys
-    ? bkc_with_level_binkey(levelup)
-    : bkc_with_level_hexkey(levelup)
+    ? bkc_with_level_binkey(levelup, opt)
+    : bkc_with_level_hexkey(levelup, opt)
 
 
-export async function bkc_with_level_binkey(levelup) ::
+export async function bkc_with_level_binkey(levelup, opt={}) ::
   if ! levelup.supports.bufferKeys ::
     throw new Error('LevelDB bufferKeys support required')
   if ! levelup.supports.promises ::
@@ -72,7 +72,7 @@ export async function bkc_with_level_binkey(levelup) ::
       return ans
 
 
-export async function bkc_with_level_hexkey(levelup) ::
+export async function bkc_with_level_hexkey(levelup, opt={}) ::
   if ! levelup.supports.promises ::
     throw new Error('LevelDB promise support required')
 

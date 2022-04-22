@@ -3,8 +3,9 @@ import {bkc_hexkey_api, as_hex_key, as_u8_key} from '../_utils.jsy'
 export {as_hex_key, as_u8_key}
 
 export default bkc_with_memjs
-export async function bkc_with_memjs(memjs, store_options={}) ::
+export async function bkc_with_memjs(memjs, opt={}) ::
   let opt_path = '' + (opt.path || '')
+  if opt_path :: delete opt.path
   return bkc_hexkey_api @:
 
     async hk_has(hex_key) ::
@@ -20,7 +21,7 @@ export async function bkc_with_memjs(memjs, store_options={}) ::
       try ::
         await memjs.set(opt_path + hex_key,
           Buffer.from(u8_content),
-          store_options || {})
+          opt || {})
       catch err ::
         return err
 

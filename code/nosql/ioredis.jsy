@@ -5,32 +5,35 @@ export {as_hex_key, as_u8_key}
 export default bkc_with_ioredis_pipeline
 
 
-export async function bkc_with_ioredis_direct(ioredis) ::
+export async function bkc_with_ioredis_direct(ioredis, opt={}) ::
+  let opt_path = '' + (opt.path || '')
   return bkc_hexkey_api @:
 
     async hk_has(hex_key) ::
-      return await ioredis.exists(hex_key)
+      return await ioredis.exists(opt_path + hex_key)
 
     async hk_get(hex_key) ::
-      const buf = await ioredis.getBuffer(hex_key)
+      const buf = await ioredis.getBuffer(opt_path + hex_key)
       if null != buf ::
         return Uint8Array.from(buf)
 
     async hk_set(hex_key, u8_content) ::
       try ::
-        await ioredis.setBuffer(hex_key,
+        await ioredis.setBuffer(
+          opt_path + hex_key,
           Buffer.from(u8_content))
       catch err ::
         return err
 
 
-export async function bkc_with_ioredis_pipeline(ioredis) ::
+export async function bkc_with_ioredis_pipeline(ioredis, opt={}) ::
+  let opt_path = '' + (opt.path || '')
   return @{}
 
     async bkc_exists(u8_key_list) ::
       const ops = []
       for let u8_key of u8_key_list ::
-        ops.push @# 'exists', as_hex_key(u8_key)
+        ops.push @# 'exists', opt_path + as_hex_key(u8_key)
 
       const res = await ioredis.pipeline(ops).exec()
 
@@ -42,7 +45,7 @@ export async function bkc_with_ioredis_pipeline(ioredis) ::
     async bkc_fetch(u8_key_list) ::
       const ops = []
       for let u8_key of u8_key_list ::
-        ops.push @# 'getBuffer', as_hex_key(u8_key)
+        ops.push @# 'getBuffer', opt_path + as_hex_key(u8_key)
 
       const res = await ioredis.pipeline(ops).exec()
 
@@ -58,7 +61,7 @@ export async function bkc_with_ioredis_pipeline(ioredis) ::
 
       for let [u8_key, u8_content] of u8_pair_list ::
         ops.push @# 'setBuffer',
-          as_hex_key(u8_key),
+          opt_path + as_hex_key(u8_key),
           Buffer.from(u8_content)
 
       const res = await ioredis.pipeline(ops).exec()
