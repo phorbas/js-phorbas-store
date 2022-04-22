@@ -16,7 +16,7 @@ const _mode_blob = @{}
     new Uint8Array(await blob.arrayBuffer())
 
 export async function bkc_with_pouchdb(pouchdb, opt={}) ::
-  let opt_path = '' + (opt.path || '/phorbas/')
+  let opt_path = '' + (opt.path || '/phorbas/').replace(/^\/+/, '')
   let opt_pre = opt.pre || 'phorbas-'
   let opt_ext = opt.ext || '.cbor'
   let opt_mime = opt.mime || 'application/x-phorbas+cbor'
