@@ -1,4 +1,4 @@
-import validate_backend from '@phorbas/store/esm/node/validate_backend.mjs'
+import {validate_backend, validate_immutable} from '@phorbas/store/esm/node/validate_backend.mjs'
 
 import bkc_with_keyv from '@phorbas/store/esm/node/keyv.mjs'
 import bkc_with_sqlite3 from '@phorbas/store/esm/node/sqlite3.mjs'
@@ -83,4 +83,68 @@ validate_backend(
 
     done: ctx => ctx.kdb.destroy(),
   })
+
+
+validate_immutable(
+  `sqlite(:memory:) (immutable)`,
+  { 
+    async create(ctx) {
+      await new Promise((resolve, reject) => 
+        ctx.db = new sqlite3.Database(':memory:',
+          err => err ? reject(err) : resolve() ) )
+
+      return bkc_with_sqlite3(ctx.db, {immutable: true})
+    },
+
+    done: ctx => ctx.db.close() })
+
+
+validate_immutable(
+  `sqlite(file) (immutable)`,
+  { 
+    async create(ctx) {
+      await new Promise((resolve, reject) => 
+        ctx.db = new sqlite3.Database(
+          '/var/phorbas/bkc_sqlite/db.sqlite',
+          err => err ? reject(err) : resolve() ) )
+
+      return bkc_with_sqlite3(ctx.db, {immutable: true})
+    },
+
+    done: ctx => ctx.db.close() })
+
+
+validate_immutable(
+  `sqlite(:memory:) with knex (immutable)`,
+  { 
+    create: ctx =>
+      bkc_with_knex(
+        ctx.kdb = knex({
+          client: 'sqlite3',
+          connection: {
+            filename: ':memory:',
+          },
+          useNullAsDefault: true }),
+        {immutable: true}),
+
+    done: ctx => ctx.kdb.destroy(),
+  })
+
+
+validate_immutable(
+  `sqlite(file) with knex (immutable)`,
+  { 
+    create: ctx =>
+      bkc_with_knex(
+        ctx.kdb = knex({
+          client: 'sqlite3',
+          connection: {
+            filename: '/var/phorbas/bkc_sqlite/knex_db.sqlite',
+          },
+          useNullAsDefault: true }),
+        {immutable: true}),
+
+    done: ctx => ctx.kdb.destroy(),
+  })
+
 

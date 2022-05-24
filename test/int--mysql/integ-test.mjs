@@ -1,4 +1,4 @@
-import validate_backend from '@phorbas/store/esm/node/validate_backend.mjs'
+import {validate_backend, validate_immutable} from '@phorbas/store/esm/node/validate_backend.mjs'
 
 import bkc_with_knex from '@phorbas/store/esm/node/knex.mjs'
 const knex = require('knex')
@@ -51,6 +51,42 @@ for (const host of mysql_hosts) {
               database: 'phorbas_test',
             }}),
           {blob_type: 'MEDIUMBLOB'}),
+
+      done: ctx => ctx.kdb.destroy(),
+    })
+
+  validate_immutable(
+    `${host} with knex and mysql (immutable)`,
+    {
+      create: ctx =>
+        bkc_with_knex(
+          ctx.kdb = knex({
+            client: 'mysql',
+            connection: {
+              host,
+              user: 'root',
+              password: 'integ_pass',
+              database: 'phorbas_test',
+            }}),
+          {blob_type: 'MEDIUMBLOB', immutable: true}),
+
+      done: ctx => ctx.kdb.destroy(),
+    })
+
+  validate_immutable(
+    `${host} with knex and mysql2 (immutable)`,
+    {
+      create: ctx =>
+        bkc_with_knex(
+          ctx.kdb = knex({
+            client: 'mysql2',
+            connection: {
+              host,
+              user: 'root',
+              password: 'integ_pass',
+              database: 'phorbas_test',
+            }}),
+          {blob_type: 'MEDIUMBLOB', immutable: true}),
 
       done: ctx => ctx.kdb.destroy(),
     })

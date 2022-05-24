@@ -230,7 +230,7 @@ function _validate_backend(opt) ::
 
     if opt.test_immutable ::
       describe @ 'immutable', function () ::
-        console.log @ "HERE!"
+        // TODO: future immutable tests in addition to 'overwrite test' above
 
 
 export const validate_immutable = _as_test_suite(_validate_immutable)

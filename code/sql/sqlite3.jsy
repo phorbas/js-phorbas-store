@@ -36,5 +36,7 @@ export async function bkc_with_sqlite3(db, opt={}) ::
     hk_set: @\ hex_key, u8_content =>
       new Promise @\ resolve ::
         db.run @ sql_set, hex_key, Buffer.from(u8_content),
-          err => err ? resolve(err) : resolve()
+          err => !err ? resolve()
+            : immutable && 19===err.errno ? resolve(false)
+            : resolve(err)
 

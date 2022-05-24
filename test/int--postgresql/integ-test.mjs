@@ -1,4 +1,4 @@
-import validate_backend from '@phorbas/store/esm/node/validate_backend.mjs'
+import {validate_backend, validate_immutable} from '@phorbas/store/esm/node/validate_backend.mjs'
 
 import bkc_with_knex from '@phorbas/store/esm/node/knex.mjs'
 import knex from 'knex'
@@ -9,17 +9,16 @@ import knex from 'knex'
 
 
 // List PostgreSQL versions to test -- see ./deps-deploy.yml
-const postgres_hosts = [
+let postgres_hosts = [
     'postgres_v14', 'postgres_v13',
     'postgres_v12', 'postgres_v11',
     'postgres_v10', 'postgres_v9',
   ]
 
 // List Cockroach SQL versions to test -- see ./deps-deploy.yml
-const cockroach_hosts = [
+let cockroach_hosts = [
     'cockroach_v21', 'cockroach_v20',
   ]
-
 
 for (const host of postgres_hosts) {
 
@@ -36,6 +35,24 @@ for (const host of postgres_hosts) {
               password: 'integ_pass',
               database: 'phorbas_test'
             }}) ),
+
+      done: ctx => ctx.kdb.destroy(),
+    })
+
+  validate_immutable(
+    `${host} with knex (and pg driver) (immutable)`,
+    {
+      create: ctx =>
+        bkc_with_knex(
+          ctx.kdb = knex({
+            client: 'pg',
+            connection: {
+              host,
+              user: 'postgres',
+              password: 'integ_pass',
+              database: 'phorbas_test'
+            }}),
+          {immutable: true}),
 
       done: ctx => ctx.kdb.destroy(),
     })
@@ -90,6 +107,40 @@ for (const host of cockroach_hosts) {
               database: 'defaultdb'
             },
           }) ),
+
+      done: ctx => ctx.kdb.destroy(),
+    })
+
+  validate_immutable(
+    `${host} with knex (and postgres 9.6 dialect) (immutable)`,
+    {
+      create: ctx =>
+        bkc_with_knex(
+          ctx.kdb = knex({
+            client: 'pg',
+            version: '9.6',
+            connection: `postgresql://root@${host}:26257/defaultdb`,
+            searchPath: ['knex','public'],
+          }),
+          {immutable: true}),
+
+      done: ctx => ctx.kdb.destroy(),
+    })
+
+  validate_immutable(
+    `${host} with knex (and cockroachdb dialect) (immutable)`,
+    {
+      create: ctx =>
+        bkc_with_knex(
+          ctx.kdb = knex({
+            client: 'cockroachdb',
+            connection: {
+              host, port: 26257,
+              user: 'root', password: '',
+              database: 'defaultdb'
+            },
+          }),
+          {immutable: true}),
 
       done: ctx => ctx.kdb.destroy(),
     })

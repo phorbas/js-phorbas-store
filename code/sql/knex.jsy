@@ -55,7 +55,9 @@ export async function bkc_with_knex(knex, opt={}) ::
         await knex(table).insert({hk: hex_key, bc})
       catch err ::
         if immutable ::
-          return err
+          // Note: better to ensure `err` is a constraint error, but
+          // inconsistent error returns between backends
+          return false
 
         try ::
           await knex(table)
