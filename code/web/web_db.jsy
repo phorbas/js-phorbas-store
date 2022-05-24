@@ -24,6 +24,8 @@ export async function bkc_with_web_db(opt={}) ::
 
 
 const _bkc_indexdb_proto_ = @{}
+  bkc_opt: {}
+
   async bkc_exists(u8_key_list) ::
     const [kvdb, txn_done] = this._txn_ro()
     const ans = []

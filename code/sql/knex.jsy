@@ -4,19 +4,20 @@ export {as_hex_key, as_u8_key}
 
 export default bkc_with_knex
 export async function bkc_with_knex(knex, opt={}) ::
-  const table = opt.table || 'phorbas_kv'
+  let immutable = !! opt.immutable
+  let table = opt.table || 'phorbas_kv'
 
   if ! await knex.schema.hasTable(table) ::
     await knex.schema.createTable @ table, @\ t ::
-      const {key_type, blob_type} = opt
+      let {key_type, blob_type} = opt
 
-      const col_key = key_type
+      let col_key = key_type
         ? t.specificType('hk', key_type)
         : t.string('hk')
 
       col_key.unique().notNullable().primary()
 
-      const col_bc = blob_type
+      let col_bc = blob_type
         ? t.specificType('bc', blob_type)
         : t.binary('bc')
 
@@ -24,9 +25,10 @@ export async function bkc_with_knex(knex, opt={}) ::
 
 
   return bkc_hexkey_api @:
+    bkc_opt: @{} immutable
 
     async hk_has(hex_key) ::
-      const ans = await knex(table)
+      let ans = await knex(table)
         .select('hk')
         .where('hk', hex_key)
         .first()
@@ -34,7 +36,7 @@ export async function bkc_with_knex(knex, opt={}) ::
       return null != ans ? 1 : 0
 
     async hk_get(hex_key) ::
-      const ans = await knex(table)
+      let ans = await knex(table)
         .select('bc')
         .where('hk', hex_key)
         .first()
@@ -43,7 +45,7 @@ export async function bkc_with_knex(knex, opt={}) ::
         return Uint8Array.from(ans.bc)
 
     async hk_set(hex_key, u8_content) ::
-      const bc = 
+      let bc = 
         #IF PLAT_NODEJS
           Buffer.from(u8_content)
         #ELSE
@@ -52,6 +54,9 @@ export async function bkc_with_knex(knex, opt={}) ::
       try ::
         await knex(table).insert({hk: hex_key, bc})
       catch err ::
+        if immutable ::
+          return err
+
         try ::
           await knex(table)
             .where({hk: hex_key})

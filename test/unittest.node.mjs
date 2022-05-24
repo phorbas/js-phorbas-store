@@ -1,5 +1,5 @@
 import ky from './unit/ky_uni.mjs'
-import {validate_backend, mini_expect} from '@phorbas/store/esm/node/validate_backend.mjs'
+import {validate_backend, validate_immutable, mini_expect} from '@phorbas/store/esm/node/validate_backend.mjs'
 
 import {validate_opaque} from './unit/fetch_opaque.mjs'
 import {bind_validate_phorbas_store} from './unit/phorbas_store.mjs'
@@ -31,9 +31,17 @@ const level_mem = require('level-mem')
 validate_backend('js_map',
   ()=> bkc_with_js_map())
 
+validate_immutable.only('js_map immutable',
+  ()=> bkc_with_js_map(null, {immutable: true}))
+
 validate_backend('pouchdb in-memory',
   ()=> bkc_with_pouchdb(
     new PouchDB('phorbas-pouch', {adapter: 'memory'})))
+
+validate_immutable.only('pouchdb in-memory',
+  ()=> bkc_with_pouchdb(
+    new PouchDB('phorbas-pouch', {adapter: 'memory'}),
+    {immutable: true}))
 
 validate_backend('level with level-mem',
   ()=> bkc_with_level( level_mem() ))

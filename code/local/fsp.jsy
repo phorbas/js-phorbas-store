@@ -5,12 +5,14 @@ export {as_hex_key, as_u8_key}
 
 export default bkc_with_fsp
 export async function bkc_with_fsp(opt={}) ::
-  let _enc_binary = {encoding: null}
+  let immutable = !! opt.immutable
+  let _enc_binary = @{} encoding: null, flag: immutable ? 'wx' : 'w'
   let {stat, readFile, writeFile} = await opt.fsp
   let base = opt.base || './var/'
   let ext = opt.ext || '.bin'
 
   return bkc_hexkey_api @:
+    bkc_opt: @{} immutable
 
     async hk_has(hex_key) ::
       try ::

@@ -43,6 +43,8 @@ export function as_u8_key(hex_key) ::
 // with hex encoded keys
 
 export const bkc_hexkey_api = api => @:
+    bkc_opt: @{} ... api.bkc_opt
+
     async bkc_exists(u8_key_list) ::
       const ans = []
       for let u8_key of u8_key_list ::
@@ -79,6 +81,8 @@ export const bkc_hexkey_api = api => @:
 // into individual `bk_has` / `bk_get` / `bk_set` calls
 
 export const bkc_binkey_api = api => @:
+    bkc_opt: @{} ... api.bkc_opt
+
     async bkc_exists(u8_key_list) ::
       const ans = []
       for let u8_key of u8_key_list ::
@@ -110,24 +114,28 @@ export const bkc_binkey_api = api => @:
       return ans
 
 
-function _is_fn(v) ::
-  if 'function' !== typeof v ::
-    throw new TypeError()
+function _is_fn(o, k) ::
+  if 'function' !== typeof o[k] ::
+    throw new TypeError(`Expected function "${k}" not present`)
 
 
 // bkc api verification -- binary key (binary) content
 export function bkc_storage_verify(stg) ::
-  _is_fn(stg.bkc_exists)
-  _is_fn(stg.bkc_fetch)
-  _is_fn(stg.bkc_store)
+  _is_fn(stg, 'bkc_exists')
+  _is_fn(stg, 'bkc_fetch')
+  _is_fn(stg, 'bkc_store')
+
+  if 'object' !== typeof stg.bkc_opt ::
+    throw new TypeError('Expected object "bkc_opt" not present')
+
   return stg
 
 // storage api verification
 export function storage_api_verify(store_api) ::
   // bkc_storage_verify(store_api) // also true
-  _is_fn(store_api.exists)
-  _is_fn(store_api.store_content)
-  _is_fn(store_api.store_content_at)
-  _is_fn(store_api.fetch_content)
+  _is_fn(store_api, 'exists')
+  _is_fn(store_api, 'store_content')
+  _is_fn(store_api, 'store_content_at')
+  _is_fn(store_api, 'fetch_content')
   return store_api
 

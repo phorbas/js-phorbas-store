@@ -4,29 +4,27 @@ export {as_hex_key, as_u8_key}
 
 export default bkc_with_pouchdb
 
-const _mode_direct = @{}
-  to_attach: u8 => u8
-  from_attach: buf => Uint8Array.from(buf)
+const _mode_auto = /* #__PURE__ */ @{}
+  to_attach: 'undefined' !== typeof process ? u8 => u8
+    : (u8, type) => new Blob([u8], {type})
 
-const _mode_blob = @{}
-  to_attach: (u8, type) =>
-    new Blob([u8], {type})
+  from_attach: async v =>
+    v.arrayBuffer
+      ? new Uint8Array(await v.arrayBuffer())
+      : Uint8Array.from(v)
 
-  from_attach: async blob =>
-    new Uint8Array(await blob.arrayBuffer())
 
 export async function bkc_with_pouchdb(pouchdb, opt={}) ::
+  let immutable = !! opt.immutable
   let opt_path = '' + (opt.path || '/phorbas/').replace(/^\/+/, '')
   let opt_pre = opt.pre || 'phorbas-'
   let opt_ext = opt.ext || '.cbor'
   let opt_mime = opt.mime || 'application/x-phorbas+cbor'
 
-  let {to_attach, from_attach} =
-    'undefined' === typeof Blob
-      ? _mode_direct
-      : _mode_blob
+  let {to_attach, from_attach} = opt.mode || _mode_auto
 
   return bkc_hexkey_api @:
+    bkc_opt: @{} immutable
 
     async hk_has(hex_key) ::
       let docId = opt_path + hex_key
@@ -54,6 +52,8 @@ export async function bkc_with_pouchdb(pouchdb, opt={}) ::
       let docId = opt_path + hex_key
       try ::
         var {_rev} = await pouchdb.get(docId)
+        if immutable && _rev ::
+          return false
       catch err ::
         if 404 !== err.status ::
           return err

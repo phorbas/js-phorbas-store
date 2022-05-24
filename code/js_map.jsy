@@ -3,15 +3,22 @@ import {bkc_hexkey_api, as_hex_key, as_u8_key} from './_utils.jsy'
 export {as_hex_key, as_u8_key}
 
 export default bkc_with_js_map
-export async function bkc_with_js_map(map_db) ::
+export async function bkc_with_js_map(map_db, opt={}) ::
+  let immutable = !! opt.immutable
   const _db = map_db || new Map()
 
   return bkc_hexkey_api @:
+    bkc_opt: @{} immutable
 
     hk_has: async hex_key => 0 | _db.has(hex_key)
 
     hk_get: async hex_key => _db.get(hex_key)
 
-    hk_set: async (hex_key, u8_content) =>
-      void _db.set(hex_key, u8_content)
+    hk_set: immutable
+      ? async (hex_key, u8_content) =>
+          _db.has(hex_key) ? false
+            : void _db.set(hex_key, u8_content)
+
+      : async (hex_key, u8_content) =>
+          void _db.set(hex_key, u8_content)
 

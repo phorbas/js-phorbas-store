@@ -201,8 +201,21 @@ function _validate_backend(opt) ::
 
         const rk_key_lst = rk_pairs.map(tpl => tpl[0])
 
-        for const step of [1,2,3] ::
-          await _stg_.bkc_store(rk_pairs)
+        let immutable = _stg_.bkc_opt.immutable
+        for const step of [0,1,2] ::
+          let res = await _stg_.bkc_store(rk_pairs)
+          if !step ::
+            for let [k,r] of res ::
+              expect.ok @ undefined === r, 'Store should work on first iteration'
+
+          else if !immutable ::
+            for let [k,r] of res ::
+              expect.ok @ undefined === r, 'Store should work on mutable store subsequent iterations'
+
+          else ::
+            for let [k,r] of res ::
+              expect.ok @ false === r, 'Store should fail on immutable store subsequent iterations'
+
 
           let i=0
           for let [u8_key, u8_content] of await _stg_.bkc_fetch(rk_key_lst) ::
@@ -213,6 +226,20 @@ function _validate_backend(opt) ::
 
             const all_u8_match = u8_content.every @\ v,i => v === rk_content[i]
             expect.ok @ all_u8_match, 'All u8 bytes should match'
+
+
+    if opt.test_immutable ::
+      describe @ 'immutable', function () ::
+        console.log @ "HERE!"
+
+
+export const validate_immutable = _as_test_suite(_validate_immutable)
+
+function _validate_immutable(opt) ::
+    if 'function' === typeof opt ::
+      opt = {create: opt}
+    opt.test_immutable = true
+    return _validate_backend(opt)
 
 
 const expect = @{}

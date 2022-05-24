@@ -14,6 +14,7 @@ export async function bkc_with_couchdb(db_nano, opt={}) ::
     await db_nano.db.create(opt.database).catch(()=>{})
     db_nano = db_nano.use(opt.database)
 
+  let immutable = !! opt.immutable
   let opt_path = '' + (opt.path || '/phorbas/').replace(/^\/+/, '')
   let opt_pre = opt.pre || 'phorbas-'
   let opt_ext = opt.ext || '.cbor'
@@ -22,6 +23,7 @@ export async function bkc_with_couchdb(db_nano, opt={}) ::
   let {to_attach, from_attach} = _mode_direct
 
   return bkc_hexkey_api @:
+    bkc_opt: @{} immutable
 
     async hk_has(hex_key) ::
       let docId = opt_path + hex_key
@@ -48,9 +50,9 @@ export async function bkc_with_couchdb(db_nano, opt={}) ::
     async hk_set(hex_key, u8_content) ::
       let docId = opt_path + hex_key
       try ::
-        let res_doc = await db_nano.get(docId)
-        var {_rev} = res_doc
-        //var {_rev} = await db_nano.get(docId)
+        var {_rev} = await db_nano.get(docId)
+        if immutable && _rev ::
+          return false
       catch err ::
         if 'missing' != err.reason && 404 != err.statusCode ::
           return err
