@@ -31,14 +31,14 @@ const level_mem = require('level-mem')
 validate_backend('js_map',
   ()=> bkc_with_js_map())
 
-validate_immutable.only('js_map immutable',
+validate_immutable('js_map (immutable)',
   ()=> bkc_with_js_map(null, {immutable: true}))
 
 validate_backend('pouchdb in-memory',
   ()=> bkc_with_pouchdb(
     new PouchDB('phorbas-pouch', {adapter: 'memory'})))
 
-validate_immutable.only('pouchdb in-memory',
+validate_immutable('pouchdb in-memory (immutable)',
   ()=> bkc_with_pouchdb(
     new PouchDB('phorbas-pouch', {adapter: 'memory'}),
     {immutable: true}))

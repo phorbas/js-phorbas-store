@@ -29,7 +29,7 @@ const validate_phorbas_store = bind_validate_phorbas_store(
 validate_backend('js_map', ()=>
   bkc_with_js_map() )
 
-validate_immutable.only('js_map immutable',
+validate_immutable('js_map (immutable)',
   ()=> bkc_with_js_map(null, {immutable: true}))
 
 validate_opaque('websvr opaque', {expect: mini_expect, ky})
@@ -92,6 +92,10 @@ describe('web specific', () => {
 validate_backend('pouchdb in-memory',
   ()=> bkc_with_pouchdb(new PouchDB('phorbas-pouch')))
 
+validate_immutable('pouchdb in-memory (immutable)',
+  ()=> bkc_with_pouchdb(
+    new PouchDB('phorbas-pouch'),
+    {immutable: true}))
 
 describe('3rd party libraries', () => {
   validate_backend('fs with @isomorphic-git/lightning-fs', {

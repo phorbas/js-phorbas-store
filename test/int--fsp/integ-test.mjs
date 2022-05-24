@@ -1,5 +1,5 @@
 import {promises, stat, readFile, writeFile} from 'fs'
-import validate_backend from '@phorbas/store/esm/node/validate_backend.mjs'
+import {validate_backend, validate_immutable} from '@phorbas/store/esm/node/validate_backend.mjs'
 
 import bkc_with_fs from '@phorbas/store/esm/fs.mjs'
 import bkc_with_fsp from '@phorbas/store/esm/fsp.mjs'
@@ -15,6 +15,10 @@ validate_backend('fs', ()=>
   bkc_with_fs({ fs,
     base: '/var/phorbas/bkc_fs/' }))
 
+validate_immutable('fs (immutable)', ()=>
+  bkc_with_fs({ fs, immutable: true,
+    base: '/var/phorbas/bkc_fs/' }))
+
 
 const fsp = {
   stat: promises.stat,
@@ -24,6 +28,10 @@ const fsp = {
 
 validate_backend('fsp', ()=>
   bkc_with_fsp({ fsp,
+    base: '/var/phorbas/bkc_fsp/' }))
+
+validate_immutable('fsp (immutable)', ()=>
+  bkc_with_fsp({ fsp, immutable: true,
     base: '/var/phorbas/bkc_fsp/' }))
 
 

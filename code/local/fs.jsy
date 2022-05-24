@@ -5,7 +5,8 @@ export {as_hex_key, as_u8_key}
 export default bkc_with_fs
 export async function bkc_with_fs(opt={}) ::
   let immutable = !! opt.immutable
-  let _enc_binary = @{} encoding: null, flag: immutable ? 'wx' : 'w'
+  let _enc_r = @{} encoding: null, flag: 'r'
+  let _enc_w = @{} encoding: null, flag: immutable ? 'wx' : 'w'
   let {stat, readFile, writeFile} = await opt.fs
   let base = opt.base || './var/'
   let ext = opt.ext || '.bin'
@@ -25,7 +26,7 @@ export async function bkc_with_fs(opt={}) ::
 
     hk_get: hex_key =>
       new Promise @\ resolve, reject ::
-        readFile @ `${base}${hex_key}${ext}`, _enc_binary,
+        readFile @ `${base}${hex_key}${ext}`, _enc_r,
           (err, buf) => ::
             if ! err ::
               resolve @ Uint8Array.from(buf)
@@ -36,6 +37,8 @@ export async function bkc_with_fs(opt={}) ::
     hk_set: @\ hex_key, u8_content =>
       new Promise @\ resolve, reject ::
         writeFile @ `${base}${hex_key}${ext}`,
-          u8_content, _enc_binary,
-          err => err ? resolve(err) : resolve()
+          u8_content, _enc_w,
+          err => !err ? resolve()
+            : immutable && 'EEXIST' === err.code ? resolve(false)
+            : resolve(err)
 

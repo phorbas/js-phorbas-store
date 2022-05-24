@@ -30,6 +30,8 @@ export class PhorbasBase ::
 
   /// API-compatible with a phorbas store backend
 
+  get bkc_opt() ::
+    return this.stg.bkc_opt
   async bkc_store(u8_pair_list) ::
     return this.stg.bkc_store(u8_pair_list)
   async bkc_fetch(u8_key_list) ::

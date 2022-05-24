@@ -6,10 +6,11 @@ export {as_hex_key, as_u8_key}
 export default bkc_with_fsp
 export async function bkc_with_fsp(opt={}) ::
   let immutable = !! opt.immutable
-  let _enc_binary = @{} encoding: null, flag: immutable ? 'wx' : 'w'
+  let _enc_r = @{} encoding: null, flag: 'r'
+  let _enc_w = @{} encoding: null, flag: immutable ? 'wx' : 'w'
   let {stat, readFile, writeFile} = await opt.fsp
   let base = opt.base || './var/'
-  let ext = opt.ext || '.bin'
+  let ext = opt.ext || '.cbor'
 
   return bkc_hexkey_api @:
     bkc_opt: @{} immutable
@@ -25,7 +26,7 @@ export async function bkc_with_fsp(opt={}) ::
 
     async hk_get(hex_key) ::
       try ::
-        const buf = await readFile(`${base}${hex_key}${ext}`, _enc_binary)
+        const buf = await readFile(`${base}${hex_key}${ext}`, _enc_r)
         return Uint8Array.from(buf)
       catch err ::
         if 'ENOENT' !== err.code ::
@@ -33,7 +34,7 @@ export async function bkc_with_fsp(opt={}) ::
 
     async hk_set(hex_key, u8_content) ::
       try ::
-        await writeFile(`${base}${hex_key}${ext}`, u8_content, _enc_binary)
+        await writeFile(`${base}${hex_key}${ext}`, u8_content, _enc_w)
       catch err ::
-        return err
+        return immutable && 'EEXIST' === err.code ? false : err
 
