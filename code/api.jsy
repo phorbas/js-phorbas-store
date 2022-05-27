@@ -54,8 +54,10 @@ export class PhorbasStoreAPI extends PhorbasBase ::
     else k2loc = key
 
     let [[, err]] = await this.bkc_store([[k2loc, u8]])
-    if null != err ::
+    if err ::
       throw err
+    if null != err ::
+      return err
 
     let {sync} = this
     if undefined !== sync ::

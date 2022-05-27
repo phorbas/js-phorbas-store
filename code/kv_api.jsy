@@ -32,8 +32,10 @@ export class PhorbasKV extends PhorbasBase ::
 
   async store_content_at(key, u8, opt={}) ::
     let [[, err]] = await this.bkc_store([[key, u8]])
-    if null != err ::
+    if err ::
       throw err
+    if null != err ::
+      return err
 
     let {sync} = this
     if undefined !== sync ::
