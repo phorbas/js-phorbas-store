@@ -1,6 +1,6 @@
 {
   "name": "@phorbas/store",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "Persistent, hashed, opaque, replicable, binary key/content, addressable, storage",
   "license": "BSD-2-Clause",
   "author": "Shane Holloway <shane.holloway@ieee.org>",
@@ -31,7 +31,7 @@
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^13.3.0",
     "aws4fetch": "^1.0.13",
-    "rollup": "^2.74.1",
+    "rollup": "^2.75.4",
     "rollup-plugin-dgnotify": "^0.1.8",
     "rollup-plugin-jsy": "^1.7.4",
     "u8-utils": "^0.3.16"
