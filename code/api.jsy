@@ -41,7 +41,7 @@ export class PhorbasStoreAPI extends PhorbasBase ::
     return await this.store_content_at(key, u8, opt)
 
 
-  async store_content_at(key, u8, opt={}) ::
+  async store_content_at(key, u8, opt) ::
     if opt && opt.k1 ::
       key = await this.opaque.from_k1ref(key)
 
@@ -56,15 +56,14 @@ export class PhorbasStoreAPI extends PhorbasBase ::
     let [[, err]] = await this.bkc_store([[k2loc, u8]])
     if err ::
       throw err
-    if null != err ::
-      return err
 
-    let {sync} = this
-    if undefined !== sync ::
+    let {sync, cas} = this
+    if sync ::
       sync.add(k2loc)
+    if false===err && cas ::
+      cas.add(k2loc)
 
-    if opt ::
-      return opt.as_key ? key : key.k21pair()
+    return opt && opt.as_key ? key : key.k21pair()
 
 
   async fetch_content(ref) ::
