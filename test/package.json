@@ -14,7 +14,7 @@
     "s3leveldown": "^2.2.2"
   },
   "devDependencies": {
-    "@phorbas/opaque": "file:../../opaque",
+    "@phorbas/opaque": "^0.3.3",
     "@phorbas/store": "file:..",
     "qsrv": "^0.2.8"
   },
