@@ -1,5 +1,4 @@
 import {u8_json_codec, u8_random_p} from 'u8-utils'
-import {utf8_to_u8, u8_to_utf8} from './_utils.jsy'
 import {bkc_storage_verify, PhorbasBase} from './abstract.jsy'
 
 export {phorbas_kv_store as phorbas_kv}

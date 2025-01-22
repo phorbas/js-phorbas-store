@@ -1,0 +1,25 @@
+import {bkc_hexkey_api, as_hex_key, as_u8_key} from '../_utils.jsy'
+import {u8_to_base64url, base64url_to_u8} from 'u8-utils'
+
+export {as_hex_key, as_u8_key}
+
+export default bkc_with_web_storage
+export async function bkc_with_web_storage(web_storage, opt={}) ::
+  const immutable = !! opt.immutable
+  const _db = web_storage || window.sessionStorage
+
+  return bkc_hexkey_api @:
+    bkc_opt: @{} immutable
+
+    hk_has: async hex_key => 0 | null === _db.getItem(hex_key)
+
+    hk_get: async hex_key => base64url_to_u8(_db.getItem(hex_key))
+
+    hk_set: immutable
+      ? async (hex_key, u8_content) =>
+          null !== _db.getItem(hex_key) ? false
+            : void _db.setItem(hex_key, u8_to_base64url(u8_content))
+
+      : async (hex_key, u8_content) =>
+          void _db.setItem(hex_key, u8_to_base64url(u8_content))
+

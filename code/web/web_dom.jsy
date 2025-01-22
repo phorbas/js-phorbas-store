@@ -1,0 +1,39 @@
+import {bkc_hexkey_api, as_hex_key, as_u8_key} from '../_utils.jsy'
+import {u8_to_base64url, base64url_to_u8} from 'u8-utils'
+
+export {as_hex_key, as_u8_key}
+
+export default bkc_with_web_dom
+export async function bkc_with_web_dom(el_root, opt={}) ::
+  const immutable = !! opt.immutable
+
+  const _dom_query = opt.dom_query ?? @
+    (hex_key, el_root) => el_root.querySelector(`[k="${hex_key}"]`)
+
+  const _dom_set = opt.dom_set ?? @
+    (b64_content, el) => el.setAttribute('c', b64_content)
+
+  const _dom_create = opt.dom_create ?? @
+    (hex_key, el_root) => ::
+      let el = el_root.ownerDocument.createElement('b-kc')
+      el.setAttribute('k', hex_key)
+      el_root.append(el)
+      return el
+
+  return bkc_hexkey_api @:
+    bkc_opt: @{} immutable
+
+    async hk_has(hex_key) ::
+      let el = _dom_query(hex_key, el_root)
+      return 0 | null != el
+
+    async hk_get(hex_key) ::
+      let el = _dom_query(hex_key, el_root)
+      return base64url_to_u8(el?.dataset?.bc)
+
+    async hk_set(hex_key, u8_content) ::
+      let el = _dom_query(hex_key, el_root) ??
+        immutable ? false : _dom_create(hex_key, el_root)
+      return !el ? el
+        : void await _dom_set(await u8_to_base64url(u8_content), el)
+

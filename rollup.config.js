@@ -38,6 +38,8 @@ add_jsy('fetch', {category: 'web/', plat_node: true, plat_web: true})
 add_jsy('web_db', {category: 'web/', plat_web: true})
 add_jsy('web_cache', {category: 'web/', plat_web: true})
 add_jsy('web_cache_fetch', {category: 'web/', plat_web: true})
+add_jsy('web_storage', {category: 'web/', plat_web: true})
+add_jsy('web_dom', {category: 'web/', plat_web: true})
 
 add_jsy('websvr_core_bkc', {category: 'websvr/', all: true})
 add_jsy('websvr_core_opaque', {category: 'websvr/', all: true})
@@ -73,18 +75,30 @@ function add_jsy(src_name, opt={}) {
 
   if (opt.all || opt.plat_esm || !opt.plat_node && !opt.plat_web)
     configs.push({ ... _cfg_, input,
-      output: { ..._out_, file: `esm/${src_name}.mjs`, format: 'es' }})
+      output: [
+        { ..._out_, file: `esm/${src_name}.js`, format: 'es' },
+        { ..._out_, file: `esm/${src_name}.mjs`, format: 'es' },
+      ]})
 
   if (opt.all || opt.plat_node)
     configs.push({ ... cfg_node, input,
-      output: { ..._out_, file: `esm/node/${src_name}.mjs`, format: 'es' }})
+      output: [
+        { ..._out_, file: `esm/node/${src_name}.js`, format: 'es' },
+        { ..._out_, file: `esm/node/${src_name}.mjs`, format: 'es' },
+      ]})
 
   if (opt.all || opt.plat_web) {
     configs.push({ ... cfg_web, input,
-      output: { ..._out_, file: `esm/web/${src_name}.mjs`, format: 'es' }})
+      output: [
+        { ..._out_, file: `esm/web/${src_name}.js`, format: 'es' },
+        { ..._out_, file: `esm/web/${src_name}.mjs`, format: 'es' },
+      ]})
 
     if (cfg_web_min)
       configs.push({ ... cfg_web_min, input,
-        output: { ..._out_, file: `esm/web/${src_name}.min.mjs`, format: 'es' }})
+        output: [
+          { ..._out_, file: `esm/web/${src_name}.min.js`, format: 'es' },
+          { ..._out_, file: `esm/web/${src_name}.min.mjs`, format: 'es' },
+        ]})
   }
 }
