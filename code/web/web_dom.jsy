@@ -1,39 +1,64 @@
 import {bkc_hexkey_api, as_hex_key, as_u8_key} from '../_utils.jsy'
-import {u8_to_base64url, base64url_to_u8} from 'u8-utils'
+import {u8_to_base64, base64_to_u8, u8_to_base64url, base64url_to_u8} from 'u8-utils'
 
 export {as_hex_key, as_u8_key}
+export {u8_to_base64, base64_to_u8, u8_to_base64url, base64url_to_u8}
 
-export default bkc_with_web_dom
-export async function bkc_with_web_dom(el_root, opt={}) ::
-  const immutable = !! opt.immutable
 
-  const _dom_query = opt.dom_query ?? @
-    (hex_key, el_root) => el_root.querySelector(`[k="${hex_key}"]`)
-
-  const _dom_set = opt.dom_set ?? @
-    (b64_content, el) => el.setAttribute('c', b64_content)
-
-  const _dom_create = opt.dom_create ?? @
-    (hex_key, el_root) => ::
-      let el = el_root.ownerDocument.createElement('b-kc')
-      el.setAttribute('k', hex_key)
-      el_root.append(el)
-      return el
+export async function _bkc_with_dom(el_root, opt) ::
+  const {dom_find, dom_data, dom_create, encode, decode} = opt, immutable = !! opt.immutable
 
   return bkc_hexkey_api @:
     bkc_opt: @{} immutable
 
     async hk_has(hex_key) ::
-      let el = _dom_query(hex_key, el_root)
+      let el = await dom_find(el_root, hex_key)
       return 0 | null != el
 
     async hk_get(hex_key) ::
-      let el = _dom_query(hex_key, el_root)
-      return base64url_to_u8(el?.dataset?.bc)
+      let enc_content = await dom_data(await dom_find(el_root, hex_key))
+      return await decode(enc_content)
 
     async hk_set(hex_key, u8_content) ::
-      let el = _dom_query(hex_key, el_root) ??
-        immutable ? false : _dom_create(hex_key, el_root)
+      let el = await dom_find(el_root, hex_key) ??
+        immutable ? false : await dom_create(el_root, hex_key)
       return !el ? el
-        : void await _dom_set(await u8_to_base64url(u8_content), el)
+        : void await dom_data(el, await encode(u8_content))
 
+
+/* #__PURE__ */
+const _dom_opt = @{}
+  dom_find: (el_root, hex_key) =>
+    el_root.querySelector('#bk-'+hex_key)
+
+  dom_create(el_root, hex_key) ::
+    let el = el_root.ownerDocument.createElement('bk-c')
+    el.id = 'bk-' + hex_key
+    el_root.append(el)
+    return el
+
+  dom_data: (el, content) =>
+    undefined !== content
+      ? (el.textContent = content, content)
+      : el.textContent
+  _dom_data: (el, content) =>
+    undefined !== content
+      ? (el.dataset.c = content, content)
+      : el.dataset.c
+
+
+/* #__PURE__ */
+const _dom_b64_opt = { __proto__: _dom_opt, encode: u8_to_base64, decode: base64_to_u8 }
+export const bkc_with_dom_b64 = (el_root, opt) =>
+  _bkc_with_dom(el_root, {__proto__: _dom_b64_opt, ...opt})
+
+
+/* #__PURE__ */
+const _dom_b64url_opt = { __proto__: _dom_opt, encode: u8_to_base64url, decode: base64url_to_u8 }
+export const bkc_with_dom_b64url = (el_root, opt) =>
+  _bkc_with_dom(el_root, {__proto__: _dom_b64url_opt, ...opt})
+
+
+export @{}
+  bkc_with_dom_b64url as bkc_with_dom,
+  bkc_with_dom_b64url as default,
