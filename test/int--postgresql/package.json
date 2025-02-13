@@ -6,7 +6,7 @@
   "scripts": {
     "clean": "rm -rf ./cjs/* ./esm/*",
     "build": "../../node_modules/.bin/rollup --config",
-    "dkr_deps": "docker stack deploy -c deps-deploy.yml integ_phorbas_store",
+    "dkr_deps": "docker stack deploy --detach=false -c deps-deploy.yml integ_phorbas_store",
     "pretest": "npm -s run dkr_deps",
     "test": "npm -s run test:dkr",
     "pretest:dkr": "npm -s run build && docker build .",

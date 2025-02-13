@@ -1,10 +1,5 @@
 import {bkc_hexkey_api, as_hex_key, as_u8_key} from '../_utils.jsy'
-
-#IF PLAT_NODEJS
-  import {u8_to_base64, base64_to_u8} from 'u8-utils/esm/node/base64.mjs'
-
-#ELIF PLAT_WEB
-  import {u8_to_base64, base64_to_u8} from 'u8-utils/esm/web/base64.js'
+import {u8_to_base64, base64_to_u8} from 'u8-utils'
 
 export {as_hex_key, as_u8_key}
 

@@ -2,7 +2,7 @@ import {builtinModules} from 'module'
 import rpi_dgnotify from 'rollup-plugin-dgnotify'
 import rpi_resolve from '@rollup/plugin-node-resolve'
 
-import pkg from './integ-package.json'
+import pkg from './integ-package.json' with {type: 'json'}
 pkg.dependencies ||= {} // ensure a dependencies dict
 
 const _cfg_ = {
