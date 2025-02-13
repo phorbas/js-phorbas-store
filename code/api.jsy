@@ -33,13 +33,6 @@ export class PhorbasStoreAPI extends PhorbasBase ::
       ? opaque.from_random()
       : opaque.from_u8(u8)
 
-  async store_content(u8, opt={}) ::
-    let key = await @ opt.rand
-      ? this.opaque.from_random()
-      : this.opaque.from_u8(u8)
-
-    return await this.store_content_at(key, u8, opt)
-
 
   async store_content_at(key, u8, opt) ::
     if opt && opt.k1 ::
