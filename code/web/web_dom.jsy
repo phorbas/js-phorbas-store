@@ -39,10 +39,6 @@ const _dom_opt = @{}
 
   dom_data: (el, content) =>
     undefined !== content
-      ? (el.textContent = content, content)
-      : el.textContent
-  _dom_data: (el, content) =>
-    undefined !== content
       ? (el.dataset.c = content, content)
       : el.dataset.c
 
