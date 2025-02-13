@@ -33,6 +33,7 @@ add_jsy('index', {all: true})
 add_jsy('validate_backend', {plat_node: true, plat_web: true})
 
 add_jsy('js_map')
+add_jsy('js_delegate')
 
 add_jsy('fetch', {category: 'web/', plat_node: true, plat_web: true})
 add_jsy('web_db', {category: 'web/', plat_web: true})

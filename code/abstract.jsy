@@ -2,23 +2,6 @@ import {bkc_storage_verify, utf8_to_u8, u8_to_utf8} from './_utils.jsy'
 export {bkc_storage_verify, utf8_to_u8, u8_to_utf8} from './_utils.jsy'
 
 
-// bkc api delegate -- binary key (binary) content
-export default bkc_with_delegate
-export async function bkc_with_delegate(stg) ::
-  bkc_storage_verify(stg)
-  return @{}
-    bkc_opt: stg.bkc_opt
-
-    async bkc_store(u8_pair_list) ::
-      return stg.bkc_store(u8_pair_list)
-
-    async bkc_fetch(u8_key_list) ::
-      return stg.bkc_fetch(u8_key_list)
-
-    async bkc_exists(u8_key_list) ::
-      return stg.bkc_exists(u8_key_list)
-
-
 export class PhorbasBase ::
   constructor(stg, ...args) ::
     bkc_storage_verify(stg)

@@ -1,5 +1,6 @@
 export * from './_utils.jsy'
 export {bkc_with_js_map} from './js_map.jsy'
+export {bkc_with_delegate} from './js_delegate.jsy'
 export * from './abstract.jsy'
 export * from './api.jsy'
 export * from './kv_api.jsy'
