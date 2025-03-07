@@ -45,11 +45,7 @@ export async function bkc_with_knex(knex, opt={}) ::
         return Uint8Array.from(ans.bc)
 
     async hk_set(hex_key, u8_content) ::
-      let bc = 
-        #IF PLAT_NODEJS
-          Buffer.from(u8_content)
-        #ELSE
-          u8_content
+      let bc = u8_content
 
       try ::
         await knex(table).insert({hk: hex_key, bc})

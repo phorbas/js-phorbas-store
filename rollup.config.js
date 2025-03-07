@@ -1,105 +1,95 @@
-import {builtinModules} from 'module'
 import rpi_jsy from 'rollup-plugin-jsy'
-import rpi_dgnotify from 'rollup-plugin-dgnotify'
 import rpi_resolve from '@rollup/plugin-node-resolve'
-//import { terser as rpi_terser } from 'rollup-plugin-terser'
 
+const external = id => /^\w+:|^#/.test(id)
 
-const _rpis_ = (defines, ...args) => [
-  rpi_jsy({defines}),
-  rpi_resolve(),
-  ...args,
-  rpi_dgnotify()]
+const pkg_phrobas_store_group = (group, kw) => ({
+    plugins: [ rpi_jsy(), rpi_resolve() ],
+    external,
+    output: { dir: group ? `esm/${group}/` : 'esm/', format: 'es', sourcemap: true },
+    ...kw,
+  })
 
-const external = id => /^\w+:/.test(id) || builtinModules.includes(id)
+export const pkg_cfg_core = pkg_phrobas_store_group('', {
+  input: [
+    'code/index.jsy',
+    'code/validate_backend.jsy',
 
-const _cfg_ = { external, plugins: _rpis_({PLAT_ESM: true}) }
+    'code/js_map.jsy',
+    'code/js_delegate.jsy',
+  ]})
 
-const cfg_node = { external, plugins: _rpis_({PLAT_NODEJS: true}) }
+export const pkg_cfg_web = pkg_phrobas_store_group('web', {
+  input: [
+    'code/web/fetch.jsy',
 
-const cfg_web = { external, plugins: _rpis_({PLAT_WEB: true}) }
+    'code/web/web_db.jsy',
+    'code/web/web_cache.jsy',
+    'code/web/web_cache_fetch.jsy',
+    'code/web/web_storage.jsy',
+    'code/web/web_dom.jsy',
+  ]})
 
-const cfg_web_min = 'undefined'===typeof rpi_terser ? null
-  : { ... cfg_web, plugins: [ ... cfg_web.plugins, rpi_terser() ]}
+export const pkg_cfg_websvr = pkg_phrobas_store_group('websvr', {
+  input: [
+    'code/websvr/websvr_core_bkc.jsy',
+    'code/websvr/websvr_core_opaque.jsy',
+    'code/websvr/websvr_node_bkc.jsy',
+    'code/websvr/websvr_node_opaque.jsy',
+  ]})
 
-const _out_ = { sourcemap: true }
+export const pkg_cfg_local = pkg_phrobas_store_group('local', {
+  input: [
+    'code/local/local_fs.jsy',
+    'code/local/local_fsp.jsy',
+    'code/local/lmdb.jsy',
+  ]})
 
+export const pkg_cfg_adapter = pkg_phrobas_store_group('adapter', {
+  input: [
+    'code/adapter/level.jsy',
+    'code/adapter/keyv.jsy',
+  ]})
 
-const configs = []
-export default configs
+export const pkg_cfg_nosql = pkg_phrobas_store_group('nosql', {
+  input: [
+    'code/nosql/minio.jsy',
+    'code/nosql/s3_aws4fetch.jsy',
+    'code/nosql/ioredis.jsy',
+    'code/nosql/memjs.jsy',
+    'code/nosql/mongojs.jsy',
+    'code/nosql/rethinkdb.jsy',
+    'code/nosql/arangojs.jsy',
+    'code/nosql/dynamodb.jsy',
+    'code/nosql/consulkv.jsy',
+    'code/nosql/pouchdb.jsy',
+    'code/nosql/couchdb.jsy',
+  ]})
 
+export const pkg_cfg_sql = pkg_phrobas_store_group('sql', {
+  input: [
+    'code/sql/sqlite3.jsy',
+    'code/sql/knex.jsy',
+    //'code/sql/cassandra.jsy',
+  ]})
 
-add_jsy('index', {all: true})
-add_jsy('validate_backend', {plat_node: true, plat_web: true})
-
-add_jsy('js_map')
-add_jsy('js_delegate')
-
-add_jsy('fetch', {category: 'web/', plat_node: true, plat_web: true})
-add_jsy('web_db', {category: 'web/', plat_web: true})
-add_jsy('web_cache', {category: 'web/', plat_web: true})
-add_jsy('web_cache_fetch', {category: 'web/', plat_web: true})
-add_jsy('web_storage', {category: 'web/', plat_web: true})
-add_jsy('web_dom', {category: 'web/', plat_web: true})
-
-add_jsy('websvr_core_bkc', {category: 'websvr/', all: true})
-add_jsy('websvr_core_opaque', {category: 'websvr/', all: true})
-add_jsy('websvr_node_bkc', {category: 'websvr/', plat_node: true})
-add_jsy('websvr_node_opaque', {category: 'websvr/', plat_node: true})
-
-add_jsy('fs', {category: 'local/'})
-add_jsy('fsp', {category: 'local/'})
-add_jsy('lmdb', {category: 'local/', plat_node: true})
-
-add_jsy('level', {category: 'adapter/', plat_node: true})
-add_jsy('keyv', {category: 'adapter/', plat_node: true})
-
-add_jsy('minio', {category: 'nosql/', plat_node: true})
-add_jsy('s3_aws4fetch', {category: 'nosql/', all: true})
-add_jsy('ioredis', {category: 'nosql/', plat_node: true})
-add_jsy('memjs', {category: 'nosql/', plat_node: true})
-add_jsy('mongojs', {category: 'nosql/', plat_node: true})
-add_jsy('rethinkdb', {category: 'nosql/', plat_node: true})
-add_jsy('arangojs', {category: 'nosql/', plat_node: true, plat_web: true})
-add_jsy('dynamodb', {category: 'nosql/', plat_node: true, plat_web: true})
-add_jsy('consulkv', {category: 'nosql/', plat_node: true})
-add_jsy('pouchdb', {category: 'nosql/', all: true})
-add_jsy('couchdb', {category: 'nosql/', plat_node: true})
-
-add_jsy('sqlite3', {category: 'sql/', plat_node: true})
-add_jsy('knex', {category: 'sql/', all: true})
-//add_jsy('cassandra', {category: 'sql/', plat_node: true})
-
-
-function add_jsy(src_name, opt={}) {
-  const input = `code/${opt.category || ''}${src_name}${opt.ext || '.jsy'}`
-
-  if (opt.all || opt.plat_esm || !opt.plat_node && !opt.plat_web)
-    configs.push({ ... _cfg_, input,
-      output: [
-        { ..._out_, file: `esm/${src_name}.js`, format: 'es' },
-        { ..._out_, file: `esm/${src_name}.mjs`, format: 'es' },
-      ]})
-
-  if (opt.all || opt.plat_node)
-    configs.push({ ... cfg_node, input,
-      output: [
-        { ..._out_, file: `esm/node/${src_name}.js`, format: 'es' },
-        { ..._out_, file: `esm/node/${src_name}.mjs`, format: 'es' },
-      ]})
-
-  if (opt.all || opt.plat_web) {
-    configs.push({ ... cfg_web, input,
-      output: [
-        { ..._out_, file: `esm/web/${src_name}.js`, format: 'es' },
-        { ..._out_, file: `esm/web/${src_name}.mjs`, format: 'es' },
-      ]})
-
-    if (cfg_web_min)
-      configs.push({ ... cfg_web_min, input,
-        output: [
-          { ..._out_, file: `esm/web/${src_name}.min.js`, format: 'es' },
-          { ..._out_, file: `esm/web/${src_name}.min.mjs`, format: 'es' },
-        ]})
-  }
+export const pkg_test_cfg = {
+  plugins: [ rpi_jsy(), rpi_resolve() ],
+  external,
+  output: { dir: 'esm-test', format: 'es', sourcemap: true },
+  input: {
+    //'test-core': './test/core/unittest.jsy',
+  },
 }
+
+export default [
+  pkg_cfg_core,
+  pkg_cfg_web,
+  pkg_cfg_websvr,
+  pkg_cfg_local,
+  pkg_cfg_adapter,
+  pkg_cfg_nosql,
+  pkg_cfg_sql,
+
+  //pkg_test_cfg,
+]

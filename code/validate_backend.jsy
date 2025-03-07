@@ -1,19 +1,8 @@
 import {utf8_to_u8} from './_utils.jsy'
 export * from './_utils.jsy'
 
-#IF PLAT_NODEJS
-  import {randomFillSync} from 'crypto'
-  export const rand_u8 = n =>
-    randomFillSync @
-      new Uint8Array(n)
-
-#ELIF PLAT_WEB
-  export const rand_u8 = n => @
-    // web quota of 64KB of random values
-    n = Math.min(65536, n)
-
-    crypto.getRandomValues @
-      new Uint8Array(n)
+export const rand_u8 = n =>
+  globalThis.crypto.getRandomValues(new Uint8Array(n))
 
 export const rand_u8_key = ()=> rand_u8(32)
 

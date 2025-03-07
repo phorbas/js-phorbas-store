@@ -1,6 +1,6 @@
 {
   "name": "@phorbas/store",
-  "version": "0.4.3",
+  "version": "0.5.0-0",
   "description": "Persistent, hashed, opaque, replicable, binary key/content, addressable, storage",
   "license": "BSD-2-Clause",
   "author": "Shane Holloway <shane.holloway@ieee.org>",
@@ -28,19 +28,22 @@
   ],
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^16.0.0",
-    "rollup": "^4.31.0",
-    "rollup-plugin-dgnotify": "^0.1.8",
+    "chai": "^5.2.0",
+    "rollup": "^4.34.9",
     "rollup-plugin-jsy": "^1.9.2",
-    "u8-utils": "^0.4.2"
+    "u8-utils": "^0.4.2",
+    "vite": "^6.2.1"
   },
   "scripts": {
-    "clean": "rm -rf ./esm/*",
+    "clean": "rm -rf ./esm/* ./esm-*/*",
     "build": "rollup --config",
     "watch": "rollup --watch --config",
-    "pretest": "npm -s run build",
-    "test": "cd test; npm -s run test",
-    "test:install": "cd test; npm -s install",
-    "test:one": "cd test; npm -s run test:one",
-    "test:watch": "cd test; npm -s run watch"
+    "previte": "test -f esm/index.js || vite",
+    "vite": "vite",
+    "pretest": "test -f esm/index.js || npm -s run build",
+    "test": "npm -s run test:one",
+    "test:one": "cd ./esm-test && node --test",
+    "test:watch": "cd ./esm-test && node --watch --test",
+    "test:only": "cd ./esm-test && node --watch --test-only"
   }
 }

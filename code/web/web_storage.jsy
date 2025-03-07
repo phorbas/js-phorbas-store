@@ -25,12 +25,10 @@ export async function _bkc_with_storage(storage, opt={}) ::
           void storage.setItem(hex_key, await encode(u8_content))
 
 
-/* #__PURE__ */
 const _b64_opt = { encode: u8_to_base64, decode: base64_to_u8 }
 export const bkc_with_web_storage_b64 = (storage, opt) =>
   _bkc_with_storage(storage, {__proto__: _b64_opt, ...opt})
 
-/* #__PURE__ */
 const _b64url_opt = { encode: u8_to_base64url, decode: base64url_to_u8 }
 export const bkc_with_web_storage_b64url = (storage, opt) =>
   _bkc_with_storage(storage, {__proto__: _b64url_opt, ...opt})

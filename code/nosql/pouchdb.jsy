@@ -4,7 +4,7 @@ export {as_hex_key, as_u8_key}
 
 export default bkc_with_pouchdb
 
-const _mode_auto = /* #__PURE__ */ @{}
+const _mode_auto = @{}
   to_attach: 'undefined' !== typeof process ? u8 => u8
     : (u8, type) => new Blob([u8], {type})
 
