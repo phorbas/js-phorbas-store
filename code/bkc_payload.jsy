@@ -1,3 +1,0 @@
-import {as_arrbuf} from '@phorbas/opaque/esm/subtle/utils.js'
-
-export {as_arrbuf as bkc_arrbuf}

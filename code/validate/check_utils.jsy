@@ -1,7 +1,7 @@
 import {expect} from 'chai'
 
 import {u8_to_hex} from 'u8-utils'
-import {bkc_arrbuf} from '../bkc_payload.jsy'
+import {bkc_arrbuf} from '../bkc_abstract.jsy'
 
 
 export const _rand_u8 = n => globalThis.crypto.getRandomValues(new Uint8Array(n))

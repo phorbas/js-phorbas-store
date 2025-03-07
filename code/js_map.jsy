@@ -1,5 +1,6 @@
 import { _bkc_storage_, bkc_arrbuf } from './bkc_abstract.jsy'
 
+export {bkc_arrbuf}
 export default bkc_with_js_map
 export async function bkc_with_js_map(map_db, opt={}) ::
   const immutable = !! opt.immutable
@@ -18,4 +19,5 @@ export async function bkc_with_js_map(map_db, opt={}) ::
         return false
 
       map_db.set(hexkey, await bkc_arrbuf(body))
+      return true
 

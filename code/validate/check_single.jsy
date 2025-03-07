@@ -20,7 +20,7 @@ export async function validate_bkc_random_key(_stg_, test_body) ::
   :: // store test body at key
     let ans = _stg_.bkc_store(test_key, test_body.raw)
     ans = await ans.then()
-    expect(ans).to.be.undefined
+    expect(ans).to.be.true
 
   :: // check key now exists
     let ans_exists = _stg_.bkc_exists(test_key)

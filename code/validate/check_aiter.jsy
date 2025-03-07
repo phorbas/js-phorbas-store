@@ -48,7 +48,7 @@ export async function validate_bkc_stream_random_aiter(_stg_, opt={}) ::
       for let [hk, ans] of batch_result ::
         expect(test_key_list.includes(hk)).to.be.true
         ans = await ans.then()
-        expect(ans).to.be.undefined
+        expect(ans).to.be.true
         count++
 
     expect(count).to.equal(test_key_list.length)
