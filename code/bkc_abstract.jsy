@@ -1,0 +1,82 @@
+export { bkc_arrbuf } from './bkc_payload.jsy'
+
+
+export const _bkc_storage_mixin_ = @{}
+  //bkc_opt: {}
+  //async bkc_store(hexkey, body) ::
+  //async bkc_exists(hexkey) ::
+  //async bkc_fetch(hexkey) ::
+
+  async bkc_fetch_as(hexkey, as_xform) ::
+    return this.bkc_fetch(hexkey).then(as_xform)
+
+  // async * bkc_stream_exists(hexkey_iter) ::
+  // async * bkc_stream_fetch(hexkey_iter, xform) ::
+  // async * bkc_stream_store(hexkey_body_iter) ::
+
+  with(...args) ::
+    return Object.assign({__proto__: this}, ...args)
+
+
+export const _bkc_storage_ = @{}
+  ... _bkc_storage_mixin_
+
+  async * bkc_stream_exists(hexkey_iter) ::
+    yield * bkc_batch_stream @ hexkey_iter,
+      ([hexkey]) => [hexkey, this.bkc_exists(hexkey)]
+
+  async * bkc_stream_fetch(hexkey_iter, as_xform) ::
+    yield * bkc_batch_stream @ hexkey_iter,
+      ([hexkey]) => [hexkey, this.bkc_fetch(hexkey).then(as_xform)]
+
+  async * bkc_stream_store(hexkey_body_iter) ::
+    yield * bkc_batch_stream @ hexkey_body_iter,
+      ([hexkey, body]) => [hexkey, this.bkc_store(hexkey, body)]
+
+
+export const _bkc_stream_storage_ = @{}
+  ... _bkc_storage_mixin_
+
+  async bkc_exists(hexkey) ::
+    let res = await this.bkc_stream_exists([hexkey]).next()
+    return res.value[0]
+  async bkc_fetch(hexkey) ::
+    let res = await this.bkc_stream_fetch([hexkey]).next()
+    return res.value[0]
+  async bkc_store(hexkey, body) ::
+    let res = await this.bkc_stream_store([[hexkey, body]]).next()
+    return res.value[0]
+
+
+const _as_tuples = v => v.trim ? [v] : v
+export async function * bkc_batch_stream(aiter_batches, bkc_fn) ::
+  if 'string' === typeof aiter_batches :: throw new Error()
+  if Array.isArray(aiter_batches) :: aiter_batches = [aiter_batches]
+
+  for await let batch of aiter_batches ::
+    if batch?.length ::
+      if batch.trim :: batch = [[batch]]
+      else batch = batch.map(_as_tuples)
+      yield bkc_fn ? batch.map(bkc_fn) : batch
+
+
+// bkc api verification -- binary key (binary) content
+export async function bkc_storage_verify(stg) ::
+  stg = await stg
+  _is_fn(stg, 'bkc_exists')
+  _is_fn(stg, 'bkc_fetch')
+  _is_fn(stg, 'bkc_store')
+
+  _is_fn(stg, 'bkc_stream_exists')
+  _is_fn(stg, 'bkc_stream_fetch')
+  _is_fn(stg, 'bkc_stream_store')
+
+  if 'object' !== typeof stg.bkc_opt ::
+    throw new TypeError('Expected object "bkc_opt" not present')
+
+  return stg
+
+export function _is_fn(o, k) ::
+  if 'function' !== typeof o[k] ::
+    throw new TypeError(`Expected function "${k}" not present`)
+

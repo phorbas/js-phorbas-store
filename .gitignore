@@ -1,13 +1,11 @@
-cjs/
 esm/
-umd/
+esm-*/
 dist/
-var/
 node_modules/
 examples/package-lock.json
 npm-debug.log
 .hggitignore
-__unittest*
+*.grep
 tags
 .*.envrc
 .envrc

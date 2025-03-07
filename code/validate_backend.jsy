@@ -1,30 +1,71 @@
-import {utf8_to_u8} from './_utils.jsy'
+import {describe, it, before, after} from '#test_bdd'
+
+import {bkc_storage_verify} from './bkc_abstract.jsy'
+import * as check_single from './validate/check_single.jsy'
+import * as check_aiter from './validate/check_aiter.jsy'
+import * as check_async_gen from './validate/check_async_gen.jsy'
+
 export * from './_utils.jsy'
-
-export const rand_u8 = n =>
-  globalThis.crypto.getRandomValues(new Uint8Array(n))
-
-export const rand_u8_key = ()=> rand_u8(32)
-
-export const _as_test_suite = validate_fn =>
-  Object.assign @
-    (backend_name, ...args) =>
-      describe @ `backend: ${backend_name}`,
-        ()=> validate_fn(...args)
-
-    @{}
-      only: (backend_name, ...args) =>
-        describe.only @ `backend: ${backend_name}`,
-          ()=> validate_fn(...args)
-
-      skip: (backend_name, ...args) =>
-        describe.skip @ `backend: ${backend_name}`,
-          ()=> validate_fn(...args)
+export {bkc_storage_verify} from './bkc_abstract.jsy'
+export * from './validate/check_utils.jsy'
+export * from './validate/check_single.jsy'
+export * from './validate/check_aiter.jsy'
+export * from './validate/check_async_gen.jsy'
 
 
-export const validate_backend = _as_test_suite(_validate_backend)
-export default validate_backend
+export const validate_backend = Object.assign @
+  _validate_backend.bind(null, describe)
+  @{} only: _validate_backend.bind(null, describe.only)
+      skip: _validate_backend.bind(null, describe.skip)
 
+
+function _validate_backend(_describe_fn, backend_name, opt) ::
+  if 'function' === typeof opt :: opt = {bkc_create: opt}
+
+  _describe_fn @ `backend: ${backend_name}`, function () ::
+    if undefined !== opt.slow :: opt.slow(this)
+
+    let _stg_, _ctx_
+    before @::>
+      _stg_ = await opt.bkc_create(_ctx_={})
+      if null == _stg_ ::
+        throw new TypeError("create bkc_storage did not return an instance")
+
+    after @::>
+      await opt.bkc_cleanup?.(_stg_, _ctx_)
+      _ctx_ = null
+
+
+    it @ 'bkc storage verify', () => bkc_storage_verify(_stg_)
+
+
+    describe @ 'bkc api', @::
+      it @ 'with string', () => check_single.validate_bkc_random_key(_stg_, 'some test string')
+      it @ 'with array', () => check_single.validate_bkc_random_key(_stg_, ['some', ' ~ ', 'test', ' ~ ', 'string', 'array'])
+      it @ 'with iterable', () => check_single.validate_bkc_random_key(_stg_, Iterator.from(['some', ' ~ ', 'test', ' ~ ', 'iterator']))
+      it @ 'with Blob', () => check_single.validate_bkc_random_key(_stg_, new Blob(['some', ' ~ ', 'test', ' ~ ', 'blob']))
+      it @ 'with Blob with type', () => check_single.validate_bkc_random_key(_stg_, new Blob(['some', ' ~ ', 'plaintext', ' ~ ', 'blob'], {type: 'text/plain'}))
+
+      it @ 'with random 16 byte binary', () => check_single.validate_bkc_random_key(_stg_, 16)
+      it @ 'with random 1024 byte binary', () => check_single.validate_bkc_random_key(_stg_, 1024)
+      it @ 'with random 16384 byte binary', () => check_single.validate_bkc_random_key(_stg_, 16384)
+
+      it @ 'random key aiter', () => check_aiter.validate_bkc_stream_random_aiter(_stg_)
+      it @ 'random key async generator', () => check_async_gen.validate_bkc_stream_random_async_gen(_stg_)
+
+
+    let custom_tests = opt.tests
+    if custom_tests ::
+      if ! custom_tests[Symbol.iterator] ::
+        custom_tests = Object.entries(custom_tests)
+
+      describe @ 'custom', @::
+        for let [test_name, test_fn] of custom_tests ::
+          it @ test_name, () => test_fn(_stg_, _ctx_)
+
+
+
+/*
 function _validate_backend(opt) ::
     if 'function' === typeof opt ::
       opt = {create: opt}
@@ -44,53 +85,53 @@ function _validate_backend(opt) ::
       if (undefined !== opt.slow) opt.slow(this)
 
       it @ 'bkc_exists', @::>
-        expect.func @ _stg_.bkc_exists
+        mini_expect.func @ _stg_.bkc_exists
 
         const rk_key_lst = @[] rand_u8_key(), rand_u8_key(), rand_u8_key()
 
-        const p = expect.promise @
+        const p = mini_expect.promise @
           _stg_.bkc_exists(rk_key_lst)
 
-        const ans = expect.array @ await p
+        const ans = mini_expect.array @ await p
 
         let i=0
         for let [u8_key, exists] of ans ::
-          expect.ok @ rk_key_lst[i++] === u8_key, 'aligned result array of identical u8_key'
-          expect.ok @ 0 === exists, '256-bit crypto random keys should not be present in the storage backend'
+          mini_expect.ok @ rk_key_lst[i++] === u8_key, 'aligned result array of identical u8_key'
+          mini_expect.ok @ 0 === exists, '256-bit crypto random keys should not be present in the storage backend'
 
 
       it @ 'bkc_fetch', @::>
-        expect.func @ _stg_.bkc_fetch
+        mini_expect.func @ _stg_.bkc_fetch
 
         const rk_key_lst = @[] rand_u8_key(), rand_u8_key(), rand_u8_key()
 
-        const p = expect.promise @
+        const p = mini_expect.promise @
           _stg_.bkc_fetch(rk_key_lst)
 
-        const ans = expect.array @ await p
+        const ans = mini_expect.array @ await p
 
         let i=0
         for let [u8_key, u8_content] of ans ::
-          expect.ok @ rk_key_lst[i++] === u8_key, 'aligned result array of identical u8_key'
-          expect.ok @ undefined === u8_content, '256-bit crypto random keys should not be present in the storage backend'
+          mini_expect.ok @ rk_key_lst[i++] === u8_key, 'aligned result array of identical u8_key'
+          mini_expect.ok @ undefined === u8_content, '256-bit crypto random keys should not be present in the storage backend'
 
 
       it @ 'bkc_store', @::>
-        expect.func @ _stg_.bkc_store
+        mini_expect.func @ _stg_.bkc_store
 
         const rk_pairs = @[]
           @[] rand_u8_key(), utf8_to_u8('first')
           @[] rand_u8_key(), utf8_to_u8('second')
           @[] rand_u8_key(), utf8_to_u8('third')
 
-        const p = expect.promise @
+        const p = mini_expect.promise @
           _stg_.bkc_store(rk_pairs)
 
-        const ans = expect.array @ await p
+        const ans = mini_expect.array @ await p
         let i=0
         for let [u8_key, err] of ans ::
-          expect.ok @ rk_pairs[i++][0] === u8_key, 'aligned result array of identical u8_key'
-          expect.ok @ undefined === err, 'unexpected errors during write'
+          mini_expect.ok @ rk_pairs[i++][0] === u8_key, 'aligned result array of identical u8_key'
+          mini_expect.ok @ undefined === err, 'unexpected errors during write'
 
 
     opt.skip_one || describe @ 'one', function() ::
@@ -102,33 +143,33 @@ function _validate_backend(opt) ::
 
         :: // should not (yet) exist
           let [[u8_key, exists]] = await _stg_.bkc_exists([rk_src_key])
-          expect.ok @ rk_src_key === u8_key, 'aligned result array of identical u8_key'
-          expect.ok @ 0 === exists, '256-bit crypto random keys should not be present in the storage backend'
+          mini_expect.ok @ rk_src_key === u8_key, 'aligned result array of identical u8_key'
+          mini_expect.ok @ 0 === exists, '256-bit crypto random keys should not be present in the storage backend'
 
         :: // should not (yet) have content
           let [[u8_key, u8_content]] = await _stg_.bkc_fetch([rk_src_key])
-          expect.ok @ rk_src_key === u8_key, 'aligned result array of identical u8_key'
-          expect.ok @ undefined === u8_content, '256-bit crypto random keys should not be present in the storage backend'
+          mini_expect.ok @ rk_src_key === u8_key, 'aligned result array of identical u8_key'
+          mini_expect.ok @ undefined === u8_content, '256-bit crypto random keys should not be present in the storage backend'
 
 
         :: // store the pairs
           let [[u8_key, err]] = await _stg_.bkc_store([[rk_src_key, rk_src_content]])
-          expect.ok @ rk_src_key === u8_key, 'aligned result array of identical u8_key'
-          expect.ok @ undefined === err, 'unexpected errors during write'
+          mini_expect.ok @ rk_src_key === u8_key, 'aligned result array of identical u8_key'
+          mini_expect.ok @ undefined === err, 'unexpected errors during write'
 
         :: // should now exist
           let [[u8_key, exists]] = await _stg_.bkc_exists([rk_src_key])
-            expect.ok @ rk_src_key === u8_key, 'aligned result array of identical u8_key'
-            expect.ok @ 1 === exists, 'We just stored it -- it should exist!'
+            mini_expect.ok @ rk_src_key === u8_key, 'aligned result array of identical u8_key'
+            mini_expect.ok @ 1 === exists, 'We just stored it -- it should exist!'
 
         :: // should now have content
           let [[u8_key, u8_content]] = await _stg_.bkc_fetch([rk_src_key])
-          expect.ok @ rk_src_key === u8_key, 'aligned result array of identical u8_key'
-          expect.ok @ undefined !== u8_content, 'We just stored it -- it should exist!'
-          expect.ok @ rk_src_content.byteLength === u8_content.byteLength, 'Byte length should match'
+          mini_expect.ok @ rk_src_key === u8_key, 'aligned result array of identical u8_key'
+          mini_expect.ok @ undefined !== u8_content, 'We just stored it -- it should exist!'
+          mini_expect.ok @ rk_src_content.byteLength === u8_content.byteLength, 'Byte length should match'
 
           const all_u8_match = u8_content.every @\ v,i => v === rk_src_content[i]
-          expect.ok @ all_u8_match, 'All u8 bytes should match'
+          mini_expect.ok @ all_u8_match, 'All u8 bytes should match'
 
 
     opt.skip_sequences || describe @ 'sequences', function() ::
@@ -146,40 +187,40 @@ function _validate_backend(opt) ::
         :: // should not (yet) exist
           let i=0
           for let [u8_key, exists] of await _stg_.bkc_exists(rk_key_lst) ::
-            expect.ok @ rk_key_lst[i++] === u8_key, 'aligned result array of identical u8_key'
-            expect.ok @ 0 === exists, '256-bit crypto random keys should not be present in the storage backend'
+            mini_expect.ok @ rk_key_lst[i++] === u8_key, 'aligned result array of identical u8_key'
+            mini_expect.ok @ 0 === exists, '256-bit crypto random keys should not be present in the storage backend'
 
 
         :: // should not (yet) have content
           let i=0
           for let [u8_key, u8_content] of await _stg_.bkc_fetch(rk_key_lst) ::
-            expect.ok @ rk_key_lst[i++] === u8_key, 'aligned result array of identical u8_key'
-            expect.ok @ undefined === u8_content, '256-bit crypto random keys should not be present in the storage backend'
+            mini_expect.ok @ rk_key_lst[i++] === u8_key, 'aligned result array of identical u8_key'
+            mini_expect.ok @ undefined === u8_content, '256-bit crypto random keys should not be present in the storage backend'
 
 
         :: // store the pairs
           let i=0
           for let [u8_key, err] of await _stg_.bkc_store(rk_pairs) ::
-            expect.ok @ rk_pairs[i++][0] === u8_key, 'aligned result array of identical u8_key'
-            expect.ok @ undefined === err, 'unexpected errors during write'
+            mini_expect.ok @ rk_pairs[i++][0] === u8_key, 'aligned result array of identical u8_key'
+            mini_expect.ok @ undefined === err, 'unexpected errors during write'
 
 
         :: // should now exist
           let i=0
           for let [u8_key, exists] of await _stg_.bkc_exists(rk_key_lst) ::
-            expect.ok @ rk_key_lst[i++] === u8_key, 'aligned result array of identical u8_key'
-            expect.ok @ 1 === exists, 'We just stored it -- it should exist!'
+            mini_expect.ok @ rk_key_lst[i++] === u8_key, 'aligned result array of identical u8_key'
+            mini_expect.ok @ 1 === exists, 'We just stored it -- it should exist!'
 
         :: // should now have content
           let i=0
           for let [u8_key, u8_content] of await _stg_.bkc_fetch(rk_key_lst) ::
             const [rk_key, rk_content] = rk_pairs[i++]
-            expect.ok @ rk_key === u8_key, 'aligned result array of identical u8_key'
-            expect.ok @ undefined !== u8_content, 'We just stored it -- it should exist!'
-            expect.ok @ rk_content.byteLength === u8_content.byteLength, 'Byte length should match'
+            mini_expect.ok @ rk_key === u8_key, 'aligned result array of identical u8_key'
+            mini_expect.ok @ undefined !== u8_content, 'We just stored it -- it should exist!'
+            mini_expect.ok @ rk_content.byteLength === u8_content.byteLength, 'Byte length should match'
 
             const all_u8_match = u8_content.every @\ v,i => v === rk_content[i]
-            expect.ok @ all_u8_match, 'All u8 bytes should match'
+            mini_expect.ok @ all_u8_match, 'All u8 bytes should match'
 
 
       it @ 'overwrite test', @::>
@@ -195,26 +236,26 @@ function _validate_backend(opt) ::
           let res = await _stg_.bkc_store(rk_pairs)
           if !step ::
             for let [k,r] of res ::
-              expect.ok @ undefined === r, 'Store should work on first iteration'
+              mini_expect.ok @ undefined === r, 'Store should work on first iteration'
 
           else if !immutable ::
             for let [k,r] of res ::
-              expect.ok @ undefined === r, 'Store should work on mutable store subsequent iterations'
+              mini_expect.ok @ undefined === r, 'Store should work on mutable store subsequent iterations'
 
           else ::
             for let [k,r] of res ::
-              expect.ok @ false === r, 'Store should fail on immutable store subsequent iterations'
+              mini_expect.ok @ false === r, 'Store should fail on immutable store subsequent iterations'
 
 
           let i=0
           for let [u8_key, u8_content] of await _stg_.bkc_fetch(rk_key_lst) ::
             const [rk_key, rk_content] = rk_pairs[i++]
-            expect.ok @ rk_key === u8_key, 'aligned result array of identical u8_key'
-            expect.ok @ undefined !== u8_content, 'We just stored it -- it should exist!'
-            expect.ok @ rk_content.byteLength === u8_content.byteLength, 'Byte length should match'
+            mini_expect.ok @ rk_key === u8_key, 'aligned result array of identical u8_key'
+            mini_expect.ok @ undefined !== u8_content, 'We just stored it -- it should exist!'
+            mini_expect.ok @ rk_content.byteLength === u8_content.byteLength, 'Byte length should match'
 
             const all_u8_match = u8_content.every @\ v,i => v === rk_content[i]
-            expect.ok @ all_u8_match, 'All u8 bytes should match'
+            mini_expect.ok @ all_u8_match, 'All u8 bytes should match'
 
 
     if opt.test_immutable ::
@@ -231,25 +272,25 @@ function _validate_immutable(opt) ::
     return _validate_backend(opt)
 
 
-const expect = @{}
+export const mini_expect = @{}
   ok(ok, msg) ::
     if ! ok :: throw new Error(msg)
 
   func: val =>
-    expect.__check @ val, 'function', 'function' === typeof val
+    mini_expect.__check @ val, 'function', 'function' === typeof val
 
   string: val =>
-    expect.__check @ val, 'string', 'string' === typeof val
+    mini_expect.__check @ val, 'string', 'string' === typeof val
 
   promise: val =>
-    expect.__check @ val, 'Promise', null != val && 'function' === typeof val.then
+    mini_expect.__check @ val, 'Promise', null != val && 'function' === typeof val.then
 
   array: val =>
-    expect.__check @ val, 'array', Array.isArray(val)
+    mini_expect.__check @ val, 'array', Array.isArray(val)
 
   __check(val, msg, ok) ::
     if ! ok ::
       throw new TypeError(`Expected ${msg}`)
     return val
+*/
 
-export {expect as mini_expect}

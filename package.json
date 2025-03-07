@@ -17,16 +17,23 @@
     "esm/"
   ],
   "type": "module",
-  "module": "./esm/index.mjs",
+  "module": "./esm/index.js",
   "exports": {
-    ".": "./esm/index.mjs",
+    ".": "./esm/index.js",
     "./esm/*": "./esm/*"
+  },
+  "imports": {
+    "#test_bdd": {
+      "node": "./test/node_bdd.js",
+      "web": "./test/web_bdd_mocha.js"
+    }
   },
   "workspaces": [
     "examples",
     "test"
   ],
   "devDependencies": {
+    "@phorbas/opaque": "file:../opaque",
     "@rollup/plugin-node-resolve": "^16.0.0",
     "chai": "^5.2.0",
     "rollup": "^4.34.9",
@@ -43,7 +50,7 @@
     "pretest": "test -f esm/index.js || npm -s run build",
     "test": "npm -s run test:one",
     "test:one": "cd ./esm-test && node --test",
-    "test:watch": "cd ./esm-test && node --watch --test",
-    "test:only": "cd ./esm-test && node --watch --test-only"
+    "test:watch": "cd ./esm-test && node --test --watch",
+    "test:only": "cd ./esm-test && node --test --test-only --watch"
   }
 }

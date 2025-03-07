@@ -14,9 +14,7 @@ export const pkg_cfg_core = pkg_phrobas_store_group('', {
   input: [
     'code/index.jsy',
     'code/validate_backend.jsy',
-
     'code/js_map.jsy',
-    'code/js_delegate.jsy',
   ]})
 
 export const pkg_cfg_web = pkg_phrobas_store_group('web', {
@@ -78,7 +76,7 @@ export const pkg_test_cfg = {
   external,
   output: { dir: 'esm-test', format: 'es', sourcemap: true },
   input: {
-    //'test-core': './test/core/unittest.jsy',
+    'test-core': './test/core/unittest.jsy',
   },
 }
 
@@ -91,5 +89,5 @@ export default [
   pkg_cfg_nosql,
   pkg_cfg_sql,
 
-  //pkg_test_cfg,
+  pkg_test_cfg,
 ]

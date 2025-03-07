@@ -1,6 +1,9 @@
 import {u8_to_hex, hex_to_u8} from 'u8-utils'
 export {u8_to_hex, hex_to_u8, utf8_to_u8, u8_to_utf8} from 'u8-utils'
 
+export {_is_fn, bkc_storage_verify} from './bkc_abstract.jsy'
+
+export const storage_api_verify = () => void 0
 
 export const as_u8_pair = hk21pair => @#
   as_u8_key @ hk21pair[0]
@@ -112,30 +115,4 @@ export const bkc_binkey_api = api => @:
       for const tpl of ans ::
         tpl[1] = await tpl[1]
       return ans
-
-
-function _is_fn(o, k) ::
-  if 'function' !== typeof o[k] ::
-    throw new TypeError(`Expected function "${k}" not present`)
-
-
-// bkc api verification -- binary key (binary) content
-export function bkc_storage_verify(stg) ::
-  _is_fn(stg, 'bkc_exists')
-  _is_fn(stg, 'bkc_fetch')
-  _is_fn(stg, 'bkc_store')
-
-  if 'object' !== typeof stg.bkc_opt ::
-    throw new TypeError('Expected object "bkc_opt" not present')
-
-  return stg
-
-// storage api verification
-export function storage_api_verify(store_api) ::
-  // bkc_storage_verify(store_api) // also true
-  _is_fn(store_api, 'exists')
-  _is_fn(store_api, 'store_content')
-  _is_fn(store_api, 'store_content_at')
-  _is_fn(store_api, 'fetch_content')
-  return store_api
 

@@ -1,0 +1,35 @@
+import {expect} from 'chai'
+
+import {_rand_u8, _rand_hexkey, _as_body_testpair} from './check_utils.jsy'
+
+export async function validate_bkc_random_key(_stg_, test_body) ::
+  let test_key = _rand_hexkey()
+  test_body = await _as_body_testpair(test_body)
+
+  :: // random key should not exist
+    let ans_exists = _stg_.bkc_exists(test_key)
+    ans_exists = await ans_exists.then()
+    if 0 !== ans_exists :: throw new Error('Expected bkc_exists of new key return 0')
+
+  :: // body for random key should be undefined
+    let ans = _stg_.bkc_fetch(test_key)
+    ans = await ans.then()
+    expect(ans).to.be.undefined
+
+
+  :: // store test body at key
+    let ans = _stg_.bkc_store(test_key, test_body.raw)
+    ans = await ans.then()
+    expect(ans).to.be.undefined
+
+  :: // check key now exists
+    let ans_exists = _stg_.bkc_exists(test_key)
+    ans_exists = await ans_exists.then()
+    if 1 !== ans_exists :: throw new Error('Expected bkc_exists to now be 1')
+
+  :: // check round-trip of body content
+    let ans_body = _stg_.bkc_fetch(test_key)
+    ans_body = await ans_body.then()
+    test_body.expect_roundtrip(ans_body)
+
+
