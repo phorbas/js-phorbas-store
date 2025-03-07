@@ -1,6 +1,6 @@
 import {expect} from 'chai'
 
-import {_expect_aiter, _rand_hexkey_batch, _hexkey_with_rand_body} from './check_utils.jsy'
+import {_expect_aiter, _expect_agen_done, _rand_hexkey_batch, _hexkey_with_rand_body} from './check_utils.jsy'
 
 export async function validate_bkc_stream_random_async_gen(_stg_, opt={}) ::
   let test_key_list = _rand_hexkey_batch(opt.count ?? 5)
@@ -16,7 +16,7 @@ export async function validate_bkc_stream_random_async_gen(_stg_, opt={}) ::
       let ans_batch = ans_stream_exists.next()
       ans_batch = await ans_batch.then()
       expect(ans_batch.done).to.be.false
-      expect(ans_batch.value).to.be.an('array').of.length(5)
+      expect(ans_batch.value).to.be.an('array').of.length(test_key_list.length)
 
       let count = 0
       for let [hk, ans] of ans_batch.value ::
@@ -27,8 +27,87 @@ export async function validate_bkc_stream_random_async_gen(_stg_, opt={}) ::
 
       expect(count).to.equal(test_key_list.length)
 
-    :: // second batch should be done
-      let ans_batch = ans_stream_exists.next()
-      ans_batch = await ans_batch.then()
-      expect(ans_batch.done).to.be.true
+    await _expect_agen_done(ans_stream_exists)
+
+  :: // body for random key should be undefined
+    let ans_stream_fetch = _stg_.bkc_stream_fetch @
+      opt.use_keys ? test_key_list : test_body_list
+
+    _expect_aiter(ans_stream_fetch)
+
+    let ans_batch = await ans_stream_fetch.next().then()
+    expect(ans_batch.done).to.be.false
+    expect(ans_batch.value).to.be.an('array').of.length(test_key_list.length)
+
+    let count = 0
+    for let [hk, ans] of ans_batch.value ::
+      expect(test_key_list.includes(hk)).to.be.true
+      ans = await ans.then()
+      expect(ans).to.be.undefined
+      count++
+
+    expect(count).to.equal(test_key_list.length)
+    await _expect_agen_done(ans_stream_fetch)
+
+  :: // store test body at key
+    let ans_stream_store = _stg_.bkc_stream_store(test_body_list)
+
+    _expect_aiter(ans_stream_store)
+
+    let ans_batch = await ans_stream_store.next().then()
+    expect(ans_batch.done).to.be.false
+    expect(ans_batch.value).to.be.an('array').of.length(test_key_list.length)
+
+    let count = 0
+    for let [hk, ans] of ans_batch.value ::
+      expect(test_key_list.includes(hk)).to.be.true
+      ans = await ans.then()
+      expect(ans).to.be.true
+      count++
+
+    expect(count).to.equal(test_key_list.length)
+    await _expect_agen_done(ans_stream_store)
+
+  :: // check keys now exist
+    let ans_stream_exists = _stg_.bkc_stream_exists @
+      opt.use_keys ? test_key_list : test_body_list
+
+    _expect_aiter(ans_stream_exists)
+
+    let ans_batch = await ans_stream_exists.next().then()
+    expect(ans_batch.done).to.be.false
+    expect(ans_batch.value).to.be.an('array').of.length(test_key_list.length)
+
+    let count = 0
+    for let [hk, ans] of ans_batch.value ::
+      expect(test_key_list.includes(hk)).to.be.true
+      ans = await ans.then()
+      expect(ans).to.equal(1)
+      count++
+
+    expect(count).to.equal(test_key_list.length)
+    await _expect_agen_done(ans_stream_exists)
+
+
+  :: // check round-trip of body content
+    let ans_stream_fetch = _stg_.bkc_stream_fetch @
+      opt.use_keys ? test_key_list : test_body_list
+
+    _expect_aiter(ans_stream_fetch)
+
+    let body_by_key = new Map(test_body_list)
+
+    let ans_batch = await ans_stream_fetch.next().then()
+    expect(ans_batch.done).to.be.false
+    expect(ans_batch.value).to.be.an('array').of.length(test_key_list.length)
+
+    let count = 0
+    for let [hk, ans] of ans_batch.value ::
+      ans = await ans.then()
+      expect(new Uint8Array(ans))
+      .to.deep.equal(body_by_key.get(hk))
+      count++
+
+    expect(count).to.equal(test_key_list.length)
+    await _expect_agen_done(ans_stream_fetch)
 

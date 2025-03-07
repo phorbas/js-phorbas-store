@@ -33,3 +33,39 @@ export async function validate_bkc_random_key(_stg_, test_body) ::
     test_body.expect_roundtrip(ans_body)
 
 
+export async function validate_bkc_overwrite(_stg_) ::
+  throw new Error @ 'TODO'
+  if 0 ::
+        const rk_pairs = @[]
+          @[] rand_u8_key(), rand_u8(1000)
+          @[] rand_u8_key(), rand_u8(2000)
+          @[] rand_u8_key(), rand_u8(4000)
+
+        const rk_key_lst = rk_pairs.map(tpl => tpl[0])
+
+        let immutable = _stg_.bkc_opt.immutable
+        for const step of [0,1,2] ::
+          let res = await _stg_.bkc_store(rk_pairs)
+          if !step ::
+            for let [k,r] of res ::
+              mini_expect.ok @ undefined === r, 'Store should work on first iteration'
+
+          else if !immutable ::
+            for let [k,r] of res ::
+              mini_expect.ok @ undefined === r, 'Store should work on mutable store subsequent iterations'
+
+          else ::
+            for let [k,r] of res ::
+              mini_expect.ok @ false === r, 'Store should fail on immutable store subsequent iterations'
+
+
+          let i=0
+          for let [u8_key, u8_content] of await _stg_.bkc_fetch(rk_key_lst) ::
+            const [rk_key, rk_content] = rk_pairs[i++]
+            mini_expect.ok @ rk_key === u8_key, 'aligned result array of identical u8_key'
+            mini_expect.ok @ undefined !== u8_content, 'We just stored it -- it should exist!'
+            mini_expect.ok @ rk_content.byteLength === u8_content.byteLength, 'Byte length should match'
+
+            const all_u8_match = u8_content.every @\ v,i => v === rk_content[i]
+            mini_expect.ok @ all_u8_match, 'All u8 bytes should match'
+

@@ -30,3 +30,9 @@ export function _expect_aiter(tgt) ::
   expect(tgt.return).to.be.a('function')
   return tgt
 
+export async function _expect_agen_done(async_gen) ::
+  let ans_last = async_gen.next()
+  ans_last = await ans_last.then()
+  expect(ans_last.done).to.be.true
+  return ans_last.value
+
