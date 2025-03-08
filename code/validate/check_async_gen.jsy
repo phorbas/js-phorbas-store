@@ -62,7 +62,7 @@ export async function validate_bkc_stream_async_gen(_stg_, opt={}) ::
     for let [hk, ans] of ans_batch.value ::
       expect(test_key_list.includes(hk)).to.be.true
       ans = await ans.then()
-      expect(ans).to.be.true
+      expect(ans).to.be.null
       count++
 
     expect(count).to.equal(test_key_list.length)

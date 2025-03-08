@@ -1,6 +1,6 @@
-import {bkc_hexkey_api, as_hex_key, as_u8_key} from '../_utils.jsy'
+import { _bkc_storage_, bkc_arrbuf } from '../bkc_abstract.jsy'
 
-export {as_hex_key, as_u8_key}
+export {bkc_arrbuf}
 
 export default bkc_with_fs
 export async function bkc_with_fs(opt={}) ::
@@ -11,12 +11,12 @@ export async function bkc_with_fs(opt={}) ::
   let base = opt.base || './var/'
   let ext = opt.ext || '.bin'
 
-  return bkc_hexkey_api @:
+  return _bkc_storage_.with @:
     bkc_opt: @{} immutable
 
-    hk_has: hex_key =>
+    bkc_exists: hexkey =>
       new Promise @\ resolve, reject ::
-        stat @ `${base}${hex_key}${ext}`,
+        stat @ `${base}${hexkey}${ext}`,
           (err) => ::
             if ! err ::
               resolve(1)
@@ -24,21 +24,21 @@ export async function bkc_with_fs(opt={}) ::
               resolve(0)
             else reject(err)
 
-    hk_get: hex_key =>
+    bkc_fetch: hexkey =>
       new Promise @\ resolve, reject ::
-        readFile @ `${base}${hex_key}${ext}`, _enc_r,
+        readFile @ `${base}${hexkey}${ext}`, _enc_r,
           (err, buf) => ::
             if ! err ::
-              resolve @ Uint8Array.from(buf)
+              resolve @ buf.buffer
             else if 'ENOENT' === err.code ::
               resolve()
             else reject(err)
 
-    hk_set: @\ hex_key, u8_content =>
-      new Promise @\ resolve, reject ::
-        writeFile @ `${base}${hex_key}${ext}`,
-          u8_content, _enc_w,
-          err => !err ? resolve()
+    bkc_store: @\ hexkey, body =>
+      new Promise @\ resolve, reject ::>
+        body = new Uint8Array @ await bkc_arrbuf(body)
+        writeFile @ `${base}${hexkey}${ext}`, body, _enc_w,
+          err => !err ? resolve(null)
             : immutable && 'EEXIST' === err.code ? resolve(false)
             : resolve(err)
 

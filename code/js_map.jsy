@@ -19,5 +19,5 @@ export async function bkc_with_js_map(map_db, opt={}) ::
         return false
 
       map_db.set(hexkey, await bkc_arrbuf(body))
-      return true
+      return null
 

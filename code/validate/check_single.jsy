@@ -20,7 +20,7 @@ export async function validate_bkc_random_key(_stg_, test_body) ::
   :: // store test body at key
     let ans = _stg_.bkc_store(test_key, test_body.raw)
     ans = await ans.then()
-    expect(ans).to.be.true
+    expect(ans).to.be.null
 
   :: // check key now exists
     let ans_exists = _stg_.bkc_exists(test_key)
@@ -43,7 +43,7 @@ export async function validate_bkc_overwrite(_stg_, opt={}) ::
   expect(await _stg_.bkc_exists(test_key)).to.equal(0)
 
   :: // first store
-    expect(await _stg_.bkc_store(test_key, body_versions[0])).to.be.true
+    expect(await _stg_.bkc_store(test_key, body_versions[0])).to.be.null
     expect(await _stg_.bkc_exists(test_key)).to.equal(1)
 
     let rt_buf = await _stg_.bkc_fetch(test_key)
@@ -54,7 +54,7 @@ export async function validate_bkc_overwrite(_stg_, opt={}) ::
   :: // second store
     let ans_store = await _stg_.bkc_store(test_key, body_versions[1])
     if ! immutable ::
-      expect(ans_store).to.be.true
+      expect(ans_store).to.be.null
 
       let rt_buf = await _stg_.bkc_fetch(test_key)
       expect(rt_buf).to.be.an.instanceof(ArrayBuffer)
@@ -71,7 +71,7 @@ export async function validate_bkc_overwrite(_stg_, opt={}) ::
     let ans_store = await _stg_.bkc_store(test_key, body_versions[2])
 
     if ! immutable ::
-      expect(ans_store).to.be.true
+      expect(ans_store).to.be.null
 
       let rt_buf = await _stg_.bkc_fetch(test_key)
       expect(rt_buf).to.be.an.instanceof(ArrayBuffer)

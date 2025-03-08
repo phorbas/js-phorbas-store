@@ -1,40 +1,41 @@
-import {bkc_hexkey_api, as_hex_key, as_u8_key} from '../_utils.jsy'
+import { _bkc_storage_, bkc_arrbuf } from '../bkc_abstract.jsy'
 
-export {as_hex_key, as_u8_key}
-
+export {bkc_arrbuf}
 
 export default bkc_with_fsp
 export async function bkc_with_fsp(opt={}) ::
-  let immutable = !! opt.immutable
+  const immutable = !! opt.immutable
   let _enc_r = @{} encoding: null, flag: 'r'
   let _enc_w = @{} encoding: null, flag: immutable ? 'wx' : 'w'
   let {stat, readFile, writeFile} = await opt.fsp
   let base = opt.base || './var/'
-  let ext = opt.ext || '.cbor'
+  let ext = opt.ext || '.bin'
 
-  return bkc_hexkey_api @:
+  return _bkc_storage_.with @:
     bkc_opt: @{} immutable
 
-    async hk_has(hex_key) ::
+    async bkc_exists(hexkey) ::
       try ::
-        await stat(`${base}${hex_key}${ext}`)
+        await stat(`${base}${hexkey}${ext}`)
         return 1
       catch err ::
         if 'ENOENT' === err.code ::
           return 0
         throw err
 
-    async hk_get(hex_key) ::
+    async bkc_fetch(hexkey) ::
       try ::
-        const buf = await readFile(`${base}${hex_key}${ext}`, _enc_r)
-        return Uint8Array.from(buf)
+        const buf = await readFile(`${base}${hexkey}${ext}`, _enc_r)
+        return buf.buffer
       catch err ::
         if 'ENOENT' !== err.code ::
           throw err
 
-    async hk_set(hex_key, u8_content) ::
+    async bkc_store(hexkey, body) ::
       try ::
-        await writeFile(`${base}${hex_key}${ext}`, u8_content, _enc_w)
+        body = new Uint8Array @ await bkc_arrbuf(body)
+        await writeFile(`${base}${hexkey}${ext}`, body, _enc_w)
+        return null
       catch err ::
-        return immutable && 'EEXIST' === err.code ? false : err
+        return immutable && 'EEXIST' === err.code ? false : err ?? null
 

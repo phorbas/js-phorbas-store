@@ -21,12 +21,12 @@ export async function validate_bkc_stream_batch(_stg_, opt={}) ::
         let tuple = await pair.then()
         expect(tuple[0]).to.be.a.string
         expect(tuple[0]).equal(pair[0])
-        expect(tuple[1]).to.be.true
+        expect(tuple[1]).to.be.null
         expect(tuple[1]).to.equal(await pair[1])
 
       for let tuple of await Promise.all(batch_result) ::
         expect(tuple[0]).to.be.a.string
-        expect(tuple[1]).to.be.true
+        expect(tuple[1]).to.be.null
 
 
   :: // bkc_stream_fetch() batches of bkc_pair works with Promise.all
@@ -129,7 +129,7 @@ export async function validate_bkc_stream(_stg_, opt={}) ::
       for let [hk, ans] of batch_result ::
         expect(test_key_list.includes(hk)).to.be.true
         ans = await ans.then()
-        expect(ans).to.be.true
+        expect(ans).to.be.null
         count++
 
     expect(count).to.equal(test_key_list.length)
