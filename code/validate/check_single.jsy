@@ -33,39 +33,54 @@ export async function validate_bkc_random_key(_stg_, test_body) ::
     test_body.expect_roundtrip(ans_body)
 
 
-export async function validate_bkc_overwrite(_stg_) ::
-  throw new Error @ 'TODO'
-  if 0 ::
-        const rk_pairs = @[]
-          @[] rand_u8_key(), rand_u8(1000)
-          @[] rand_u8_key(), rand_u8(2000)
-          @[] rand_u8_key(), rand_u8(4000)
+export async function validate_bkc_overwrite(_stg_, opt={}) ::
+  let test_key = _rand_hexkey()
+  let body_versions = Array.from @ {length: 3}, () => _rand_u8(opt.rand_width ?? 32)
 
-        const rk_key_lst = rk_pairs.map(tpl => tpl[0])
+  const immutable = _stg_.bkc_opt.immutable
+  expect(immutable).to.be.oneOf @# true, false
 
-        let immutable = _stg_.bkc_opt.immutable
-        for const step of [0,1,2] ::
-          let res = await _stg_.bkc_store(rk_pairs)
-          if !step ::
-            for let [k,r] of res ::
-              mini_expect.ok @ undefined === r, 'Store should work on first iteration'
+  expect(await _stg_.bkc_exists(test_key)).to.equal(0)
 
-          else if !immutable ::
-            for let [k,r] of res ::
-              mini_expect.ok @ undefined === r, 'Store should work on mutable store subsequent iterations'
+  :: // first store
+    expect(await _stg_.bkc_store(test_key, body_versions[0])).to.be.true
+    expect(await _stg_.bkc_exists(test_key)).to.equal(1)
 
-          else ::
-            for let [k,r] of res ::
-              mini_expect.ok @ false === r, 'Store should fail on immutable store subsequent iterations'
+    let rt_buf = await _stg_.bkc_fetch(test_key)
+    expect(rt_buf).to.be.an.instanceof(ArrayBuffer)
+    expect(new Uint8Array(rt_buf)).to.deep.equal(body_versions[0])
 
 
-          let i=0
-          for let [u8_key, u8_content] of await _stg_.bkc_fetch(rk_key_lst) ::
-            const [rk_key, rk_content] = rk_pairs[i++]
-            mini_expect.ok @ rk_key === u8_key, 'aligned result array of identical u8_key'
-            mini_expect.ok @ undefined !== u8_content, 'We just stored it -- it should exist!'
-            mini_expect.ok @ rk_content.byteLength === u8_content.byteLength, 'Byte length should match'
+  :: // second store
+    let ans_store = await _stg_.bkc_store(test_key, body_versions[1])
+    if ! immutable ::
+      expect(ans_store).to.be.true
 
-            const all_u8_match = u8_content.every @\ v,i => v === rk_content[i]
-            mini_expect.ok @ all_u8_match, 'All u8 bytes should match'
+      let rt_buf = await _stg_.bkc_fetch(test_key)
+      expect(rt_buf).to.be.an.instanceof(ArrayBuffer)
+      expect(new Uint8Array(rt_buf)).to.deep.equal(body_versions[1])
+
+    else ::
+      expect(ans_store).to.be.false
+
+      let rt_buf = await _stg_.bkc_fetch(test_key)
+      expect(rt_buf).to.be.an.instanceof(ArrayBuffer)
+      expect(new Uint8Array(rt_buf)).to.deep.equal(body_versions[0])
+
+  :: // third store
+    let ans_store = await _stg_.bkc_store(test_key, body_versions[2])
+
+    if ! immutable ::
+      expect(ans_store).to.be.true
+
+      let rt_buf = await _stg_.bkc_fetch(test_key)
+      expect(rt_buf).to.be.an.instanceof(ArrayBuffer)
+      expect(new Uint8Array(rt_buf)).to.deep.equal(body_versions[2])
+
+    else ::
+      expect(ans_store).to.be.false
+
+      let rt_buf = await _stg_.bkc_fetch(test_key)
+      expect(rt_buf).to.be.an.instanceof(ArrayBuffer)
+      expect(new Uint8Array(rt_buf)).to.deep.equal(body_versions[0])
 

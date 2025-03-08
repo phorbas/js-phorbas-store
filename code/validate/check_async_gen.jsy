@@ -16,7 +16,7 @@ export async function validate_bkc_stream_random_async_gen(_stg_, opt={}) ::
       let ans_batch = ans_stream_exists.next()
       ans_batch = await ans_batch.then()
       expect(ans_batch.done).to.be.false
-      expect(ans_batch.value).to.be.an('array').of.length(test_key_list.length)
+      expect(ans_batch.value).to.be.an.instanceOf(Array).with.lengthOf(test_key_list.length)
 
       let count = 0
       for let [hk, ans] of ans_batch.value ::
@@ -37,7 +37,7 @@ export async function validate_bkc_stream_random_async_gen(_stg_, opt={}) ::
 
     let ans_batch = await ans_stream_fetch.next().then()
     expect(ans_batch.done).to.be.false
-    expect(ans_batch.value).to.be.an('array').of.length(test_key_list.length)
+    expect(ans_batch.value).to.be.an.instanceOf(Array).with.lengthOf(test_key_list.length)
 
     let count = 0
     for let [hk, ans] of ans_batch.value ::
@@ -56,7 +56,7 @@ export async function validate_bkc_stream_random_async_gen(_stg_, opt={}) ::
 
     let ans_batch = await ans_stream_store.next().then()
     expect(ans_batch.done).to.be.false
-    expect(ans_batch.value).to.be.an('array').of.length(test_key_list.length)
+    expect(ans_batch.value).to.be.an.instanceOf(Array).with.lengthOf(test_key_list.length)
 
     let count = 0
     for let [hk, ans] of ans_batch.value ::
@@ -76,7 +76,7 @@ export async function validate_bkc_stream_random_async_gen(_stg_, opt={}) ::
 
     let ans_batch = await ans_stream_exists.next().then()
     expect(ans_batch.done).to.be.false
-    expect(ans_batch.value).to.be.an('array').of.length(test_key_list.length)
+    expect(ans_batch.value).to.be.an.instanceOf(Array).with.lengthOf(test_key_list.length)
 
     let count = 0
     for let [hk, ans] of ans_batch.value ::
@@ -99,7 +99,7 @@ export async function validate_bkc_stream_random_async_gen(_stg_, opt={}) ::
 
     let ans_batch = await ans_stream_fetch.next().then()
     expect(ans_batch.done).to.be.false
-    expect(ans_batch.value).to.be.an('array').of.length(test_key_list.length)
+    expect(ans_batch.value).to.be.an.instanceOf(Array).with.lengthOf(test_key_list.length)
 
     let count = 0
     for let [hk, ans] of ans_batch.value ::

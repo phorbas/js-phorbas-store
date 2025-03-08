@@ -50,7 +50,7 @@ function _validate_backend(_describe_fn, backend_name, opt) ::
       it @ 'with random 1024 byte binary', () => check_single.validate_bkc_random_key(_stg_, 1024)
       it @ 'with random 16384 byte binary', () => check_single.validate_bkc_random_key(_stg_, 16384)
 
-      it.skip @ 'overwrite test', () => check_single.validate_bkc_overwrite(_stg_)
+      it @ 'overwrite test', () => check_single.validate_bkc_overwrite(_stg_)
 
       it @ 'stream with async iteration', () => check_aiter.validate_bkc_stream_random_aiter(_stg_)
       it @ 'stream with async generator', () => check_async_gen.validate_bkc_stream_random_async_gen(_stg_)
