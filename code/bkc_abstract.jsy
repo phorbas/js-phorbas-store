@@ -19,20 +19,27 @@ export const _bkc_storage_mixin_ = @{}
     return Object.assign({__proto__: this}, ...args)
 
 
+export const _bkc_pair = pair => (pair.then = _bkc_pair_then, pair)
+
 export const _bkc_storage_ = @{}
   ... _bkc_storage_mixin_
 
+  _bkc_pair
+
   async * bkc_stream_exists(hexkey_iter) ::
+    let _bkc_pair = this._bkc_pair
     yield * bkc_batch_stream @ hexkey_iter,
-      ([hexkey]) => [hexkey, this.bkc_exists(hexkey)]
+      ([hexkey]) => _bkc_pair @# hexkey, this.bkc_exists(hexkey)
 
   async * bkc_stream_fetch(hexkey_iter, as_xform) ::
+    let _bkc_pair = this._bkc_pair
     yield * bkc_batch_stream @ hexkey_iter,
-      ([hexkey]) => [hexkey, this.bkc_fetch(hexkey).then(as_xform)]
+      ([hexkey]) => _bkc_pair @# hexkey, this.bkc_fetch(hexkey).then(as_xform)
 
   async * bkc_stream_store(hexkey_body_iter) ::
+    let _bkc_pair = this._bkc_pair
     yield * bkc_batch_stream @ hexkey_body_iter,
-      ([hexkey, body]) => [hexkey, this.bkc_store(hexkey, body)]
+      ([hexkey, body]) => _bkc_pair @# hexkey, this.bkc_store(hexkey, body)
 
 
 export const _bkc_stream_storage_ = @{}
@@ -59,6 +66,9 @@ export async function * bkc_batch_stream(aiter_batches, bkc_fn) ::
       if batch.trim :: batch = [[batch]]
       else batch = batch.map(_as_tuples)
       yield bkc_fn ? batch.map(bkc_fn) : batch
+
+
+function _bkc_pair_then(y,n) :: return Promise.resolve(this[1]).then(ans => [this[0], ans]).then(y,n)
 
 
 // bkc api verification -- binary key (binary) content

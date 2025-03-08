@@ -2,7 +2,88 @@ import {expect} from 'chai'
 
 import {_expect_aiter, _rand_hexkey_batch, _hexkey_with_rand_body} from './check_utils.jsy'
 
-export async function validate_bkc_stream_random_aiter(_stg_, opt={}) ::
+export async function validate_bkc_stream_batch(_stg_, opt={}) ::
+  let test_key_list = _rand_hexkey_batch(opt.count ?? 5)
+  let test_body_list = test_key_list.map(_hexkey_with_rand_body(opt.rand_width ?? 32))
+
+  :: // bkc_stream_store() batches of bkc_pair works with Promise.all
+    let ans_stream_store = _stg_.bkc_stream_store(test_body_list)
+    _expect_aiter(ans_stream_store)
+
+    for await let batch_result of ans_stream_store ::
+
+      for let pair of batch_result ::
+        expect(pair).to.be.an.instanceOf(Array).lengthOf(2)
+        expect(pair[0]).to.be.a.string
+        expect(pair[1]).to.be.a('promise')
+        expect(pair.then).to.be.a('function')
+
+        let tuple = await pair.then()
+        expect(tuple[0]).to.be.a.string
+        expect(tuple[0]).equal(pair[0])
+        expect(tuple[1]).to.be.true
+        expect(tuple[1]).to.equal(await pair[1])
+
+      for let tuple of await Promise.all(batch_result) ::
+        expect(tuple[0]).to.be.a.string
+        expect(tuple[1]).to.be.true
+
+
+  :: // bkc_stream_fetch() batches of bkc_pair works with Promise.all
+    let ans_stream_fetch = _stg_.bkc_stream_fetch(test_key_list)
+
+    let body_by_key = new Map(test_body_list)
+
+    for await let batch_result of ans_stream_fetch ::
+
+      for let pair of batch_result ::
+        expect(pair).to.be.an.instanceOf(Array).lengthOf(2)
+        expect(pair[0]).to.be.a.string
+        expect(pair[1]).to.be.a('promise')
+        expect(pair.then).to.be.a('function')
+
+        let tuple = await pair.then()
+        expect(tuple[0]).to.be.a.string
+        expect(tuple[0]).equal(pair[0])
+
+        expect @ new Uint8Array @ tuple[1]
+        .to.deep.equal @ new Uint8Array @ await pair[1]
+        .to.deep.equal @ body_by_key.get(tuple[0])
+
+
+      for let tuple of await Promise.all(batch_result) ::
+        expect(tuple[0]).to.be.a.string
+
+        expect @ new Uint8Array @ tuple[1]
+        .to.deep.equal @ body_by_key.get(tuple[0])
+
+
+  :: // bkc_stream_exists() batches of bkc_pair works with Promise.all
+    let ans_stream_exists = _stg_.bkc_stream_exists(test_body_list)
+    _expect_aiter(ans_stream_exists)
+
+    for await let batch_result of ans_stream_exists ::
+
+      for let pair of batch_result ::
+        expect(pair).to.be.an.instanceOf(Array).lengthOf(2)
+        expect(pair[0]).to.be.a.string
+        expect(pair[1]).to.be.a('promise')
+        expect(pair.then).to.be.a('function')
+
+        let tuple = await pair.then()
+        expect(tuple[0]).to.be.a.string
+        expect(tuple[0]).equal(pair[0])
+        expect(tuple[1]).to.equal(1)
+        expect(tuple[1]).to.equal(await pair[1])
+
+      for let tuple of await Promise.all(batch_result) ::
+        expect(tuple[0]).to.be.a.string
+        expect(tuple[1]).to.equal(1)
+
+
+
+
+export async function validate_bkc_stream(_stg_, opt={}) ::
   let test_key_list = _rand_hexkey_batch(opt.count ?? 5)
   let test_body_list = test_key_list.map(_hexkey_with_rand_body(opt.rand_width ?? 32))
 
