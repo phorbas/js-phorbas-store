@@ -1,3 +1,2 @@
 export * from './bkc_abstract.jsy'
-export * from './validate_backend.jsy'
 export {bkc_with_js_map} from './js_map.jsy'
