@@ -1,26 +1,35 @@
-import {bkc_hexkey_api, as_hex_key, as_u8_key} from '../_utils.jsy'
+import { _bkc_storage_, bkc_arrbuf } from '../bkc_abstract.jsy'
 
-export {as_hex_key, as_u8_key}
+export {bkc_arrbuf}
 
 export default bkc_with_keyv
 export async function bkc_with_keyv(keyv, opt={}) ::
-  let opt_path = '' + (opt.path || '')
-  return bkc_hexkey_api @:
+  const immutable = !! opt.immutable
+  const opt_path = `${opt.path || ''}`
+  return _bkc_storage_.with @:
+    bkc_opt: @{} immutable
 
-    async hk_has(hex_key) ::
-      const buf = await keyv.get(opt_path+hex_key)
+    async bkc_exists(hexkey) ::
+      let k = opt_path+hexkey
+      let buf = await keyv.get(k)
       return buf ? 1 : 0
 
-    async hk_get(hex_key) ::
-      const buf = await keyv.get(opt_path+hex_key)
-      if null != buf ::
-        return Uint8Array.from(buf)
+    async bkc_fetch(hexkey) ::
+      let k = opt_path+hexkey
+      let buf = await keyv.get(k)
+      return !buf ? void buf
+        : new Uint8Array(buf).buffer 
 
-    async hk_set(hex_key, u8_content) ::
+    async bkc_store(hexkey, body) ::
+      let k = opt_path+hexkey
+      if immutable ::
+        let buf = await keyv.get(k)
+        if buf :: return false
+
       try ::
-        await keyv.set @
-          opt_path+hex_key,
-          Buffer.from(u8_content)
+        body = await bkc_arrbuf(body)
+        await keyv.set(k, Buffer.from(body))
+        return null
       catch err ::
         return err
 

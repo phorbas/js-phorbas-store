@@ -15,9 +15,12 @@ export * from './validate/check_async_gen.jsy'
 
 
 export function validate_backend(test_bdd, backend_name, opt) ::
+  const {describe, it, after, before} = test_bdd
+  if 'function' !== typeof describe ::
+    throw new Error('validate_backend expects #test_bdd module as first argument')
+
   if 'function' === typeof opt :: opt = {bkc_create: opt}
 
-  const {describe, it, after, before} = test_bdd
   describe @ `backend: ${backend_name}`, function () ::
     if undefined !== opt.slow :: opt.slow(this)
 
