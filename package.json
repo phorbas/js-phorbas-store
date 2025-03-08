@@ -20,7 +20,8 @@
   "module": "./esm/index.js",
   "exports": {
     ".": "./esm/index.js",
-    "./esm/*": "./esm/*"
+    "./esm/*": "./esm/*",
+    "./integ-zx-cli": "./integ-test/_integ_zx_cli.js"
   },
   "imports": {
     "#test_bdd": {
@@ -34,12 +35,14 @@
   ],
   "devDependencies": {
     "@phorbas/opaque": "file:../opaque",
+    "@rollup/plugin-alias": "^5.1.1",
     "@rollup/plugin-node-resolve": "^16.0.0",
     "chai": "^5.2.0",
     "rollup": "^4.34.9",
     "rollup-plugin-jsy": "^1.9.2",
     "u8-utils": "^0.4.2",
-    "vite": "^6.2.1"
+    "vite": "^6.2.1",
+    "zx": "^8.4.0"
   },
   "scripts": {
     "clean": "rm -rf ./esm/* ./esm-*/*",

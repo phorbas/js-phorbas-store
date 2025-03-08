@@ -1,4 +1,5 @@
-import {describe, it, before, after} from '#test_bdd'
+//import {describe, it, before, after} from '#test_bdd'
+import {describe, it, before, after} from 'node:test'
 
 import {bkc_storage_verify} from './bkc_abstract.jsy'
 import * as check_single from './validate/check_single.jsy'
@@ -13,16 +14,11 @@ export * from './validate/check_aiter.jsy'
 export * from './validate/check_async_gen.jsy'
 
 
-export const validate_backend = Object.assign @
-  _validate_backend.bind(null, describe)
-  @{} only: _validate_backend.bind(null, describe.only)
-      skip: _validate_backend.bind(null, describe.skip)
-
-
-function _validate_backend(_describe_fn, backend_name, opt) ::
+export function validate_backend(test_bdd, backend_name, opt) ::
   if 'function' === typeof opt :: opt = {bkc_create: opt}
 
-  _describe_fn @ `backend: ${backend_name}`, function () ::
+  const {describe, it, after, before} = test_bdd
+  describe @ `backend: ${backend_name}`, function () ::
     if undefined !== opt.slow :: opt.slow(this)
 
     let _stg_, _ctx_

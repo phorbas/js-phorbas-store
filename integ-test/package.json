@@ -1,5 +1,6 @@
 {
   "private": true,
+  "type": "module",
   "dependencies": {
     "aws-sdk": "^2.1692.0",
     "aws4fetch": "^1.0.20",

@@ -1,3 +1,4 @@
+import * as test_bdd from '#test_bdd'
 import {validate_backend} from '@phorbas/store/esm/validate_backend.js'
 import {bkc_with_fsp} from '@phorbas/store/esm/local/local_fsp.js'
 
@@ -5,9 +6,9 @@ var fsp_module
 if globalThis.process?.versions?.node ::
   fsp_module = import('node:fs/promises')
 
-if fsp_module ::
-  let base = 'var-test-bkc_local_fsp'
-  base = await fsp_module.then(m => m.mkdtemp(base))
+fsp_module && test_bdd.describe @ 'bkc_with_fsp', @::>
+  let base = await fsp_module.then(m => m.mkdtemp('var-test-bkc_local_fsp'))
 
-  validate_backend @ 'bkc_with_fsp', ()=> bkc_with_fsp({fsp: fsp_module, base})
-  validate_backend @ 'bkc_with_fsp immutable', ()=> bkc_with_fsp({fsp: fsp_module, base, immutable: true})
+  validate_backend @ test_bdd, 'bkc_with_fsp', ()=> bkc_with_fsp({fsp: fsp_module, base})
+  validate_backend @ test_bdd, 'bkc_with_fsp immutable', ()=> bkc_with_fsp({fsp: fsp_module, base, immutable: true})
+

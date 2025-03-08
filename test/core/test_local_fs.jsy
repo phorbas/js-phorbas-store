@@ -1,3 +1,4 @@
+import * as test_bdd from '#test_bdd'
 import {validate_backend} from '@phorbas/store/esm/validate_backend.js'
 import {bkc_with_fs} from '@phorbas/store/esm/local/local_fs.js'
 
@@ -5,9 +6,8 @@ var fs_module
 if globalThis.process?.versions?.node ::
   fs_module = import('node:fs')
 
-if fs_module ::
-  let base = 'var-test-bkc_local_fs'
-  base = await fs_module.then(m => m.mkdtempSync(base))
+fs_module && test_bdd.describe @ 'bkc_with_fs', @::>
+  let base = await fs_module.then(m => m.mkdtempSync('var-test-bkc_local_fs'))
 
-  validate_backend @ 'bkc_with_fs', ()=> bkc_with_fs({fs: fs_module, base})
-  validate_backend @ 'bkc_with_fs immutable', ()=> bkc_with_fs({fs: fs_module, base, immutable: true})
+  validate_backend @ test_bdd, 'bkc_with_fs', ()=> bkc_with_fs({fs: fs_module, base})
+  validate_backend @ test_bdd, 'bkc_with_fs immutable', ()=> bkc_with_fs({fs: fs_module, base, immutable: true})

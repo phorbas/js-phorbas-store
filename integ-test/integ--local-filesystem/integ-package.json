@@ -1,0 +1,12 @@
+{
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "dependencies": {
+    "keyv": "*",
+    "keyv-file": "*"
+  },
+  "scripts": {
+    "test": "node --test"
+  }
+}
