@@ -3,8 +3,8 @@
   "version": "0.0.0",
   "type": "module",
   "dependencies": {
-    "keyv": "*",
-    "keyv-file": "*"
+    "keyv": "^5",
+    "keyv-file": "^5"
   },
   "scripts": {
     "test": "node --test",
