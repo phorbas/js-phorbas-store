@@ -18,8 +18,8 @@ export async function _bkc_web_storage(storage, opt={}) ::
     async bkc_fetch(hexkey) ::
       let b64_buf = storage.getItem(prefix+hexkey)
       if b64_buf ::
-        let body = b64_decode(b64_buf).slice()
-        return body.buffer
+        let body = await b64_decode(b64_buf)
+        return body.slice().buffer
 
     async bkc_store(hexkey, body) ::
       if immutable && null != storage.getItem(prefix+hexkey) ::

@@ -5,6 +5,7 @@ import {validate_backend} from '@phorbas/store/esm/validate_backend.js'
 import {bkc_web_storage_base64} from '@phorbas/store/esm/web/web_storage.js'
 import {bkc_web_storage_base64url} from '@phorbas/store/esm/web/web_storage.js'
 
+
 class MockStorage ::
   _mem = new Map()
 
@@ -16,6 +17,7 @@ class MockStorage ::
     expect(sz_key).to.be.a.string
     expect(sz_value).to.be.a.string
     this._mem.set(sz_key, sz_value)
+
 
 test_bdd.describe @ 'bkc_web_storage variants', @::>
   const webStorageTypes = Object.entries @:

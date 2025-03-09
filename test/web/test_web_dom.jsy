@@ -1,0 +1,13 @@
+import * as test_bdd from '#test_bdd'
+import {expect} from 'chai'
+
+import {validate_backend} from '@phorbas/store/esm/validate_backend.js'
+import {bkc_with_dom} from '@phorbas/store/esm/web/web_dom.js'
+
+if globalThis.document ::
+  test_bdd.describe @ 'bkc_with_dom on document', @::>
+    validate_backend @ test_bdd, `bkc_with_dom`,
+      () => bkc_with_dom(document.createElement('bkc-dom-test'))
+
+    validate_backend @ test_bdd, `bkc_with_dom immutable`,
+      () => bkc_with_dom(document.createElement('bkc-dom-test'), {immutable: true})

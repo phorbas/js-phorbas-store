@@ -1,1 +1,2 @@
+import './test_web_dom.jsy'
 import './test_web_storage.jsy'

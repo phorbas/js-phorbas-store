@@ -25,7 +25,7 @@ export const pkg_cfg_web = pkg_phrobas_store_group('web', {
     //'code/web/web_cache.jsy',
     //'code/web/web_cache_fetch.jsy',
     'code/web/web_storage.jsy',
-    //'code/web/web_dom.jsy',
+    'code/web/web_dom.jsy',
   ]})
 
 export const pkg_cfg_websvr = pkg_phrobas_store_group('websvr', {
