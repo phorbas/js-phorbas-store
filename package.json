@@ -46,6 +46,7 @@
   },
   "scripts": {
     "clean": "rm -rf ./esm/* ./esm-*/*",
+    "dkr_deps": "cd ./integ-test/integ--core && npm run dkr_deps",
     "build": "rollup --config",
     "watch": "rollup --watch --config",
     "previte": "test -f esm/index.js || vite",
