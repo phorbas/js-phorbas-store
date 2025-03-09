@@ -39,9 +39,8 @@ const _bkc_indexdb_proto_ = _bkc_stream_storage_.with @:
 
       await txn_done
 
-      let p_one = Promise.resolve(1), p_zero = Promise.resolve(0)
       for const pair of batch ::
-        pair[1] = pair[1].result ? p_one : p_zero
+        pair[1] = pair[1].result ? 1 : 0
 
       yield batch
 
@@ -55,7 +54,7 @@ const _bkc_indexdb_proto_ = _bkc_stream_storage_.with @:
       await txn_done
 
       for const pair of batch ::
-        pair[1] = Promise.resolve @ pair[1].result
+        pair[1] = pair[1].result
 
       yield batch
 
@@ -73,7 +72,7 @@ const _bkc_indexdb_proto_ = _bkc_stream_storage_.with @:
       await txn_done
 
       for const pair of batch ::
-        pair[1] = Promise.resolve @ pair[1].error ?? null
+        pair[1] = pair[1].error ?? null
 
       yield batch
 

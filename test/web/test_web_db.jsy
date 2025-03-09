@@ -5,7 +5,7 @@ import {validate_backend} from '@phorbas/store/esm/validate_backend.js'
 import {bkc_web_db} from '@phorbas/store/esm/web/web_db.js'
 
 if globalThis.indexedDB ::
-  test_bdd.describe.only @ 'IndexDB', @::>
+  test_bdd.describe @ 'IndexDB', @::>
     validate_backend @ test_bdd, 'web_db', @{}
       bkc_create: () => bkc_web_db @:
           db: 'test-bkc_web_db',

@@ -21,7 +21,7 @@ export async function validate_bkc_stream_async_gen(_stg_, opt={}) ::
       let count = 0
       for let [hk, ans] of ans_batch.value ::
         expect(test_key_list.includes(hk)).to.be.true
-        ans = await ans.then()
+        ans = await ans
         expect(ans).to.equal(0)
         count++
 
@@ -42,7 +42,7 @@ export async function validate_bkc_stream_async_gen(_stg_, opt={}) ::
     let count = 0
     for let [hk, ans] of ans_batch.value ::
       expect(test_key_list.includes(hk)).to.be.true
-      ans = await ans.then()
+      ans = await ans
       expect(ans).to.be.undefined
       count++
 
@@ -61,7 +61,7 @@ export async function validate_bkc_stream_async_gen(_stg_, opt={}) ::
     let count = 0
     for let [hk, ans] of ans_batch.value ::
       expect(test_key_list.includes(hk)).to.be.true
-      ans = await ans.then()
+      ans = await ans
       expect(ans).to.be.null
       count++
 
@@ -81,7 +81,7 @@ export async function validate_bkc_stream_async_gen(_stg_, opt={}) ::
     let count = 0
     for let [hk, ans] of ans_batch.value ::
       expect(test_key_list.includes(hk)).to.be.true
-      ans = await ans.then()
+      ans = await ans
       expect(ans).to.equal(1)
       count++
 
@@ -103,7 +103,7 @@ export async function validate_bkc_stream_async_gen(_stg_, opt={}) ::
 
     let count = 0
     for let [hk, ans] of ans_batch.value ::
-      ans = await ans.then()
+      ans = await ans
       expect(new Uint8Array(ans))
       .to.deep.equal(body_by_key.get(hk))
       count++

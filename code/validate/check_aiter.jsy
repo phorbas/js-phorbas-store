@@ -15,7 +15,6 @@ export async function validate_bkc_stream_batch(_stg_, opt={}) ::
       for let pair of batch_result ::
         expect(pair).to.be.an.instanceOf(Array).lengthOf(2)
         expect(pair[0]).to.be.a.string
-        expect(pair[1]).to.be.a('promise')
         expect(pair.then).to.be.a('function')
 
         let tuple = await pair.then()
@@ -39,7 +38,6 @@ export async function validate_bkc_stream_batch(_stg_, opt={}) ::
       for let pair of batch_result ::
         expect(pair).to.be.an.instanceOf(Array).lengthOf(2)
         expect(pair[0]).to.be.a.string
-        expect(pair[1]).to.be.a('promise')
         expect(pair.then).to.be.a('function')
 
         let tuple = await pair.then()
@@ -67,7 +65,6 @@ export async function validate_bkc_stream_batch(_stg_, opt={}) ::
       for let pair of batch_result ::
         expect(pair).to.be.an.instanceOf(Array).lengthOf(2)
         expect(pair[0]).to.be.a.string
-        expect(pair[1]).to.be.a('promise')
         expect(pair.then).to.be.a('function')
 
         let tuple = await pair.then()
@@ -97,7 +94,7 @@ export async function validate_bkc_stream(_stg_, opt={}) ::
     for await let batch_result of ans_stream_exists ::
       for let [hk, ans] of batch_result ::
         expect(test_key_list.includes(hk)).to.be.true
-        ans = await ans.then()
+        ans = await ans
         expect(ans).to.equal(0)
         count++
 
@@ -113,7 +110,7 @@ export async function validate_bkc_stream(_stg_, opt={}) ::
     for await let batch_result of ans_stream_fetch ::
       for let [hk, ans] of batch_result ::
         expect(test_key_list.includes(hk)).to.be.true
-        ans = await ans.then()
+        ans = await ans
         expect(ans).to.be.undefined
         count++
 
@@ -128,7 +125,7 @@ export async function validate_bkc_stream(_stg_, opt={}) ::
     for await let batch_result of ans_stream_store ::
       for let [hk, ans] of batch_result ::
         expect(test_key_list.includes(hk)).to.be.true
-        ans = await ans.then()
+        ans = await ans
         expect(ans).to.be.null
         count++
 
@@ -144,7 +141,7 @@ export async function validate_bkc_stream(_stg_, opt={}) ::
     for await let batch_result of ans_stream_exists ::
       for let [hk, ans] of batch_result ::
         expect(test_key_list.includes(hk)).to.be.true
-        ans = await ans.then()
+        ans = await ans
         expect(ans).to.equal(1)
         count++
 
@@ -162,7 +159,7 @@ export async function validate_bkc_stream(_stg_, opt={}) ::
     let count = 0
     for await let batch_result of ans_stream_fetch ::
       for let [hk, ans] of batch_result ::
-        ans = await ans.then()
+        ans = await ans
         expect(new Uint8Array(ans))
         .to.deep.equal(body_by_key.get(hk))
         count++

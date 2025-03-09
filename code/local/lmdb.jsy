@@ -50,19 +50,17 @@ export async function bkc_with_lmdb(lmdb_env, opt) ::
         for let pair of batch ::
           pair[1] = await pair[1]
 
-        let p_null = Promise.resolve(null), p_false = Promise.resolve(false)
-
         let _txn = lmdb_env.beginTxn()
         if immutable ::
           for let pair of batch ::
             if null == _txn.getBinary(dbi, pair[0]) ::
               _txn.putBinary(dbi, pair[0], Buffer.from(pair[1]))
-              pair[1] = p_null
-            else pair[1] = p_false
+              pair[1] = null
+            else pair[1] = false
             
         else for let pair of batch ::
           _txn.putBinary(dbi, pair[0], Buffer.from(pair[1]))
-          pair[1] = p_null
+          pair[1] = null
 
         await _txn.commit()
         yield batch
