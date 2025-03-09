@@ -14,6 +14,7 @@
   mocha.setup({ui: 'bdd'}).checkLeaks()
 
   await import('./esm-test/test-core.js')
+  await import('./esm-test/test-web.js')
 
   mocha.run()
 </script>

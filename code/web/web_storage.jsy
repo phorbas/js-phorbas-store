@@ -1,38 +1,44 @@
-import {bkc_hexkey_api, as_hex_key, as_u8_key} from '../_utils.jsy'
+import { _bkc_storage_, bkc_arrbuf } from '../bkc_abstract.jsy'
 import {u8_to_base64, base64_to_u8, u8_to_base64url, base64url_to_u8} from 'u8-utils'
 
-export {as_hex_key, as_u8_key}
 export {u8_to_base64, base64_to_u8, u8_to_base64url, base64url_to_u8}
+export {bkc_arrbuf}
 
-export async function _bkc_with_storage(storage, opt={}) ::
-  const {encode, decode} = opt, immutable = !! opt.immutable
-
-  return bkc_hexkey_api @:
+export async function _bkc_web_storage(storage, opt={}) ::
+  const {b64_encode, b64_decode} = opt
+  const immutable = !! opt.immutable
+  const prefix = opt.prefix ?? 'bkc-'
+  return _bkc_storage_.with @:
     bkc_opt: @{} immutable
 
-    hk_has: async hex_key =>
-      0 | null === storage.getItem(hex_key)
+    async bkc_exists(hexkey) ::
+      let b64_buf = storage.getItem(prefix+hexkey)
+      return null == b64_buf ? 0 : 1
 
-    hk_get: async hex_key =>
-      await decode(storage.getItem(hex_key))
+    async bkc_fetch(hexkey) ::
+      let b64_buf = storage.getItem(prefix+hexkey)
+      if b64_buf ::
+        let body = b64_decode(b64_buf).slice()
+        return body.buffer
 
-    hk_set: immutable
-      ? async (hex_key, u8_content) =>
-          null !== storage.getItem(hex_key) ? false
-            : void storage.setItem(hex_key, await encode(u8_content))
+    async bkc_store(hexkey, body) ::
+      if immutable && null != storage.getItem(prefix+hexkey) ::
+        return false
 
-      : async (hex_key, u8_content) =>
-          void storage.setItem(hex_key, await encode(u8_content))
+      body = new Uint8Array @ await bkc_arrbuf(body)
+      let b64_buf = await b64_encode(body)
+      storage.setItem(prefix+hexkey, b64_buf)
+      return null
 
 
-const _b64_opt = { encode: u8_to_base64, decode: base64_to_u8 }
-export const bkc_with_web_storage_b64 = (storage, opt) =>
-  _bkc_with_storage(storage, {__proto__: _b64_opt, ...opt})
+const _b64_opt = { b64_encode: u8_to_base64, b64_decode: base64_to_u8 }
+export const bkc_web_storage_base64 = (storage, opt) =>
+  _bkc_web_storage(storage, {__proto__: _b64_opt, ...opt})
 
-const _b64url_opt = { encode: u8_to_base64url, decode: base64url_to_u8 }
-export const bkc_with_web_storage_b64url = (storage, opt) =>
-  _bkc_with_storage(storage, {__proto__: _b64url_opt, ...opt})
+const _b64url_opt = { b64_encode: u8_to_base64url, b64_decode: base64url_to_u8 }
+export const bkc_web_storage_base64url = (storage, opt) =>
+  _bkc_web_storage(storage, {__proto__: _b64url_opt, ...opt})
 
 export @{}
-  bkc_with_web_storage_b64url as bkc_with_web_storage,
-  bkc_with_web_storage_b64url as default,
+  bkc_web_storage_base64url as bkc_web_storage,
+  bkc_web_storage_base64url as default,

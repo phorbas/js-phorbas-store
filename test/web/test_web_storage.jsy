@@ -1,0 +1,38 @@
+import * as test_bdd from '#test_bdd'
+import {expect} from 'chai'
+
+import {validate_backend} from '@phorbas/store/esm/validate_backend.js'
+import {bkc_web_storage_base64} from '@phorbas/store/esm/web/web_storage.js'
+import {bkc_web_storage_base64url} from '@phorbas/store/esm/web/web_storage.js'
+
+class MockStorage ::
+  _mem = new Map()
+
+  getItem(sz_key) ::
+    expect(sz_key).to.be.a.string
+    return this._mem.get(sz_key) ?? null
+
+  setItem(sz_key, sz_value) ::
+    expect(sz_key).to.be.a.string
+    expect(sz_value).to.be.a.string
+    this._mem.set(sz_key, sz_value)
+
+test_bdd.describe @ 'bkc_web_storage variants', @::>
+  const webStorageTypes = Object.entries @:
+    mockStorage: new MockStorage
+    localStorage: globalThis.localStorage
+    sessionStorage: globalThis.sessionStorage
+
+  for let [storageName, storage] of webStorageTypes ::
+    if null == storage :: continue
+
+    test_bdd.describe @ `${storageName}`, @::>
+      validate_backend @ test_bdd, `${storageName} bkc_web_storage_base64url`,
+        ()=> bkc_web_storage_base64url(storage)
+
+      validate_backend @ test_bdd, `${storageName} bkc_web_storage_base64url`,
+        ()=> bkc_web_storage_base64url(storage, {immutable: true})
+
+      validate_backend @ test_bdd, `${storageName} bkc_web_storage_b64`,
+        ()=> bkc_web_storage_base64(storage)
+

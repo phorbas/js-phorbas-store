@@ -19,13 +19,13 @@ export const pkg_cfg_core = pkg_phrobas_store_group('', {
 
 export const pkg_cfg_web = pkg_phrobas_store_group('web', {
   input: [
-    'code/web/fetch.jsy',
+    //'code/web/fetch.jsy',
 
-    'code/web/web_db.jsy',
-    'code/web/web_cache.jsy',
-    'code/web/web_cache_fetch.jsy',
+    //'code/web/web_db.jsy',
+    //'code/web/web_cache.jsy',
+    //'code/web/web_cache_fetch.jsy',
     'code/web/web_storage.jsy',
-    'code/web/web_dom.jsy',
+    //'code/web/web_dom.jsy',
   ]})
 
 export const pkg_cfg_websvr = pkg_phrobas_store_group('websvr', {
@@ -77,12 +77,13 @@ export const pkg_test_cfg = {
   output: { dir: 'esm-test', format: 'es', sourcemap: true },
   input: {
     'test-core': './test/core/unittest.jsy',
+    'test-web': './test/web/unittest.jsy',
   },
 }
 
 export default [
   pkg_cfg_core,
-  // pkg_cfg_web,
+  pkg_cfg_web,
   //pkg_cfg_websvr,
   pkg_cfg_local,
   pkg_cfg_adapter,
