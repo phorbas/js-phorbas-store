@@ -1,6 +1,5 @@
 import {as_arrbuf} from '@phorbas/opaque/esm/subtle/utils.js'
 
-export {as_arrbuf as bkc_arrbuf}
 
 export const _bkc_storage_mixin_ = @{}
   //bkc_opt: {}
@@ -15,45 +14,61 @@ export const _bkc_storage_mixin_ = @{}
   // async * bkc_stream_fetch(hexkey_iter, xform) ::
   // async * bkc_stream_store(hexkey_body_iter) ::
 
+  _bkc_pair_api_: @{}
+    then(y,n) :: return Promise.resolve(this[1]).then(ans => [this[0], ans]).then(y,n)
+
+  _bkc_pair(fn_pair_op) ::
+    return hk_pair => Object.assign @
+      [hk_pair[0], fn_pair_op?.call(this, hk_pair)]
+      this._bkc_pair_api_
+
   with(...args) ::
     return Object.assign({__proto__: this}, ...args)
 
 
-export const _bkc_pair = pair => (pair.then = _bkc_pair_then, pair)
 
 export const _bkc_storage_ = @{}
   ... _bkc_storage_mixin_
 
-  _bkc_pair
-
   async * bkc_stream_exists(hexkey_iter) ::
-    let _bkc_pair = this._bkc_pair
-    yield * bkc_batch_stream @ hexkey_iter,
-      ([hexkey]) => _bkc_pair @# hexkey, this.bkc_exists(hexkey)
+    let _bkc_exists = this._bkc_pair @
+      ([hexkey]) => this.bkc_exists(hexkey)
+
+    return yield * bkc_batch_stream(hexkey_iter, _bkc_exists)
 
   async * bkc_stream_fetch(hexkey_iter, as_xform) ::
-    let _bkc_pair = this._bkc_pair
-    yield * bkc_batch_stream @ hexkey_iter,
-      ([hexkey]) => _bkc_pair @# hexkey, this.bkc_fetch(hexkey).then(as_xform)
+    let _bkc_fetch = this._bkc_pair @
+      ([hexkey]) => this.bkc_fetch(hexkey).then(as_xform)
+
+    return yield * bkc_batch_stream(hexkey_iter, _bkc_fetch)
 
   async * bkc_stream_store(hexkey_body_iter) ::
-    let _bkc_pair = this._bkc_pair
-    yield * bkc_batch_stream @ hexkey_body_iter,
-      ([hexkey, body]) => _bkc_pair @# hexkey, this.bkc_store(hexkey, body)
+    let _bkc_store = this._bkc_pair @
+      ([hexkey, body]) => this.bkc_store(hexkey, body)
+
+    return yield * bkc_batch_stream(hexkey_body_iter, _bkc_store)
 
 
 export const _bkc_stream_storage_ = @{}
   ... _bkc_storage_mixin_
 
   async bkc_exists(hexkey) ::
-    let res = await this.bkc_stream_exists([hexkey]).next()
-    return res.value[0]
+    for await let [pair] of this.bkc_stream_exists([[hexkey]]) ::
+      return pair[1]
+    return 0
+
   async bkc_fetch(hexkey) ::
-    let res = await this.bkc_stream_fetch([hexkey]).next()
-    return res.value[0]
+    for await let [pair] of this.bkc_stream_fetch([[hexkey]]) ::
+      return pair[1]
+
   async bkc_store(hexkey, body) ::
-    let res = await this.bkc_stream_store([[hexkey, body]]).next()
-    return res.value[0]
+    for await let [pair] of this.bkc_stream_store([[hexkey, body]]) ::
+      return pair[1]
+
+
+
+export const bkc_arrbuf = body => as_arrbuf(body)
+export const bkc_pair_arrbuf = ([hexkey, body]) => bkc_arrbuf(body)
 
 
 const _as_tuples = v => v.trim ? [v] : v
@@ -67,8 +82,6 @@ export async function * bkc_batch_stream(aiter_batches, bkc_fn) ::
       else batch = batch.map(_as_tuples)
       yield bkc_fn ? batch.map(bkc_fn) : batch
 
-
-function _bkc_pair_then(y,n) :: return Promise.resolve(this[1]).then(ans => [this[0], ans]).then(y,n)
 
 
 // bkc api verification -- binary key (binary) content

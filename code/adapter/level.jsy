@@ -1,117 +1,53 @@
-import {bkc_binkey_api, bkc_hexkey_api, as_hex_key, as_u8_key} from '../_utils.jsy'
+import { _bkc_storage_, bkc_arrbuf } from '../bkc_abstract.jsy'
 
-export {as_hex_key, as_u8_key}
-
+export {bkc_arrbuf}
 
 export default bkc_with_level
 export async function bkc_with_level(levelup, opt={}) ::
-  return levelup.supports.bufferKeys
-    ? bkc_with_level_binkey(levelup, opt)
-    : bkc_with_level_hexkey(levelup, opt)
+  const immutable = !! opt.immutable
+  const lvl_opt = @{}
+    keyEncoding: 'utf8',
+    valueEncoding: 'binary',
+    ...opt.level_options
 
+  return _bkc_storage_.with @:
+    bkc_opt: @{} immutable
 
-export async function bkc_with_level_binkey(levelup, opt={}) ::
-  if ! levelup.supports.bufferKeys ::
-    throw new Error('LevelDB bufferKeys support required')
-  if ! levelup.supports.promises ::
-    throw new Error('LevelDB promise support required')
+    async bkc_exists(hexkey) ::
+      try ::
+        let res = await levelup.get(hexkey, lvl_opt)
+        return null == res ? 0 : 1
 
-  const lvl_opt = {keyEncoding: 'binary', valueEncoding: 'binary'}
-  return @{}
-    ... bkc_binkey_api @:
+      catch err ::
+        if ! err.notFound :: throw err
+        return 0
 
-      async bk_has(u8_key) ::
+    async bkc_fetch(hexkey) ::
+      try ::
+        let buf = await levelup.get(hexkey, lvl_opt)
+        return !buf ? void buf
+          : new Uint8Array(buf).buffer 
+      catch err ::
+        if ! err.notFound :: throw err
+
+    async bkc_store(hexkey, body) ::
+      if immutable ::
         try ::
-          await levelup.get @
-            Buffer.from(u8_key),
-            lvl_opt
-          return 1
-
+          let res = await levelup.get(hexkey, lvl_opt)
+          if null != res :: return false
         catch err ::
-          if err.notFound ::
-            return 0
-          else throw err
-
-      async bk_get(u8_key) ::
-        try ::
-          return Uint8Array.from @
-            await levelup.get @
-              Buffer.from(u8_key),
-              lvl_opt
-
-        catch err ::
-          if ! err.notFound ::
-            throw err
-          // else return undefined
-
-      async bk_set(u8_key, u8_content) ::
-        try ::
-          await levelup.put @
-            Buffer.from(u8_key),
-            Buffer.from(u8_content),
-            lvl_opt
-
-        catch err ::
-          return err
-
-    async bkc_store(u8_pair_list) ::
-      const ans = [], ops = []
-
-      const {keyEncoding, valueEncoding} = lvl_opt
-      for let [u8_key, u8_content] of u8_pair_list ::
-        ans.push @# u8_key
-        ops.push @: type:'put',
-          key: Buffer.from(u8_key), keyEncoding,
-          value: Buffer.from(u8_content), valueEncoding,
+          if ! err.notFound :: throw err
 
       try ::
-        await levelup.batch(ops)
+        body = await bkc_arrbuf(body)
+        await levelup.put(hexkey, Buffer.from(body), lvl_opt)
+        return null
       catch err ::
-        for const tpl of ans ::
-          tpl[1] = err
-      return ans
+        return err
 
-
-export async function bkc_with_level_hexkey(levelup, opt={}) ::
-  if ! levelup.supports.promises ::
-    throw new Error('LevelDB promise support required')
-
-  const lvl_opt = {keyEncoding: 'utf8', valueEncoding: 'binary'}
-  return @{}
-    ... bkc_hexkey_api @:
-
-      async hk_has(hex_key) ::
-        try ::
-          await levelup.get @
-            hex_key, lvl_opt
-          return 1
-
-        catch err ::
-          if err.notFound ::
-            return 0
-          else throw err
-
-      async hk_get(hex_key) ::
-        try ::
-          return Uint8Array.from @
-            await levelup.get @
-              hex_key, lvl_opt
-
-        catch err ::
-          if ! err.notFound ::
-            throw err
-
-      async hk_set(hex_key, u8_content) ::
-        try ::
-          await levelup.put @
-            hex_key,
-            u8_content,
-            lvl_opt
-
-        catch err ::
-          return err
-
-    async bkc_store(u8_pair_list) ::
+    /*
+    async * bkc_stream_store(hexkey_body_iter) ::
+      // TODO: update to batching storage
       const ans = [], ops = []
 
       const {keyEncoding, valueEncoding} = lvl_opt
@@ -127,4 +63,4 @@ export async function bkc_with_level_hexkey(levelup, opt={}) ::
         for const tpl of ans ::
           tpl[1] = err
       return ans
-
+    */

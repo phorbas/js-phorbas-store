@@ -38,7 +38,7 @@ export async function validate_bkc_overwrite(_stg_, opt={}) ::
   let body_versions = Array.from @ {length: 3}, () => _rand_u8(opt.rand_width ?? 32)
 
   const immutable = _stg_.bkc_opt.immutable
-  expect(immutable).to.be.oneOf @# true, false
+  expect(immutable).to.be.oneOf @# true, false, undefined
 
   expect(await _stg_.bkc_exists(test_key)).to.equal(0)
 

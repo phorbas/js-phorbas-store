@@ -1,53 +1,74 @@
+import { _bkc_stream_storage_, bkc_batch_stream, bkc_arrbuf, bkc_pair_arrbuf } from '../bkc_abstract.jsy'
+
+export {bkc_arrbuf, bkc_pair_arrbuf}
+
 export default bkc_with_lmdb
-export async function bkc_with_lmdb(env, dbi='phorbas') ::
-  if 'string' === typeof dbi ::
-    dbi = @{} name: dbi, create: true
 
-  dbi = env.openDbi @:
-    ... dbi, keyIsBuffer: true
+const _dbi_default = { name: 'phorbas', create: true }
+export async function bkc_with_lmdb(lmdb_env, opt) ::
+  if ! opt :: opt = {}
+  else if 'string' === typeof opt ::
+    opt = @{} dbi: { ..._dbi_default, name: opt }
 
-  return @{}
-    async bkc_exists(u8_key_list) ::
-      const txn = env.beginTxn()
+  opt.dbi ??= { ..._dbi_default }
 
-      const ans = []
-      for const u8_key of u8_key_list ::
-        const buf = txn.getBinary(dbi, u8_key)
-        ans.push @# u8_key,
-          null == buf ? 0 : 1
+  const immutable = !! opt.immutable
+  const dbi = lmdb_env.openDbi({keyIsString: true, ...opt.dbi})
+  return _bkc_stream_storage_.with @:
+    bkc_opt: @{} immutable
 
-      await txn.commit()
-      return ans
+    async * bkc_stream_exists(hexkey_iter) ::
+      let _bkc_pair = this._bkc_pair()
+      for await let batch of bkc_batch_stream(hexkey_iter) ::
+        batch = batch.map(_bkc_pair)
 
-    async bkc_fetch(u8_key_list) ::
-      const txn = env.beginTxn()
+        let _txn = lmdb_env.beginTxn()
+        for let pair of batch ::
+          let buf = _txn.getBinary(dbi, pair[0])
+          pair[1] = Promise.resolve(null == buf ? 0 : 1)
 
-      const ans = []
-      for const u8_key of u8_key_list ::
-        const buf = txn.getBinary(dbi, u8_key)
+        await _txn.commit()
+        yield batch
 
-        ans.push @# u8_key,
-          null == buf ? undefined
-            : Uint8Array.from(buf)
 
-      await txn.commit()
-      return ans
+    async * bkc_stream_fetch(hexkey_iter, as_xform) ::
+      let _bkc_pair = this._bkc_pair()
+      for await let batch of bkc_batch_stream(hexkey_iter) ::
+        batch = batch.map(_bkc_pair)
 
-    async bkc_store(u8_pair_list) ::
-      const ans = [], ops = []
-      for const [u8_key, u8_content] of u8_pair_list ::
-        ans.push @# u8_key
-        ops.push @# dbi, u8_key, u8_content
+        let _txn = lmdb_env.beginTxn()
+        for let pair of batch ::
+          let buf = _txn.getBinary(dbi, pair[0])
+          buf = null == buf ? void buf
+            : new Uint8Array(buf).buffer
+          pair[1] = Promise.resolve(buf)
 
-      await new Promise @ done =>
-        env.batchWrite @ ops, {},
-          @\ err, results ::
-            if err ::
-              for let i=0; i<results.length; i++ ::
-                if results[i] ::
-                  ans[i] = err
+        await _txn.commit()
+        yield batch
 
-            done()
 
-      return ans
+    async * bkc_stream_store(hexkey_body_iter) ::
+      let _bkc_body_pair = this._bkc_pair(bkc_pair_arrbuf)
+
+      for await let batch of bkc_batch_stream(hexkey_body_iter) ::
+        batch = batch.map(_bkc_body_pair)
+        for let pair of batch ::
+          pair[1] = await pair[1]
+
+        let p_null = Promise.resolve(null), p_false = Promise.resolve(false)
+
+        let _txn = lmdb_env.beginTxn()
+        if immutable ::
+          for let pair of batch ::
+            if null == _txn.getBinary(dbi, pair[0]) ::
+              _txn.putBinary(dbi, pair[0], Buffer.from(pair[1]))
+              pair[1] = p_null
+            else pair[1] = p_false
+            
+        else for let pair of batch ::
+          _txn.putBinary(dbi, pair[0], Buffer.from(pair[1]))
+          pair[1] = p_null
+
+        await _txn.commit()
+        yield batch
 

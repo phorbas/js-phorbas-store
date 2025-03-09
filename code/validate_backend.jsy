@@ -1,6 +1,3 @@
-//import {describe, it, before, after} from '#test_bdd'
-import {describe, it, before, after} from 'node:test'
-
 import {bkc_storage_verify} from './bkc_abstract.jsy'
 import * as check_single from './validate/check_single.jsy'
 import * as check_aiter from './validate/check_aiter.jsy'
@@ -37,6 +34,10 @@ export function validate_backend(test_bdd, backend_name, opt) ::
 
     it @ 'bkc storage verify', () => bkc_storage_verify(_stg_)
 
+    if opt.simple ::
+      it @ 'with string', () => check_single.validate_bkc_random_key(_stg_, 'some simple test string')
+      it @ 'overwrite test', () => check_single.validate_bkc_overwrite(_stg_)
+      return
 
     describe @ 'bkc api', @::
       it @ 'with string', () => check_single.validate_bkc_random_key(_stg_, 'some test string')

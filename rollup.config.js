@@ -82,12 +82,12 @@ export const pkg_test_cfg = {
 
 export default [
   pkg_cfg_core,
-  pkg_cfg_web,
-  pkg_cfg_websvr,
+  // pkg_cfg_web,
+  //pkg_cfg_websvr,
   pkg_cfg_local,
   pkg_cfg_adapter,
-  pkg_cfg_nosql,
-  pkg_cfg_sql,
+  // pkg_cfg_nosql,
+  // pkg_cfg_sql,
 
   pkg_test_cfg,
 ]

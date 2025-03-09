@@ -3,6 +3,6 @@ import rpi_resolve from '@rollup/plugin-node-resolve'
 
 export default {
   plugins: [ rpi_jsy(), rpi_resolve() ],
-  external: id => /^\w+:|^#/.test(id),
+  external: id => ! /^[\/.]|^@phorbas/.test(id),
   output: { dir: `esm-test/`, format: 'es', sourcemap: true },
 }

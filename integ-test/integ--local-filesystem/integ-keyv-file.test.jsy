@@ -1,4 +1,6 @@
 import * as test_bdd from 'node:test'
+import { mkdtemp } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
 
 import {validate_backend} from '@phorbas/store/esm/validate_backend.js'
 import {bkc_with_keyv} from '@phorbas/store/esm/adapter/keyv.js'
@@ -7,14 +9,14 @@ import {Keyv} from 'keyv'
 import {KeyvFile} from 'keyv-file'
 
 test_bdd.describe @ 'keyv', @::>
-  validate_backend @ test_bdd, 'keyv with Map()', ()=>
-    bkc_with_keyv @
-      new Keyv @:
-        store: new Map()
 
-  validate_backend @ test_bdd, 'keyv with KeyvFile()', ()=>
-    bkc_with_keyv @
-      new Keyv @:
-        store: new KeyvFile @:
-          filename: '/var/phorbas/keyv_file/db.json'
+  validate_backend @ test_bdd, 'keyv with Map()', @::>
+    const store = new Map()
+    return bkc_with_keyv( new Keyv({store}) )
+
+  validate_backend @ test_bdd, 'keyv with KeyvFile()', @::>
+    const base = await mkdtemp(`${tmpdir()}/var-test-keyv-file--`)
+    const store = new KeyvFile @:
+      filename: `${base}/keyv_file.json`
+    return bkc_with_keyv( new Keyv({store}) )
 

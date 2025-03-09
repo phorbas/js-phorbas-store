@@ -1,0 +1,18 @@
+{
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "integ_test": {
+    "docker_args": ["--file=../dkr-node-full.dockerfile"]
+  },
+  "dependencies": {
+    "level": "^9.x.x",
+    "node-lmdb": "^0.10.x"
+  },
+  "scripts": {
+    "build": "npx zx ./README.md --no-docker",
+    "test:one": "cd ./esm-test && node --test",
+    "test:only": "cd ./esm-test && node --test --test-only",
+    "test": "npx zx ./README.md"
+  }
+}
