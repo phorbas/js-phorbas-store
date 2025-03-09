@@ -19,9 +19,7 @@ export async function bkc_with_lmdb(lmdb_env, opt) ::
 
     async * bkc_stream_exists(hexkey_iter) ::
       let _bkc_pair = this._bkc_pair()
-      for await let batch of bkc_batch_stream(hexkey_iter) ::
-        batch = batch.map(_bkc_pair)
-
+      for await let batch of bkc_batch_stream(hexkey_iter, _bkc_pair) ::
         let _txn = lmdb_env.beginTxn()
         for let pair of batch ::
           let buf = _txn.getBinary(dbi, pair[0])
@@ -33,9 +31,7 @@ export async function bkc_with_lmdb(lmdb_env, opt) ::
 
     async * bkc_stream_fetch(hexkey_iter, as_xform) ::
       let _bkc_pair = this._bkc_pair()
-      for await let batch of bkc_batch_stream(hexkey_iter) ::
-        batch = batch.map(_bkc_pair)
-
+      for await let batch of bkc_batch_stream(hexkey_iter, _bkc_pair) ::
         let _txn = lmdb_env.beginTxn()
         for let pair of batch ::
           let buf = _txn.getBinary(dbi, pair[0])
@@ -50,8 +46,7 @@ export async function bkc_with_lmdb(lmdb_env, opt) ::
     async * bkc_stream_store(hexkey_body_iter) ::
       let _bkc_body_pair = this._bkc_pair(bkc_pair_arrbuf)
 
-      for await let batch of bkc_batch_stream(hexkey_body_iter) ::
-        batch = batch.map(_bkc_body_pair)
+      for await let batch of bkc_batch_stream(hexkey_body_iter, _bkc_body_pair) ::
         for let pair of batch ::
           pair[1] = await pair[1]
 

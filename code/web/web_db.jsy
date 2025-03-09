@@ -1,7 +1,11 @@
-export default bkc_with_web_db
-export async function bkc_with_web_db(opt={}) ::
+import { _bkc_stream_storage_, bkc_batch_stream, bkc_arrbuf, bkc_pair_arrbuf } from '../bkc_abstract.jsy'
+
+export {bkc_arrbuf}
+
+export default bkc_web_db
+export async function bkc_web_db(opt={}) ::
   if 'string' === typeof opt ::
-    const [db, store] = opt.split('/')
+    let [db, store] = opt.split('/')
     opt = {db, store}
 
   const store_name = opt.store || 'kv'
@@ -23,45 +27,55 @@ export async function bkc_with_web_db(opt={}) ::
 
 
 
-const _bkc_indexdb_proto_ = @{}
-  bkc_opt: {}
+const _bkc_indexdb_proto_ = _bkc_stream_storage_.with @:
+  bkc_opt: @{}
 
-  async bkc_exists(u8_key_list) ::
-    const [kvdb, txn_done] = this._txn_ro()
-    const ans = []
-    for const u8_key of u8_key_list ::
-      ans.push @# u8_key,
-        kvdb.count @ u8_key
+  async * bkc_stream_exists(hexkey_iter) ::
+    let _bkc_pair = this._bkc_pair()
+    for await let batch of bkc_batch_stream(hexkey_iter, _bkc_pair) ::
+      let [kvdb, txn_done] = this._txn_ro()
+      for let pair of batch ::
+        pair[1] = kvdb.count(pair[0])
 
-    await txn_done
-    for const tpl of ans ::
-      tpl[1] = tpl[1].result ? 1 : 0
-    return ans
+      await txn_done
 
-  async bkc_fetch(u8_key_list) ::
-    const [kvdb, txn_done] = this._txn_ro()
-    const ans = []
-    for const u8_key of u8_key_list ::
-      ans.push @# u8_key,
-        kvdb.get @ u8_key
+      let p_one = Promise.resolve(1), p_zero = Promise.resolve(0)
+      for const pair of batch ::
+        pair[1] = pair[1].result ? p_one : p_zero
 
-    await txn_done
-    for const tpl of ans ::
-      tpl[1] = tpl[1].result
-    return ans
+      yield batch
 
-  async bkc_store(u8_pair_list) ::
-    const [kvdb, txn_done] = this._txn_rw()
-    const ans = []
-    for const [u8_key, u8_content] of u8_pair_list ::
-      ans.push @# u8_key,
-        kvdb.put(u8_content, u8_key)
+  async * bkc_stream_fetch(hexkey_iter, as_xform) ::
+    let _bkc_pair = this._bkc_pair()
+    for await let batch of bkc_batch_stream(hexkey_iter, _bkc_pair) ::
+      let [kvdb, txn_done] = this._txn_ro()
+      for let pair of batch ::
+        pair[1] = kvdb.get(pair[0])
 
-    await txn_done
-    for const tpl of ans ::
-      let err = tpl[1].error
-      tpl[1] = err ? err : undefined
-    return ans
+      await txn_done
+
+      for const pair of batch ::
+        pair[1] = Promise.resolve @ pair[1].result
+
+      yield batch
+
+  async * bkc_stream_store(hexkey_body_iter) ::
+    let _bkc_body_pair = this._bkc_pair(bkc_pair_arrbuf)
+
+    for await let batch of bkc_batch_stream(hexkey_body_iter, _bkc_body_pair) ::
+      for let pair of batch ::
+        pair[1] = await pair[1]
+
+      let [kvdb, txn_done] = this._txn_rw()
+      for let pair of batch ::
+        pair[1] = kvdb.put(pair[1], pair[0])
+
+      await txn_done
+
+      for const pair of batch ::
+        pair[1] = Promise.resolve @ pair[1].error ?? null
+
+      yield batch
 
 
 function _idb_txn(idb, store_name, mode) ::

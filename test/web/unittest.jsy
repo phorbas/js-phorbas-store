@@ -1,4 +1,5 @@
 import './test_fetch.jsy'
+import './test_web_db.jsy'
 import './test_web_cache.jsy'
 import './test_web_cache_fetch.jsy'
 import './test_web_dom.jsy'
