@@ -1,0 +1,25 @@
+import * as test_bdd from '#test_bdd'
+import {expect} from 'chai'
+
+import {validate_backend} from '@phorbas/store/esm/validate_backend.js'
+import {bkc_web_cache_fetch} from '@phorbas/store/esm/web/web_cache_fetch.js'
+
+if globalThis.document ::
+  test_bdd.describe @ 'bkc_web_cache_fetch', @::>
+    validate_backend @ test_bdd, `bkc_web_cache_fetch`,
+      @::>
+        let cache_name = 'bkc_web_cache_fetch'
+        await caches.delete(cache_name)
+        return bkc_web_cache_fetch @
+          caches.open('phorbas-unittest-two'),
+          new URL('http://127.0.0.1:9099/some/pre/fix/')
+
+    validate_backend @ test_bdd, `bkc_web_cache_fetch immutable`,
+      @::>
+        let cache_name = 'bkc_web_cache_fetch'
+        await caches.delete(cache_name)
+        return bkc_web_cache_fetch @
+          caches.open('phorbas-unittest-two'),
+          new URL('http://127.0.0.1:9099/some/pre/fix/')
+          @{} immutable: true
+

@@ -1,36 +1,41 @@
-import {bkc_hexkey_api, as_hex_key, as_u8_key} from '../_utils.jsy'
+import { _bkc_storage_, bkc_arrbuf } from '../bkc_abstract.jsy'
 
-export {as_hex_key, as_u8_key}
+export {bkc_arrbuf}
 
-export default bkc_with_web_cache
-export async function bkc_with_web_cache(cache_store, url_base, req_init) ::
-  const opt_match = @{} ignoreMethod: true
-  const as_req = hex_key =>
-    new Request(new URL(hex_key, url_base), req_init)
+export default bkc_web_cache
+export async function bkc_web_cache(cache_store, url_base, opt={}) ::
+  const immutable = !! opt.immutable
+  const prefix = opt.prefix ?? ''
+  const _opt_match = opt.match ?? {ignoreMethod: true}
+  const _as_req = hexkey =>
+    new Request(new URL(prefix+hexkey, url_base), opt.request)
 
   cache_store = await cache_store
-  return bkc_hexkey_api @:
+  return _bkc_storage_.with @:
+    bkc_opt: @{} immutable
 
-    async hk_has(hex_key) ::
-      let resp = await cache_store.match @
-        as_req(hex_key), opt_match
+    async bkc_exists(hexkey) ::
+      let req = _as_req(hexkey)
+      let resp = await cache_store.match(req, _opt_match)
 
       return undefined !== resp ? 1 : 0
 
-    async hk_get(hex_key) ::
-      let resp = await cache_store.match @
-        as_req(hex_key), opt_match
+    async bkc_fetch(hexkey) ::
+      let req = _as_req(hexkey)
+      let resp = await cache_store.match(req, _opt_match)
 
       if undefined !== resp ::
-        return new Uint8Array @
-          await resp.arrayBuffer()
+        return resp.arrayBuffer()
 
-    async hk_set(hex_key, u8_content) ::
-      await cache_store.put @
-        as_req(hex_key),
-        new Response @ u8_content,
-          @{} status: 200
-              headers: @{}
-                'Content-Type': 'application/octet-stream'
-                'Content-Length': u8_content.byteLength
+    async bkc_store(hexkey, body) ::
+      let req = _as_req(hexkey)
+      if immutable ::
+        let resp = await cache_store.match(req, _opt_match)
+        if undefined !== resp :: return false
 
+      let resp = new Response @
+        body = await bkc_arrbuf(body),
+        @{} status: 200, headers: @{} 'Content-Length': body.byteLength
+
+      await cache_store.put(req, resp)
+      return null

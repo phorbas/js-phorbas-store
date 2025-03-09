@@ -5,7 +5,7 @@ export {u8_to_base64, base64_to_u8, u8_to_base64url, base64url_to_u8}
 export {bkc_arrbuf}
 
 
-export async function _bkc_with_dom(el_root, opt) ::
+export async function _bkc_web_dom(el_root, opt) ::
   const {dom_find, dom_data, dom_create, b64_encode, b64_decode} = opt
   const immutable = !! opt.immutable
 
@@ -52,15 +52,15 @@ const _dom_opt = @{}
 
 
 const _dom_b64_opt = { __proto__: _dom_opt, b64_encode: u8_to_base64, b64_decode: base64_to_u8 }
-export const bkc_with_dom_b64 = (el_root, opt) =>
-  _bkc_with_dom(el_root, {__proto__: _dom_b64_opt, ...opt})
+export const bkc_web_dom_b64 = (el_root, opt) =>
+  _bkc_web_dom(el_root, {__proto__: _dom_b64_opt, ...opt})
 
 
 const _dom_b64url_opt = { __proto__: _dom_opt, b64_encode: u8_to_base64url, b64_decode: base64url_to_u8 }
-export const bkc_with_dom_b64url = (el_root, opt) =>
-  _bkc_with_dom(el_root, {__proto__: _dom_b64url_opt, ...opt})
+export const bkc_web_dom_b64url = (el_root, opt) =>
+  _bkc_web_dom(el_root, {__proto__: _dom_b64url_opt, ...opt})
 
 
 export @{}
-  bkc_with_dom_b64url as bkc_with_dom,
-  bkc_with_dom_b64url as default,
+  bkc_web_dom_b64url as bkc_web_dom,
+  bkc_web_dom_b64url as default,

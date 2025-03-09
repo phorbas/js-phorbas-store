@@ -1,42 +1,42 @@
-import {bkc_hexkey_api, as_hex_key, as_u8_key} from '../_utils.jsy'
+import { _bkc_storage_, bkc_arrbuf } from '../bkc_abstract.jsy'
 
-export {as_hex_key, as_u8_key}
+export {bkc_arrbuf}
 
-export function bkc_with_fetch_request(url_base, opts={}) ::
-  const Request = opts.Request || Request
-  return _bkc_with_fetch @
-    opts.fetch || fetch, opts.fetch_opts,
-    hex_key => new Request(new URL(hex_key, url_base), opts.req_init)
+export function bkc_fetch_request(url_base, opt={}) ::
+  const Request = opt.Request || Request
+  return _bkc_fetch @ opt.fetch || fetch, opt,
+    hexkey => new Request(new URL(hexkey, url_base), opt.req_init)
 
-export default  bkc_with_fetch
-export function bkc_with_fetch(url_base, opts={}) ::
-  return _bkc_with_fetch @
-    opts.fetch || fetch, opts.fetch_opts,
-    hex_key => new URL(hex_key, url_base)
+export default  bkc_fetch
+export function bkc_fetch(url_base, opt={}) ::
+  return _bkc_fetch @ opt.fetch || fetch, opt,
+    hexkey => new URL(hexkey, url_base)
 
-export async function _bkc_with_fetch(fetch, fetch_opts, as_req) ::
-  return bkc_hexkey_api @:
+export async function _bkc_fetch(fetch, opt, as_req) ::
+  const fetch_opts = opt.fetch_opts
+  const immutable = !! opt.immutable
 
-    async hk_has(hex_key) ::
-      let resp = await fetch @ as_req(hex_key),
+  return _bkc_storage_.with @:
+    bkc_opt: @{} immutable
+
+    bkc_exists
+    async bkc_fetch(hexkey) ::
+      let resp = await fetch @ as_req(hexkey),
         @{} ... fetch_opts
-            method: 'HEAD', headers: {'x-hk': hex_key}
-
-      return resp.ok ? 1 : 0
-
-    async hk_get(hex_key) ::
-      let resp = await fetch @ as_req(hex_key),
-        @{} ... fetch_opts
-            method: 'GET', headers: {'x-hk': hex_key}, 
+            method: 'GET', headers: {'x-hk': hexkey}, 
 
       if resp.ok ::
-        return new Uint8Array @ await resp.arrayBuffer()
+        return resp.arrayBuffer()
 
-    async hk_set(hex_key, u8_content) ::
-      let resp = await fetch @ as_req(''),
+    async bkc_store(hexkey, body) ::
+      if immutable && await bkc_exists(hexkey) ::
+        return false
+
+      body = await bkc_arrbuf(body)
+      let resp = await fetch @ as_req(hexkey),
         @{} ... fetch_opts
-            method: 'POST', headers: {'x-hk': hex_key}
-            body: u8_content
+            method: 'POST', headers: {'x-hk': hexkey}
+            body
 
       if ! resp.ok ::
         let {url, status, statusText} = resp
@@ -45,4 +45,12 @@ export async function _bkc_with_fetch(fetch, fetch_opts, as_req) ::
         err.status = status
         return err
 
+      return null
+
+  async function bkc_exists(hexkey) ::
+    let resp = await fetch @ as_req(hexkey),
+      @{} ... fetch_opts
+          method: 'HEAD', headers: {'x-hk': hexkey}
+
+    return resp.ok ? 1 : 0
 
