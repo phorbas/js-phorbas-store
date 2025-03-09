@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "type": "module",
   "integ_test": {
-    "docker_args": ["--file=../dkr-node-full.dockerfile"]
+    "docker_build_args": ["--file=../dkr-node-full.dockerfile"]
   },
   "dependencies": {
     "level": "^9.x.x",
