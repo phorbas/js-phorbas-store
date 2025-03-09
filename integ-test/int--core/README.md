@@ -1,4 +1,4 @@
-# @phorbas/store integration tests for filesystem backends
+# @phorbas/store integration tests for core backends
 
 ## Integration test using Docker
 
@@ -21,4 +21,5 @@ if (false !== cli.docker) {
   await $`docker run ${cfg.docker_run_args} --rm -t ${_dkr_id_} ${cli._}`
 }
 ```
+
 

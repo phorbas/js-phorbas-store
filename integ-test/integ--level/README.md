@@ -1,4 +1,4 @@
-# @phorbas/store integration tests for filesystem backends
+# @phorbas/store integration tests for LevelDB backends
 
 ## Integration test using Docker
 
@@ -16,9 +16,9 @@ if (false !== cli.build) {
 }
 
 if (false !== cli.docker) {
-  await $`docker build ${cfg.docker_args} .`
-  let _dkr_id_ = await $`docker build ${cfg.docker_args} -q .`
-  await $`docker run --rm -t ${_dkr_id_} ${cli._}`
+  await $`docker build ${cfg.docker_build_args} .`
+  let _dkr_id_ = await $`docker build ${cfg.docker_build_args} -q .`
+  await $`docker run ${cfg.docker_run_args} --rm -t ${_dkr_id_} ${cli._}`
 }
 ```
 
