@@ -35,3 +35,15 @@ test_bdd.describe @ 'bkc multi variants', @::>
 
             return stg_tgt
 
+    validate_backend @ test_bdd, 'with simple delegate', @{}
+      async bkc_create() ::
+        let stg_tgt = bkc_with_js_map()
+        return bkc_multi_variant @:
+          async bkc_lookup(pair) ::
+            pair[0] = 'xform-'+pair[0]
+            return stg_tgt
+
+          decode_key(key) ::
+            key = key.split('-')
+            expect(key[0]).to.equal('xform')
+            return key[1]

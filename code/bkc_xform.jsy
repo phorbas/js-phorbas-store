@@ -4,14 +4,14 @@ import { bkc_storage_verify } from './bkc_abstract.jsy'
 export { bkc_arrbuf, bkc_storage_verify }
 
 let _bkc_xform_lite_
-export const bkc_with_xform = (stg_tgt, opt={}) => @
+export function bkc_with_xform(stg_tgt, opt={}) ::
   _bkc_xform_lite_ ??= _bkc_storage_.with(_bkc_xform_mixin_)
-  _bkc_xform_with(_bkc_xform_lite_, stg_tgt, opt)
+  return _bkc_xform_with(_bkc_xform_lite_, stg_tgt, opt)
 
 export default bkc_with_xform
 
 
-export async function _bkc_xform_with(_bkc_mixin_, stg_tgt, opt) ::
+export async function _bkc_xform_with(_bkc_mixin_, stg_tgt, opt, _mixin_tail_) ::
   stg_tgt = await bkc_storage_verify(stg_tgt)
 
   let _xf_encode_key = opt.encode_key ?? _bkc_ident
@@ -34,8 +34,16 @@ export async function _bkc_xform_with(_bkc_mixin_, stg_tgt, opt) ::
 
     _xf_pair
     _xf_encode_key
-    _xf_decode_key: opt.decode_key
     _xf_decode_body: opt.decode_body
+    ... _mixin_tail_
+
+
+export function _bind_decode_key_batch(_xf_decode_key) ::
+  if _xf_decode_key ::
+    return batch => ::
+      for let pair of batch ::
+        pair[0] = _xf_decode_key(pair[0])
+      return batch
 
 
 export const _bkc_xform_mixin_ = @{}
@@ -50,8 +58,6 @@ export const _bkc_xform_mixin_ = @{}
   async bkc_fetch(key, kw) ::
     key = this._xf_encode_key(key)
     let body = this.stg_tgt.bkc_fetch(key, kw)
-    let _xf_decode_body = this._xf_decode_body
-    if _xf_decode_body ::
-      body = _xf_decode_body(body)
-    return body
+    let _xf_decode_body = this._xf_decode_body ?? _bkc_ident
+    return _xf_decode_body(body)
 
