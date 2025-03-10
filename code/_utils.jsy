@@ -1,7 +1,7 @@
 import {u8_to_hex, hex_to_u8} from 'u8-utils'
 export {u8_to_hex, hex_to_u8, utf8_to_u8, u8_to_utf8} from 'u8-utils'
 
-export {_is_fn, bkc_storage_verify} from './bkc_abstract.jsy'
+export {bkc_storage_verify} from './bkc_abstract.jsy'
 
 export const storage_api_verify = () => void 0
 

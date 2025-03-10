@@ -112,6 +112,50 @@ export async function validate_bkc_stream_batch(_stg_, opt={}) ::
         .to.deep.equal @ test_body
 
 
+export async function validate_bkc_stream_batch_abort(_stg_, opt={}) ::
+  let test_key_list = _rand_hexkey_batch(opt.count ?? 2)
+  let test_body_list = test_key_list.map(_hexkey_with_rand_body(opt.rand_width ?? 32))
+
+  async function * testgen(inc_body, abort_controller) ::
+    expect(abort_controller.signal).to.be.a('AbortSignal')
+    const test_list = inc_body ? test_body_list : test_key_list
+    yield [test_list[0]]
+    abort_controller.abort('Testing abort controller')
+    yield [test_list[1]]
+    throw new Error("Should not ask for another batch")
+
+
+  ::
+    let count=0, ac = new AbortController(), hexkey_aiter = testgen(true, ac)
+    for await let batch of _stg_.bkc_stream_store(hexkey_aiter, {signal: ac.signal}) ::
+      for let pair of batch ::
+        expect(pair[0]).to.equal(test_key_list[count])
+        expect(await pair[1]).to.be.null
+
+      count++
+    expect(count).to.be.oneOf([1,2])
+
+  ::
+    let count=0, ac = new AbortController(), hexkey_aiter = testgen(false, ac)
+    for await let batch of _stg_.bkc_stream_exists(hexkey_aiter, {signal: ac.signal}) ::
+      for let pair of batch ::
+        expect(pair[0]).to.equal(test_key_list[count])
+        expect(await pair[1]).to.be.oneOf([0,1])
+
+      count++
+    expect(count).to.be.oneOf([1,2])
+
+  ::
+    let count=0, ac = new AbortController(), hexkey_aiter = testgen(false, ac)
+    for await let batch of _stg_.bkc_stream_fetch(hexkey_aiter, {signal: ac.signal}) ::
+      for let pair of batch ::
+        expect(pair[0]).to.equal(test_key_list[count])
+        expect(await pair[1]).to.be.an('ArrayBuffer')
+        expect(new Uint8Array(await pair[1]))
+        .to.deep.equal(new Uint8Array(test_body_list[count][1]))
+
+      count++
+    expect(count).to.be.oneOf([1,2])
 
 
 export async function validate_bkc_stream(_stg_, opt={}) ::

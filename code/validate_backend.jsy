@@ -55,6 +55,7 @@ export function validate_backend(test_bdd, backend_name, opt) ::
       it @ 'stream with async generator', () => check_async_gen.validate_bkc_stream_async_gen(_stg_)
       it @ 'stream with async iteration', () => check_aiter.validate_bkc_stream(_stg_)
       it @ 'stream with async batch', () => check_aiter.validate_bkc_stream_batch(_stg_)
+      it @ 'stream with abort signal', () => check_aiter.validate_bkc_stream_batch_abort(_stg_)
 
 
     let custom_tests = opt.tests

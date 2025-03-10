@@ -1,21 +1,21 @@
 import { _bkc_storage_, bkc_arrbuf } from '../bkc_abstract.jsy'
+import {_bind_hexkey_request} from './fetch.jsy'
 
 export {bkc_arrbuf}
 
 export default bkc_web_cache_fetch
 export async function bkc_web_cache_fetch(cache_store, url_base, opt={}) ::
+  const as_req = opt.as_request ?? _bind_hexkey_request(opt)
+
   const immutable = !! opt.immutable
-  const prefix = opt.prefix ?? ''
   const _opt_match = opt.match ?? {ignoreMethod: true}
-  const _as_req = hexkey =>
-    new Request(new URL(prefix+hexkey, url_base), opt.request)
 
   cache_store = await cache_store
   return _bkc_storage_.with @:
     bkc_opt: @{} immutable
 
-    async bkc_exists(hexkey) ::
-      let req = _as_req(hexkey)
+    async bkc_exists(hexkey, kw) ::
+      let req = as_req(url_base, hexkey, kw?.signal)
       let resp = await cache_store.match(req, _opt_match)
 
       if undefined === resp ::
@@ -26,8 +26,8 @@ export async function bkc_web_cache_fetch(cache_store, url_base, opt={}) ::
 
       return 1
 
-    async bkc_fetch(hexkey) ::
-      let req = _as_req(hexkey)
+    async bkc_fetch(hexkey, kw) ::
+      let req = as_req(url_base, hexkey, kw?.signal)
       let resp = await cache_store.match(req, _opt_match)
 
       if undefined === resp ::
@@ -39,8 +39,8 @@ export async function bkc_web_cache_fetch(cache_store, url_base, opt={}) ::
 
       return resp.arrayBuffer()
 
-    async bkc_store(hexkey, body) ::
-      let req = _as_req(hexkey), resp
+    async bkc_store(hexkey, body, kw) ::
+      let req = as_req(url_base, hexkey, kw?.signal), resp
       if immutable ::
         resp = await cache_store.match(req, _opt_match)
         try ::
@@ -52,6 +52,7 @@ export async function bkc_web_cache_fetch(cache_store, url_base, opt={}) ::
       resp = await fetch @ req.url,
         @{} method: 'POST'
             headers: { 'x-hk': hexkey }
+            signal: kw?.signal
             body
 
       if ! resp.ok ::

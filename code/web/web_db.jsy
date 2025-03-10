@@ -1,6 +1,8 @@
-import { _bkc_stream_storage_, bkc_batch_stream, bkc_arrbuf, bkc_pair_arrbuf } from '../bkc_abstract.jsy'
+import { _bkc_stream_storage_, bkc_batch_stream } from '../bkc_abstract.jsy'
+import { _bkc_fetch_ans } from '../bkc_abstract.jsy'
+import { bkc_arrbuf, bkc_pair_arrbuf } from '../bkc_abstract.jsy'
 
-export {bkc_arrbuf}
+export { bkc_arrbuf , bkc_pair_arrbuf }
 
 export default bkc_web_db
 export async function bkc_web_db(opt={}) ::
@@ -30,9 +32,9 @@ export async function bkc_web_db(opt={}) ::
 const _bkc_indexdb_proto_ = _bkc_stream_storage_.with @:
   bkc_opt: @{}
 
-  async * bkc_stream_exists(hexkey_iter) ::
+  async * bkc_stream_exists(hexkey_aiter, kw) ::
     let _bkc_pair = this._bkc_pair()
-    for await let batch of bkc_batch_stream(hexkey_iter, _bkc_pair) ::
+    for await let batch of bkc_batch_stream(hexkey_aiter, _bkc_pair, kw) ::
       let [kvdb, txn_done] = this._txn_ro()
       for let pair of batch ::
         pair[1] = kvdb.count(pair[0])
@@ -44,9 +46,9 @@ const _bkc_indexdb_proto_ = _bkc_stream_storage_.with @:
 
       yield batch
 
-  async * bkc_stream_fetch(hexkey_iter, as_xform) ::
+  async * bkc_stream_fetch(hexkey_aiter, kw) ::
     let _bkc_pair = this._bkc_pair()
-    for await let batch of bkc_batch_stream(hexkey_iter, _bkc_pair) ::
+    for await let batch of bkc_batch_stream(hexkey_aiter, _bkc_pair, kw) ::
       let [kvdb, txn_done] = this._txn_ro()
       for let pair of batch ::
         pair[1] = kvdb.get(pair[0])
@@ -54,14 +56,14 @@ const _bkc_indexdb_proto_ = _bkc_stream_storage_.with @:
       await txn_done
 
       for const pair of batch ::
-        pair[1] = pair[1].result
+        pair[1] = _bkc_fetch_ans(pair[1].result, false, kw?.xform)
 
       yield batch
 
-  async * bkc_stream_store(hexkey_body_iter) ::
+  async * bkc_stream_store(hexkey_body_aiter, kw) ::
     let _bkc_body_pair = this._bkc_pair(bkc_pair_arrbuf)
 
-    for await let batch of bkc_batch_stream(hexkey_body_iter, _bkc_body_pair) ::
+    for await let batch of bkc_batch_stream(hexkey_body_aiter, _bkc_body_pair, kw) ::
       for let pair of batch ::
         pair[1] = await pair[1]
 
