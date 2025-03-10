@@ -1,0 +1,54 @@
+import { _bkc_storage_mixin_, bkc_arrbuf } from './bkc_abstract.jsy'
+import { bkc_storage_verify, bkc_batch_stream } from './bkc_abstract.jsy'
+import { _bkc_xform_mixin_, _bkc_xform_with } from './bkc_xform.jsy'
+
+export { bkc_arrbuf, bkc_storage_verify, bkc_batch_stream }
+
+let _bkc_xform_stream_
+export const bkc_xform_stream = (stg_tgt, opt={}) => @
+  _bkc_xform_stream_ ??= _bkc_storage_mixin_.with(_bkc_xform_stream_mixin_)
+  _bkc_xform_with(_bkc_xform_stream_, stg_tgt, opt)
+
+export default bkc_xform_stream
+
+export const _bkc_xform_stream_mixin_ = @{}
+  ... _bkc_xform_mixin_,
+
+  async * bkc_stream_store(key_body_aiter, kw) ::
+    let _xf_decode_key = this._xf_decode_key
+    key_body_aiter = bkc_batch_stream(key_body_aiter, this._xf_pair, kw)
+    for await let batch of this.stg_tgt.bkc_stream_store(key_body_aiter, kw) ::
+      if _xf_decode_key ::
+        for let pair of batch ::
+          pair[0] = _xf_decode_key(pair[0])
+      yield batch
+
+  async * bkc_stream_exists(key_aiter, kw) ::
+    let _xf_decode_key = this._xf_decode_key
+    key_aiter = bkc_batch_stream(key_aiter, this._xf_pair, kw)
+    for await let batch of this.stg_tgt.bkc_stream_exists(key_aiter, kw) ::
+      if _xf_decode_key ::
+        for let pair of batch ::
+          pair[0] = _xf_decode_key(pair[0])
+      yield batch
+
+  async * bkc_stream_fetch(key_aiter, kw) ::
+    let _xf_decode_key = this._xf_decode_key
+    let _xf_decode_body = this._xf_decode_body
+    let xform = kw?.xform, _xf_xform=xform ?? _xf_decode_body
+    kw = {... kw, xform: null}
+
+    if _xf_decode_body && xform ::
+      _xf_xform = body => xform @ _xf_decode_body(body)
+
+    key_aiter = bkc_batch_stream(key_aiter, this._xf_pair, kw)
+    for await let batch of this.stg_tgt.bkc_stream_fetch(key_aiter, kw) ::
+      if _xf_decode_key ::
+        for let pair of batch ::
+          pair[0] = _xf_decode_key(pair[0])
+      if _xf_xform ::
+        for let pair of batch ::
+          pair[1] = _xf_xform(pair[1])
+
+      yield batch
+

@@ -1,8 +1,76 @@
 import * as test_bdd from '#test_bdd'
-import {validate_backend} from '@phorbas/store/esm/validate_backend.js'
-import {bkc_with_js_map} from '@phorbas/store/esm/js_map.js'
+import {expect} from 'chai'
+import {u8_to_utf8} from 'u8-utils'
 
-if globalThis.Map ::
-  test_bdd.describe @ 'bkc_with_js_map', @::>
-    validate_backend @ test_bdd, 'bkc_with_js_map', ()=> bkc_with_js_map()
-    validate_backend @ test_bdd, 'bkc_with_js_map immutable', ()=> bkc_with_js_map(null, {immutable: true})
+import {validate_backend} from '@phorbas/store/esm/validate_backend.js'
+import {bkc_with_js_map} from '@phorbas/store'
+import {bkc_with_xform, bkc_xform_stream} from '@phorbas/store'
+import {bkc_multi} from '@phorbas/store'
+//import {bkc_with_js_map} from '@phorbas/store/esm/js_map.js'
+
+
+test_bdd.describe @ 'bkc_with_js_map', @::>
+  validate_backend @ test_bdd, 'bkc_with_js_map', ()=> bkc_with_js_map()
+  validate_backend @ test_bdd, 'bkc_with_js_map immutable', ()=> bkc_with_js_map(null, {immutable: true})
+
+
+test_bdd.describe @ 'bkc xform variants', @::>
+  test_bdd.describe @ 'bkc_with_xform', @::>
+    _check_xform_using(bkc_with_xform)
+
+  test_bdd.describe @ 'bkc_xform_stream', @::>
+    _check_xform_using(bkc_xform_stream)
+
+  function _check_xform_using(bkc_xform_variant) ::
+    const _test_xform_keys_prefix = @{}
+      encode_key: key => 'xform-'+key
+      decode_key: key => ::
+        key = key.split('-')
+        expect(key[0]).to.equal('xform')
+        return key[1]
+
+    const _test_xform_body_prefix = @{}
+      async encode_body(body) ::
+        body = await body
+        return new Blob(['XFM\0', body])
+
+      async decode_body(body) ::
+        body = await body
+        if body ::
+          let buf_prefix = new Uint8Array(body.slice(0,4))
+          expect(buf_prefix).to.deep.equal @ // XFM\0
+            Uint8Array.of(0x58, 0x46, 0x4d, 0x00)
+          return body.slice(4)
+
+    validate_backend @ test_bdd, 'xform key prefix',
+      () => bkc_xform_variant @ bkc_with_js_map(), @{}
+        ... _test_xform_keys_prefix
+
+    validate_backend @ test_bdd, 'xform body prefix',
+      () => bkc_xform_variant @ bkc_with_js_map(), @{}
+        ... _test_xform_body_prefix
+
+    validate_backend @ test_bdd, 'xform key and body prefix',
+      () => bkc_xform_variant @ bkc_with_js_map(), @{}
+        ... _test_xform_keys_prefix
+        ... _test_xform_body_prefix
+
+
+test_bdd.describe @ 'bkc multi', @::>
+  validate_backend @ test_bdd, 'with delegate', @{}
+    async bkc_create() ::
+      let stg_tgt = bkc_with_js_map()
+      return bkc_multi @ async (key, body) => [stg_tgt, key, body]
+
+  validate_backend @ test_bdd, 'shard by first key character', @{}
+    async bkc_create() ::
+      let by_shard = new Map()
+      return bkc_multi @:
+        async bkc_lookup(key, body) ::
+          let stg_tgt = by_shard.get(key[0])
+          if undefined === stg_tgt ::
+            stg_tgt = bkc_with_js_map()
+            by_shard.set(key[0], stg_tgt)
+
+          return [stg_tgt, key, body]
+

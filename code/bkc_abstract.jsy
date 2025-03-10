@@ -8,9 +8,9 @@ export const _bkc_storage_mixin_ = @{}
   //async bkc_exists(hexkey, {signal}) ::
   //async bkc_fetch(hexkey, {signal}) ::
 
+  // async * bkc_stream_store(hexkey_body_aiter, {signal}) ::
   // async * bkc_stream_exists(hexkey_aiter, {signal}) ::
   // async * bkc_stream_fetch(hexkey_aiter, {signal, xform}) ::
-  // async * bkc_stream_store(hexkey_body_aiter, {signal}) ::
 
   _bkc_pair_api_: @{}
     then(y,n) :: return Promise.resolve(this[1]).then(ans => [this[0], ans]).then(y,n)
@@ -28,6 +28,12 @@ export const _bkc_storage_mixin_ = @{}
 export const _bkc_storage_ = @{}
   ... _bkc_storage_mixin_
 
+  async * bkc_stream_store(hexkey_body_aiter, kw) ::
+    let _bkc_store = this._bkc_pair @
+      ([hexkey, body]) => this.bkc_store(hexkey, body, kw)
+
+    return yield * bkc_batch_stream(hexkey_body_aiter, _bkc_store, kw)
+
   async * bkc_stream_exists(hexkey_aiter, kw) ::
     let _bkc_exists = this._bkc_pair @
       ([hexkey]) => this.bkc_exists(hexkey, kw)
@@ -39,12 +45,6 @@ export const _bkc_storage_ = @{}
       ([hexkey]) => this.bkc_fetch(hexkey, kw).then(kw?.xform)
 
     return yield * bkc_batch_stream(hexkey_aiter, _bkc_fetch, kw)
-
-  async * bkc_stream_store(hexkey_body_aiter, kw) ::
-    let _bkc_store = this._bkc_pair @
-      ([hexkey, body]) => this.bkc_store(hexkey, body, kw)
-
-    return yield * bkc_batch_stream(hexkey_body_aiter, _bkc_store, kw)
 
 
 export const _bkc_stream_storage_ = @{}
@@ -65,6 +65,7 @@ export const _bkc_stream_storage_ = @{}
 
 
 
+export const _bkc_ident = v => v
 export const bkc_arrbuf = body => as_arrbuf(body)
 export const bkc_pair_arrbuf = ([hexkey, body]) => bkc_arrbuf(body)
 
@@ -74,7 +75,7 @@ export function _bkc_fetch_ans(buf, as_copy, xform) ::
   return xform ? Promise.resolve(buf).then(xform) : buf
 
 
-const _as_tuples = v => v.trim ? [v] : v
+const _as_tuples = v => v.trim ? [v] : [...v]
 export async function * bkc_batch_stream(aiter_batches, bkc_fn, kw) ::
   if 'string' === typeof aiter_batches :: throw new Error()
   if Array.isArray(aiter_batches) :: aiter_batches = [aiter_batches]
@@ -90,8 +91,11 @@ export async function * bkc_batch_stream(aiter_batches, bkc_fn, kw) ::
 
 
 // bkc api verification -- binary key (binary) content
-export async function bkc_storage_verify(stg) ::
+export async function bkc_storage_verify(stg, allow_null) ::
   stg = await stg
+  if null == stg ::
+    if allow_null :: return stg
+    throw new TypeError('Expected a non-null storage instance')
 
   _is_fn(stg, 'bkc_exists')
   _is_fn(stg, 'bkc_fetch')

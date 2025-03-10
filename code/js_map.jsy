@@ -11,7 +11,8 @@ export async function bkc_with_js_map(map_db, opt={}) ::
     bkc_opt: @{} immutable
 
     async bkc_exists(hexkey) ::
-      return 0 | map_db.has(hexkey)
+      let buf = map_db.get(hexkey)
+      return buf ? 1 : 0
 
     async bkc_fetch(hexkey) ::
       let buf = map_db.get(hexkey)

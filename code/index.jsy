@@ -1,2 +1,5 @@
 export * from './bkc_abstract.jsy'
+export * from './bkc_xform.jsy'
+export * from './bkc_xform_stream.jsy'
+export * from './bkc_multi.jsy'
 export {bkc_with_js_map} from './js_map.jsy'
