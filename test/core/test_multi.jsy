@@ -1,0 +1,37 @@
+import * as test_bdd from '#test_bdd'
+import {expect} from 'chai'
+import {u8_to_utf8} from 'u8-utils'
+
+import {validate_backend} from '@phorbas/store/esm/validate_backend.js'
+import {bkc_with_js_map} from '@phorbas/store'
+import {bkc_multi} from '@phorbas/store'
+import {bkc_multi_stream} from '@phorbas/store/esm/bkc_multi_stream.js'
+
+
+test_bdd.describe @ 'bkc multi variants', @::>
+  test_bdd.describe @ 'bkc_multi', @::>
+    _check_multi_using(bkc_multi)
+
+  test_bdd.describe @ 'bkc_multi_stream', @::>
+    _check_multi_using(bkc_multi_stream)
+
+
+  function _check_multi_using(bkc_multi_variant) ::
+    validate_backend @ test_bdd, 'with simple delegate', @{}
+      async bkc_create() ::
+        let stg_tgt = bkc_with_js_map()
+        return bkc_multi_variant @ async pair => stg_tgt
+
+    validate_backend @ test_bdd, 'shard by first key character', @{}
+      skip_batch_count: true
+      async bkc_create() ::
+        let by_shard = new Map()
+        return bkc_multi_variant @:
+          async bkc_lookup([key]) ::
+            let stg_tgt = by_shard.get(key[0])
+            if undefined === stg_tgt ::
+              stg_tgt = bkc_with_js_map()
+              by_shard.set(key[0], stg_tgt)
+
+            return stg_tgt
+

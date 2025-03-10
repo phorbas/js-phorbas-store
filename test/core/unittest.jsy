@@ -1,4 +1,7 @@
 import './test_js_map.jsy'
+import './test_xform.jsy'
+import './test_multi.jsy'
+
 import './test_local_fs.jsy'
 import './test_local_fsp.jsy'
 

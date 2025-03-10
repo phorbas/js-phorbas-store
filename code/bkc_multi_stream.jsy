@@ -1,0 +1,43 @@
+import { _bkc_storage_mixin_, bkc_arrbuf } from './bkc_abstract.jsy'
+import { bkc_batch_stream, bkc_pair_arrbuf } from './bkc_abstract.jsy'
+import { _bkc_multi_mixin_, _bkc_multi_with } from './bkc_multi.jsy'
+
+export { bkc_arrbuf, bkc_batch_stream, bkc_pair_arrbuf }
+
+let _bkc_multi_stream_
+export const bkc_multi_stream = (stg_tgt, opt={}) => @
+  _bkc_multi_stream_ ??= _bkc_storage_mixin_.with(_bkc_multi_stream_mixin_)
+  _bkc_multi_with(_bkc_multi_stream_, stg_tgt, opt)
+
+export default bkc_multi_stream
+
+const _by_stg = o => o.stg
+export const _bkc_multi_stream_mixin_ = @{}
+  ... _bkc_multi_mixin_
+
+  async * bkc_stream_store(hexkey_body_aiter, kw) ::
+    for await let batch of bkc_batch_stream(hexkey_body_aiter, this._xf_lookup, kw) ::
+      batch = await Promise.all(batch)
+      if kw?.signal?.aborted :: return
+
+      for let [stg, stg_batch] of Map.groupBy(batch, _by_stg) ::
+        yield * stg.bkc_stream_store(stg_batch, kw)
+        if kw?.signal?.aborted :: return
+
+  async * bkc_stream_exists(hexkey_aiter, kw) ::
+    for await let batch of bkc_batch_stream(hexkey_aiter, this._xf_lookup, kw) ::
+      batch = await Promise.all(batch)
+      if kw?.signal?.aborted :: return
+
+      for let [stg, stg_batch] of Map.groupBy(batch, _by_stg) ::
+        yield * stg.bkc_stream_exists(stg_batch, kw)
+        if kw?.signal?.aborted :: return
+
+  async * bkc_stream_fetch(hexkey_aiter, kw) ::
+    for await let batch of bkc_batch_stream(hexkey_aiter, this._xf_lookup, kw) ::
+      batch = await Promise.all(batch)
+      if kw?.signal?.aborted :: return
+
+      for let [stg, stg_batch] of Map.groupBy(batch, _by_stg) ::
+        yield * stg.bkc_stream_fetch(stg_batch, kw)
+        if kw?.signal?.aborted :: return

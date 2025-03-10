@@ -15,9 +15,11 @@ export const pkg_cfg_core = pkg_phrobas_store_group('', {
     'code/index.jsy',
     'code/validate_backend.jsy',
     'code/js_map.jsy',
+
     'code/bkc_xform.jsy',
     'code/bkc_xform_stream.jsy',
     'code/bkc_multi.jsy',
+    'code/bkc_multi_stream.jsy',
   ]})
 
 export const pkg_cfg_web = pkg_phrobas_store_group('web', {
