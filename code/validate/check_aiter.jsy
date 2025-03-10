@@ -78,6 +78,40 @@ export async function validate_bkc_stream_batch(_stg_, opt={}) ::
         expect(tuple[1]).to.equal(1)
 
 
+  :: // xform with bkc_stream_fetch() batches of bkc_pair works with Promise.all
+    let sym_test = Symbol('validate bkc_stream_fetch xform')
+    let ans_stream_fetch = _stg_.bkc_stream_fetch(test_key_list,
+      { xform: buf => [sym_test, buf] })
+
+    let body_by_key = new Map(test_body_list)
+
+    for await let batch_result of ans_stream_fetch ::
+
+      for let pair of batch_result ::
+        expect(pair).to.be.an.instanceOf(Array).lengthOf(2)
+        expect(pair[0]).to.be.a.string
+        expect(pair.then).to.be.a('function')
+
+        let tuple = await pair.then()
+        expect(tuple[0]).to.be.a.string
+        expect(tuple[0]).equal(pair[0])
+
+        // validate xform happened
+        expect(tuple[1][0]).equal(sym_test)
+
+        let test_body = body_by_key.get(tuple[0])
+        expect @ new Uint8Array @ tuple[1][1]
+        .to.deep.equal @ test_body
+
+
+      for let tuple of await Promise.all(batch_result) ::
+        expect(tuple[0]).to.be.a.string
+
+        let test_body = body_by_key.get(tuple[0])
+        expect @ new Uint8Array @ tuple[1][1]
+        .to.deep.equal @ test_body
+
+
 
 
 export async function validate_bkc_stream(_stg_, opt={}) ::
