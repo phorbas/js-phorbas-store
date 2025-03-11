@@ -1,6 +1,7 @@
 import { _bkc_storage_mixin_, bkc_arrbuf } from './bkc_abstract.jsy'
 import { bkc_storage_verify, bkc_batch_stream } from './bkc_abstract.jsy'
-import { _bkc_xform_mixin_, _bkc_xform_with, _bind_decode_key_batch } from './bkc_xform.jsy'
+import { _bkc_xform_mixin_, _bkc_xform_with } from './bkc_xform.jsy'
+import { _bind_decode_key_batch } from './_xform_utils.jsy'
 
 export { bkc_arrbuf, bkc_storage_verify, bkc_batch_stream }
 

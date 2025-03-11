@@ -12,15 +12,11 @@ export function bkc_multi(opt={}) ::
 export default bkc_multi
 
 export async function _bkc_multi_with(_bkc_multi_, opt, _mixin_tail_) ::
-  if 'function' === typeof opt :: opt = {bkc_lookup: opt}
-
   return _bkc_multi_.with @:
     bkc_opt: @{} proxy: true
-
     _xf_encode_body: opt.encode_body ?? _bkc_ident
     _xf_decode_body: opt.decode_body ?? _bkc_ident
     _xf_lookup: bkc_multi_lookup(opt.bkc_lookup)
-
     ... _mixin_tail_
 
 export const bkc_multi_lookup = bkc_lookup_fn =>

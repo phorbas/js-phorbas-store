@@ -1,6 +1,5 @@
 import * as test_bdd from '#test_bdd'
 import {expect} from 'chai'
-import {u8_to_utf8} from 'u8-utils'
 
 import {validate_backend} from '@phorbas/store/esm/validate_backend.js'
 import {bkc_with_js_map} from '@phorbas/store'

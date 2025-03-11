@@ -38,14 +38,6 @@ export async function _bkc_xform_with(_bkc_mixin_, stg_tgt, opt, _mixin_tail_) :
     ... _mixin_tail_
 
 
-export function _bind_decode_key_batch(_xf_decode_key) ::
-  if _xf_decode_key ::
-    return batch => ::
-      for let pair of batch ::
-        pair[0] = _xf_decode_key(pair[0])
-      return batch
-
-
 export const _bkc_xform_mixin_ = @{}
   async bkc_store(key, body, kw) ::
     [key, body] = this._xf_pair([key, body])
