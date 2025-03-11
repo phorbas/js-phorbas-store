@@ -11,19 +11,19 @@ export function bkc_with_xform(stg_tgt, opt={}) ::
 export default bkc_with_xform
 
 
-export async function _bkc_xform_with(_bkc_mixin_, stg_tgt, opt, _mixin_tail_) ::
+export async function _bkc_xform_with(_bkc_mixin_, stg_tgt, opt) ::
   stg_tgt = await bkc_storage_verify(stg_tgt)
 
   let _xf_encode_key = opt.encode_key ?? _bkc_ident
   let _xf_encode_body = opt.encode_body ?? _bkc_ident
 
-  let _xf_pair = !_xf_encode_body
-    ? pair => (pair[0] = _xf_encode_key(pair[0]), pair)
-    : pair => ::
-        pair[0] = _xf_encode_key(pair[0])
-        if _xf_encode_body && pair.length > 1 ::
-          pair[1] = bkc_arrbuf @ _xf_encode_body @ bkc_arrbuf(pair[1])
-        return pair
+  let _xf_record = !_xf_encode_body
+    ? rec => (rec[0] = _xf_encode_key(rec[2] = rec[0]), rec)
+    : rec => ::
+        rec[0] = _xf_encode_key(rec[2] = rec[0])
+        if _xf_encode_body && rec.length > 1 ::
+          rec[1] = bkc_arrbuf @ _xf_encode_body @ bkc_arrbuf(rec[1])
+        return rec
 
   return _bkc_mixin_.with @:
     stg_tgt
@@ -32,15 +32,14 @@ export async function _bkc_xform_with(_bkc_mixin_, stg_tgt, opt, _mixin_tail_) :
       ... this.stg_tgt.bkc_opt
       proxy: true
 
-    _xf_pair
+    _xf_record
     _xf_encode_key
     _xf_decode_body: opt.decode_body
-    ... _mixin_tail_
 
 
 export const _bkc_xform_mixin_ = @{}
   async bkc_store(key, body, kw) ::
-    [key, body] = this._xf_pair([key, body])
+    [key, body] = this._xf_record([key, body])
     return this.stg_tgt.bkc_store(key, body, kw)
 
   async bkc_exists(key, kw) ::
@@ -50,6 +49,6 @@ export const _bkc_xform_mixin_ = @{}
   async bkc_fetch(key, kw) ::
     key = this._xf_encode_key(key)
     let body = this.stg_tgt.bkc_fetch(key, kw)
-    let _xf_decode_body = this._xf_decode_body ?? _bkc_ident
-    return _xf_decode_body(body)
+    let xform = this._xf_decode_body
+    return xform ? xform(body) : body
 

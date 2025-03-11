@@ -48,19 +48,4 @@ export async function bkc_with_level(levelup, opt={}) ::
     /*
     async * bkc_stream_store(hexkey_body_iter) ::
       // TODO: update to batching storage
-      const ans = [], ops = []
-
-      const {keyEncoding, valueEncoding} = lvl_opt
-      for let [u8_key, u8_content] of u8_pair_list ::
-        ans.push @# u8_key
-        ops.push @: type:'put',
-          key: as_hex_key(u8_key), keyEncoding,
-          value: Buffer.from(u8_content), valueEncoding,
-
-      try ::
-        await levelup.batch(ops)
-      catch err ::
-        for const tpl of ans ::
-          tpl[1] = err
-      return ans
     */

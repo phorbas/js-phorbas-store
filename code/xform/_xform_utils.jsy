@@ -3,10 +3,10 @@ export async function _batch_await_inline(batch) ::
     batch[k] = await batch[k]
   return batch
 
-export function _bind_decode_key_batch(_xf_decode_key) ::
-  if _xf_decode_key ::
-    return batch => ::
-      for let pair of batch ::
-        pair[0] = _xf_decode_key(pair[0])
-      return batch
+export function _decode_key_batch(batch) ::
+  for let rec of batch ::
+    if rec.length > 2 ::
+      rec[0] = rec[2]
+      rec.length = 2
+  return batch
 

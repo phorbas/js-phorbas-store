@@ -15,12 +15,14 @@ test_bdd.describe @ 'bkc multi variants', @::>
     _check_multi_using(bkc_multi_stream)
 
 
-  function _check_multi_using(bkc_multi_variant) ::
+function _check_multi_using(bkc_multi_variant) ::
+  if 1 ::
     validate_backend @ test_bdd, 'with simple delegate', @{}
       async bkc_create() ::
         let stg_tgt = bkc_with_js_map()
         return bkc_multi_variant @ async pair => stg_tgt
 
+  if 1 ::
     validate_backend @ test_bdd, 'shard by first key character', @{}
       skip_batch_count: true
       async bkc_create() ::
@@ -34,15 +36,13 @@ test_bdd.describe @ 'bkc multi variants', @::>
 
             return stg_tgt
 
+  if 1 ::
     validate_backend @ test_bdd, 'with delegate and key xform', @{}
       async bkc_create() ::
         let stg_tgt = bkc_with_js_map()
         return bkc_multi_variant @:
           async bkc_lookup(pair) ::
+            pair[2] = pair[0]
             pair[0] = 'xform-'+pair[0]
             return stg_tgt
 
-          decode_key(key) ::
-            key = key.split('-')
-            expect(key[0]).to.equal('xform')
-            return key[1]

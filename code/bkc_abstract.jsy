@@ -12,16 +12,20 @@ export const _bkc_storage_mixin_ = @{}
   // async * bkc_stream_exists(hexkey_aiter, {signal}) ::
   // async * bkc_stream_fetch(hexkey_aiter, {signal, xform}) ::
 
-  _bkc_pair_api_: @{}
-    then(y,n) :: return Promise.resolve(this[1]).then(ans => [this[0], ans]).then(y,n)
-
-  _bkc_pair(fn_pair_op) ::
-    return hk_pair => Object.assign @
-      [hk_pair[0], fn_pair_op?.call(this, hk_pair)]
-      this._bkc_pair_api_
+  _bkc_record(fn_record_op) ::
+    return rec => ::
+      (rec = [... rec]).then = _rec_then
+      if fn_record_op :: rec[1] = fn_record_op(rec)
+      return rec
 
   with(...args) ::
     return Object.assign({__proto__: this}, ...args)
+
+function _rec_then(y,n) ::
+  let rec = [... this]
+  return Promise.resolve(rec[1])
+    .then(ans => (rec[1]=ans, rec))
+    .then(y,n)
 
 
 
@@ -29,45 +33,46 @@ export const _bkc_storage_ = @{}
   ... _bkc_storage_mixin_
 
   async * bkc_stream_store(hexkey_body_aiter, kw) ::
-    let _bkc_store = this._bkc_pair @
+    let _bkc_store = this._bkc_record @
       ([hexkey, body]) => this.bkc_store(hexkey, body, kw)
 
     return yield * bkc_batch_stream(hexkey_body_aiter, _bkc_store, kw)
 
   async * bkc_stream_exists(hexkey_aiter, kw) ::
-    let _bkc_exists = this._bkc_pair @
+    let _bkc_exists = this._bkc_record @
       ([hexkey]) => this.bkc_exists(hexkey, kw)
 
     return yield * bkc_batch_stream(hexkey_aiter, _bkc_exists, kw)
 
   async * bkc_stream_fetch(hexkey_aiter, kw) ::
-    let _bkc_fetch = this._bkc_pair @
+    let _bkc_fetch = this._bkc_record @
       ([hexkey]) => this.bkc_fetch(hexkey, kw).then(kw?.xform)
 
     return yield * bkc_batch_stream(hexkey_aiter, _bkc_fetch, kw)
+
 
 
 export const _bkc_stream_storage_ = @{}
   ... _bkc_storage_mixin_
 
   async bkc_exists(hexkey, kw) ::
-    for await let [pair] of this.bkc_stream_exists([[hexkey]], kw) ::
-      return pair[1]
+    for await let [rec] of this.bkc_stream_exists([[hexkey]], kw) ::
+      return rec[1]
     return 0
 
   async bkc_fetch(hexkey, kw) ::
-    for await let [pair] of this.bkc_stream_fetch([[hexkey]], kw) ::
-      return pair[1]
+    for await let [rec] of this.bkc_stream_fetch([[hexkey]], kw) ::
+      return rec[1]
 
   async bkc_store(hexkey, body, kw) ::
-    for await let [pair] of this.bkc_stream_store([[hexkey, body]], kw) ::
-      return pair[1]
+    for await let [rec] of this.bkc_stream_store([[hexkey, body]], kw) ::
+      return rec[1]
 
 
 
 export const _bkc_ident = v => v
 export const bkc_arrbuf = body => as_arrbuf(body)
-export const bkc_pair_arrbuf = ([hexkey, body]) => bkc_arrbuf(body)
+export const bkc_rec_arrbuf = ([key, body]) => bkc_arrbuf(body)
 
 export function _bkc_fetch_ans(buf, as_copy, xform) ::
   buf = _as_arrbuf(buf, as_copy)

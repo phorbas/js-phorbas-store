@@ -1,8 +1,8 @@
 import { _bkc_stream_storage_, bkc_batch_stream } from '../bkc_abstract.jsy'
 import { _bkc_fetch_ans } from '../bkc_abstract.jsy'
-import { bkc_arrbuf, bkc_pair_arrbuf } from '../bkc_abstract.jsy'
+import { bkc_arrbuf, bkc_rec_arrbuf } from '../bkc_abstract.jsy'
 
-export { bkc_arrbuf, bkc_pair_arrbuf }
+export { bkc_arrbuf, bkc_rec_arrbuf }
 
 export default bkc_with_lmdb
 
@@ -20,47 +20,47 @@ export async function bkc_with_lmdb(lmdb_env, opt) ::
     bkc_opt: @{} immutable
 
     async * bkc_stream_exists(hexkey_aiter, kw) ::
-      let _bkc_pair = this._bkc_pair()
-      for await let batch of bkc_batch_stream(hexkey_aiter, _bkc_pair, kw) ::
+      let _bkc_rec = this._bkc_record()
+      for await let batch of bkc_batch_stream(hexkey_aiter, _bkc_rec, kw) ::
         let _txn = lmdb_env.beginTxn()
-        for let pair of batch ::
-          let buf = _txn.getBinary(dbi, pair[0])
-          pair[1] = null == buf ? 0 : 1
+        for let rec of batch ::
+          let buf = _txn.getBinary(dbi, rec[0])
+          rec[1] = null == buf ? 0 : 1
 
         await _txn.commit()
         yield batch
 
 
     async * bkc_stream_fetch(hexkey_aiter, kw) ::
-      let _bkc_pair = this._bkc_pair()
-      for await let batch of bkc_batch_stream(hexkey_aiter, _bkc_pair, kw) ::
+      let _bkc_rec = this._bkc_record()
+      for await let batch of bkc_batch_stream(hexkey_aiter, _bkc_rec, kw) ::
         let _txn = lmdb_env.beginTxn()
-        for let pair of batch ::
-          let buf = _txn.getBinary(dbi, pair[0]) ?? void 0
-          pair[1] = _bkc_fetch_ans(buf, false, kw?.xform)
+        for let rec of batch ::
+          let buf = _txn.getBinary(dbi, rec[0]) ?? void 0
+          rec[1] = _bkc_fetch_ans(buf, false, kw?.xform)
 
         await _txn.commit()
         yield batch
 
 
     async * bkc_stream_store(hexkey_body_aiter, kw) ::
-      let _bkc_body_pair = this._bkc_pair(bkc_pair_arrbuf)
+      let _bkc_body_rec = this._bkc_record(bkc_rec_arrbuf)
 
-      for await let batch of bkc_batch_stream(hexkey_body_aiter, _bkc_body_pair, kw) ::
-        for let pair of batch ::
-          pair[1] = await pair[1]
+      for await let batch of bkc_batch_stream(hexkey_body_aiter, _bkc_body_rec, kw) ::
+        for let rec of batch ::
+          rec[1] = await rec[1]
 
         let _txn = lmdb_env.beginTxn()
         if immutable ::
-          for let pair of batch ::
-            if null == _txn.getBinary(dbi, pair[0]) ::
-              _txn.putBinary(dbi, pair[0], Buffer.from(pair[1]))
-              pair[1] = null
-            else pair[1] = false
+          for let rec of batch ::
+            if null == _txn.getBinary(dbi, rec[0]) ::
+              _txn.putBinary(dbi, rec[0], Buffer.from(rec[1]))
+              rec[1] = null
+            else rec[1] = false
             
-        else for let pair of batch ::
-          _txn.putBinary(dbi, pair[0], Buffer.from(pair[1]))
-          pair[1] = null
+        else for let rec of batch ::
+          _txn.putBinary(dbi, rec[0], Buffer.from(rec[1]))
+          rec[1] = null
 
         await _txn.commit()
         yield batch
