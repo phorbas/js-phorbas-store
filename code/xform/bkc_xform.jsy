@@ -1,5 +1,5 @@
-import { _bkc_storage_, bkc_arrbuf, _bkc_ident } from './bkc_abstract.jsy'
-import { bkc_storage_verify } from './bkc_abstract.jsy'
+import { _bkc_storage_, bkc_arrbuf, _bkc_ident } from '../bkc_abstract.jsy'
+import { bkc_storage_verify } from '../bkc_abstract.jsy'
 
 export { bkc_arrbuf, bkc_storage_verify }
 

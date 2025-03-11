@@ -1,5 +1,5 @@
-import { _bkc_storage_mixin_, bkc_arrbuf } from './bkc_abstract.jsy'
-import { bkc_batch_stream, bkc_pair_arrbuf } from './bkc_abstract.jsy'
+import { _bkc_storage_mixin_, bkc_arrbuf } from '../bkc_abstract.jsy'
+import { bkc_batch_stream, bkc_pair_arrbuf } from '../bkc_abstract.jsy'
 import { _bkc_multi_mixin_, _bkc_multi_with } from './bkc_multi.jsy'
 import { _bind_decode_key_batch, _batch_await_inline } from './_xform_utils.jsy'
 

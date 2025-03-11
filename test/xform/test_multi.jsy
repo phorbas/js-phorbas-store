@@ -4,7 +4,7 @@ import {expect} from 'chai'
 import {validate_backend} from '@phorbas/store/esm/validate_backend.js'
 import {bkc_with_js_map} from '@phorbas/store'
 import {bkc_multi} from '@phorbas/store'
-import {bkc_multi_stream} from '@phorbas/store/esm/bkc_multi_stream.js'
+import {bkc_multi_stream} from '@phorbas/store/esm/xform/bkc_multi_stream.js'
 
 
 test_bdd.describe @ 'bkc multi variants', @::>

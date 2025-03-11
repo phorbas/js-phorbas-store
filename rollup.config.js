@@ -15,11 +15,14 @@ export const pkg_cfg_core = pkg_phrobas_store_group('', {
     'code/index.jsy',
     'code/validate_backend.jsy',
     'code/js_map.jsy',
+  ]})
 
-    'code/bkc_xform.jsy',
-    'code/bkc_xform_stream.jsy',
-    'code/bkc_multi.jsy',
-    'code/bkc_multi_stream.jsy',
+export const pkg_cfg_xform = pkg_phrobas_store_group('xform', {
+  input: [
+    'code/xform/bkc_xform.jsy',
+    'code/xform/bkc_xform_stream.jsy',
+    'code/xform/bkc_multi.jsy',
+    'code/xform/bkc_multi_stream.jsy',
   ]})
 
 export const pkg_cfg_web = pkg_phrobas_store_group('web', {
@@ -82,12 +85,15 @@ export const pkg_test_cfg = {
   output: { dir: 'esm-test', format: 'es', sourcemap: true },
   input: {
     'test-core': './test/core/unittest.jsy',
+    'test-xform': './test/xform/unittest.jsy',
     'test-web': './test/web/unittest.jsy',
+    'test-local': './test/local/unittest.jsy',
   },
 }
 
 export default [
   pkg_cfg_core,
+  pkg_cfg_xform,
   pkg_cfg_web,
   //pkg_cfg_websvr,
   pkg_cfg_local,
