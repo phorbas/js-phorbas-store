@@ -7,6 +7,8 @@ export { bkc_arrbuf, bkc_storage_verify, bkc_batch_stream }
 
 let _bkc_xform_stream_
 export function bkc_xform_stream(stg_tgt, opt={}) ::
+  if 'function' === typeof opt :: opt = {bkc_xform: opt}
+
   _bkc_xform_stream_ ??= _bkc_storage_mixin_.with(_bkc_xform_stream_mixin_)
   return _bkc_xform_with(_bkc_xform_stream_, stg_tgt, opt)
 

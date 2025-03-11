@@ -15,12 +15,21 @@ test_bdd.describe @ 'bkc xform variants', @::>
     _check_xform_using(bkc_xform_stream)
 
   function _check_xform_using(bkc_xform_variant) ::
+    validate_backend @ test_bdd, 'xform noop', @{}
+      bkc_create: () =>
+        bkc_xform_variant @ bkc_with_js_map(), @{}
+          bkc_xform(rec) :: return rec
+
+
     const _test_xform_keys_prefix = @{}
-      encode_key: key => 'xform-'+key
-      decode_key: key => ::
-        key = key.split('-')
-        expect(key[0]).to.equal('xform')
-        return key[1]
+      bkc_xform(rec, set_key) ::
+        set_key(rec, 'xform-'+rec[0])
+        return rec
+
+    validate_backend @ test_bdd, 'xform key prefix',
+      () => bkc_xform_variant @ bkc_with_js_map(), @{}
+        ... _test_xform_keys_prefix
+
 
     const _test_xform_body_prefix = @{}
       async encode_body(body) ::
@@ -35,16 +44,12 @@ test_bdd.describe @ 'bkc xform variants', @::>
             Uint8Array.of(0x58, 0x46, 0x4d, 0x00)
           return body.slice(4)
 
-    validate_backend @ test_bdd, 'xform key prefix',
-      () => bkc_xform_variant @ bkc_with_js_map(), @{}
-        ... _test_xform_keys_prefix
-
     validate_backend @ test_bdd, 'xform body prefix',
       () => bkc_xform_variant @ bkc_with_js_map(), @{}
         ... _test_xform_body_prefix
 
     validate_backend @ test_bdd, 'xform key and body prefix',
       () => bkc_xform_variant @ bkc_with_js_map(), @{}
-        ... _test_xform_keys_prefix
         ... _test_xform_body_prefix
+        ... _test_xform_keys_prefix
 

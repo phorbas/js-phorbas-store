@@ -70,7 +70,6 @@ export const _bkc_stream_storage_ = @{}
 
 
 
-export const _bkc_ident = v => v
 export const bkc_arrbuf = body => as_arrbuf(body)
 export const bkc_rec_arrbuf = ([key, body]) => bkc_arrbuf(body)
 

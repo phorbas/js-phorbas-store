@@ -1,4 +1,5 @@
-import { _bkc_storage_, bkc_arrbuf, _bkc_ident } from '../bkc_abstract.jsy'
+import { _bkc_storage_, bkc_arrbuf } from '../bkc_abstract.jsy'
+import { _ident, _rec_set_key } from './_xform_utils.jsy'
 
 export { bkc_arrbuf }
 
@@ -10,30 +11,37 @@ export function bkc_multi(opt={}) ::
 
 export default bkc_multi
 
+
 export async function _bkc_multi_with(_bkc_multi_, opt) ::
   return _bkc_multi_.with @:
     bkc_opt: @{} proxy: true
-    _xf_encode_body: opt.encode_body ?? _bkc_ident
-    _xf_decode_body: opt.decode_body ?? _bkc_ident
-    _xf_lookup: bkc_multi_lookup(opt.bkc_lookup)
+    _xf_decode_body: opt.decode_body ?? _ident
+    _xf_lookup: _bkc_multi_lookup(opt.bkc_lookup, opt.encode_body)
 
 
-export const bkc_multi_lookup = bkc_lookup_fn =>
-  async rec => (rec.stg = await bkc_lookup_fn(rec), rec)
+export function _bkc_multi_lookup(bkc_lookup_fn, encode_body) ::
+  if ! bkc_lookup_fn?.call :: throw new TypeError()
+  encode_body ??= _ident
+  return rec => ::
+    rec[1] &&= encode_body(bkc_arrbuf(rec[1]))
+    rec.stg = bkc_lookup_fn(rec, _rec_set_key)
+    return rec ?? rec
 
 
 export const _bkc_multi_mixin_ = @{}
   async bkc_store(key, body, kw) ::
-    body = this._xf_encode_body(bkc_arrbuf(body))
-    let rec = await this._xf_lookup([key, body])
+    let rec = this._xf_lookup([key, body])
+    rec.stg = await rec.stg
     return rec.stg.bkc_store(rec[0], rec[1], kw)
 
   async bkc_exists(key, kw) ::
-    let rec = await this._xf_lookup([key])
+    let rec = this._xf_lookup([key])
+    rec.stg = await rec.stg
     return rec.stg.bkc_exists(rec[0], kw)
 
   async bkc_fetch(key, kw) ::
-    let rec = await this._xf_lookup([key])
+    let rec = this._xf_lookup([key])
+    rec.stg = await rec.stg
     let body = rec.stg.bkc_fetch(rec[0], kw)
     return this._xf_decode_body(body)
 

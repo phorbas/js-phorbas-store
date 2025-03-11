@@ -1,7 +1,9 @@
-export async function _batch_await_inline(batch) ::
-  for let k in batch ::
-    batch[k] = await batch[k]
-  return batch
+export const _ident = v => v
+
+export function _rec_set_key(rec, key) ::
+  rec[2] ??= rec[0]
+  rec[0] = key
+  return rec
 
 export function _decode_key_batch(batch) ::
   for let rec of batch ::

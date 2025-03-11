@@ -1,0 +1,79 @@
+import * as test_bdd from '#test_bdd'
+import {expect} from 'chai'
+
+import {validate_backend} from '@phorbas/store/esm/validate_backend.js'
+import {bkc_with_js_map} from '@phorbas/store'
+import {bkc_xform_stream} from '@phorbas/store/esm/xform/bkc_xform_stream.js'
+import {bkc_multi_stream} from '@phorbas/store/esm/xform/bkc_multi_stream.js'
+
+
+test_bdd.describe @ 'bkc multi by key', @::>
+  _check_by_key_simplistic()
+  _check_by_key()
+
+
+function _check_by_key_simplistic() ::
+  validate_backend @ test_bdd, 'multi by key single', @{}
+    skip_batch_count: true
+    async bkc_create() ::
+      let by_key = @[] 'alpha', 'beta', 'gamma'
+
+      return mock_key_prefix @ bkc_with_js_map(), by_key
+
+async function mock_key_prefix(stg_tgt, lut_keys, mock_opt) ::
+  lut_keys = @[] ... lut_keys
+  mock_opt = @{} sep: '/', bkc_xform: bkc_xform_stream, ...mock_opt
+
+  return mock_opt.bkc_xform @ stg_tgt, @{}
+    bkc_xform(rec, set_key) ::
+      let key = rec[0]
+      set_key @ rec, `${lut_keys[key.charCodeAt(0) % lut_keys.length]}${mock_opt.sep}${key}`
+      return rec
+
+
+
+async function bkc_neato(stg_by_key, opt={}) ::
+  stg_by_key ??= new Map()
+
+  const sep = opt.sep || '/'
+  const split_key = key => ::
+    let idx = key.lastIndexOf(sep)
+    return -1 === idx ? []
+      : [key.slice(0,idx), key.slice(idx+sep.length)]
+
+  return bkc_multi_stream @:
+    async bkc_lookup(rec, set_key) ::
+      let [stg_key, key] = split_key(rec[0])
+      let stg_tgt = stg_by_key.get(stg_key)
+      set_key(rec, key + ' @ ' + stg_key)
+      return stg_tgt
+
+
+const _mock_as_stg_by_key = key_list => ::
+  key_list = key_list.split?.(/\s+/) ?? [... key_list]
+
+  let stg_by_key = new Map()
+  for let key of key_list ::
+    let db = new Map()
+    let stg = bkc_with_js_map(db)
+    stg.db = db
+    stg_by_key.set(key, stg)
+
+  return stg_by_key
+
+function _check_by_key() ::
+  validate_backend @ test_bdd, 'multi by key multiple', @{}
+    skip_batch_count: true
+
+    async bkc_create(_ctx_) ::
+      let stg_by_key = _ctx_.stg_by_key =
+        _mock_as_stg_by_key @# 'alpha', 'beta', 'gamma'
+
+      return mock_key_prefix @ bkc_neato(stg_by_key), stg_by_key.keys()
+
+    bkc_cleanup(_stg_, _ctx_) ::
+      for let [stg_key, stg] of _ctx_.stg_by_key ::
+        for let k of stg.db.keys() ::
+          let suffix = k.split(/\s*@\s*/)
+          expect(suffix[1]).to.equal(stg_key)
+

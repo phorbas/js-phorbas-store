@@ -1,6 +1,6 @@
 import { _bkc_storage_mixin_, bkc_arrbuf, bkc_batch_stream  } from '../bkc_abstract.jsy'
 import { _bkc_multi_mixin_, _bkc_multi_with } from './bkc_multi.jsy'
-import { _decode_key_batch, _batch_await_inline } from './_xform_utils.jsy'
+import { _decode_key_batch } from './_xform_utils.jsy'
 
 export { bkc_arrbuf, bkc_batch_stream }
 
@@ -14,12 +14,18 @@ export function bkc_multi_stream(opt={}) ::
 export default bkc_multi_stream
 
 const _by_stg = o => o.stg
+async function _resolve_stg_targets(batch) ::
+  for let k in batch ::
+    let p = batch[k]
+    if p?.stg?.then ::
+      p.stg = await p.stg
+
 export const _bkc_multi_stream_mixin_ = @{}
   ... _bkc_multi_mixin_
 
   async * bkc_stream_store(hexkey_body_aiter, kw) ::
     for await let batch of bkc_batch_stream(hexkey_body_aiter, this._xf_lookup, kw) ::
-      batch = await _batch_await_inline(batch)
+      await _resolve_stg_targets(batch)
       if kw?.signal?.aborted :: return
 
       for let [stg, stg_batch] of Map.groupBy(batch, _by_stg) ::
@@ -29,7 +35,7 @@ export const _bkc_multi_stream_mixin_ = @{}
 
   async * bkc_stream_exists(hexkey_aiter, kw) ::
     for await let batch of bkc_batch_stream(hexkey_aiter, this._xf_lookup, kw) ::
-      batch = await _batch_await_inline(batch)
+      await _resolve_stg_targets(batch)
       if kw?.signal?.aborted :: return
 
       for let [stg, stg_batch] of Map.groupBy(batch, _by_stg) ::
@@ -39,7 +45,7 @@ export const _bkc_multi_stream_mixin_ = @{}
 
   async * bkc_stream_fetch(hexkey_aiter, kw) ::
     for await let batch of bkc_batch_stream(hexkey_aiter, this._xf_lookup, kw) ::
-      batch = await _batch_await_inline(batch)
+      await _resolve_stg_targets(batch)
       if kw?.signal?.aborted :: return
 
       for let [stg, stg_batch] of Map.groupBy(batch, _by_stg) ::
