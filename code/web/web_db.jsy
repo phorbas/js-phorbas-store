@@ -1,8 +1,7 @@
-import { _bkc_stream_storage_, bkc_batch_stream } from '../bkc_abstract.jsy'
-import { _bkc_fetch_ans } from '../bkc_abstract.jsy'
-import { bkc_arrbuf, bkc_rec_arrbuf } from '../bkc_abstract.jsy'
+import { bkc_arrbuf, bkc_rec_arrbuf, bkc_batch_stream, _bkc_fetch_ans  } from '../core.jsy'
+import { _bkc_stream_storage_ } from '../abstract/bkc_abstract_stream.jsy'
 
-export { bkc_arrbuf , bkc_rec_arrbuf }
+export * from '../core.jsy'
 
 export default bkc_web_db
 export async function bkc_web_db(opt={}) ::

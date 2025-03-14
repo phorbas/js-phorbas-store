@@ -1,0 +1,29 @@
+import {as_arrbuf, _as_arrbuf} from '@phorbas/opaque/esm/subtle/utils.js'
+export {as_arrbuf, _as_arrbuf}
+
+export {bkc_storage_verify} from './abstract/bkc_abstract.jsy'
+
+export const bkc_arrbuf = body => as_arrbuf(body)
+export const bkc_rec_arrbuf = ([key, body]) => bkc_arrbuf(body)
+
+export const bkc_extend = async (bkc, ...args) =>
+  Object.assign(await bkc, ... await Promise.all(args))
+
+const _as_bkc_records = v => v.trim ? [v] : v.slice()
+export async function * bkc_batch_stream(aiter_batches, bkc_fn, kw) ::
+  if 'string' === typeof aiter_batches :: throw new Error()
+  if Array.isArray(aiter_batches) :: aiter_batches = [aiter_batches]
+
+  for await let batch of aiter_batches ::
+    if kw?.signal?.aborted :: return
+
+    if batch?.length ::
+      //ensure batch is an array of new mutable tuples of max-length 2
+      batch = batch.trim ? [[batch]] : batch.map(_as_bkc_records)
+      if bkc_fn :: batch = batch.map(bkc_fn)
+      yield batch
+
+export function _bkc_fetch_ans(buf, as_copy, xform) ::
+  buf = _as_arrbuf(buf, as_copy)
+  return xform ? Promise.resolve(buf).then(xform) : buf
+

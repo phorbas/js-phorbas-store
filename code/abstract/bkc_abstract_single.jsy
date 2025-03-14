@@ -1,0 +1,24 @@
+import {_bkc_storage_mixin_} from './bkc_abstract.jsy'
+import {bkc_batch_stream} from '../core.jsy'
+
+export const _bkc_storage_ = @{}
+  ... _bkc_storage_mixin_
+
+  async * bkc_stream_store(hexkey_body_aiter, kw) ::
+    let _bkc_store = this._bkc_record @
+      ([hexkey, body]) => this.bkc_store(hexkey, body, kw)
+
+    return yield * bkc_batch_stream(hexkey_body_aiter, _bkc_store, kw)
+
+  async * bkc_stream_exists(hexkey_aiter, kw) ::
+    let _bkc_exists = this._bkc_record @
+      ([hexkey]) => this.bkc_exists(hexkey, kw)
+
+    return yield * bkc_batch_stream(hexkey_aiter, _bkc_exists, kw)
+
+  async * bkc_stream_fetch(hexkey_aiter, kw) ::
+    let _bkc_fetch = this._bkc_record @
+      ([hexkey]) => this.bkc_fetch(hexkey, kw).then(kw?.xform)
+
+    return yield * bkc_batch_stream(hexkey_aiter, _bkc_fetch, kw)
+

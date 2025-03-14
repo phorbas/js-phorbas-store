@@ -1,6 +1,8 @@
-import { _bkc_storage_, _as_arrbuf, bkc_arrbuf } from './bkc_abstract.jsy'
+import { _as_arrbuf, bkc_arrbuf } from './core.jsy'
+import { _bkc_storage_ } from './abstract/bkc_abstract_single.jsy'
 
-export {bkc_arrbuf}
+export * from './core.jsy'
+
 export default bkc_with_js_map
 export async function bkc_with_js_map(map_db, opt={}) ::
   const immutable = !! opt.immutable

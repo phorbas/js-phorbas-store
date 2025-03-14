@@ -1,8 +1,8 @@
-import { _bkc_storage_, bkc_arrbuf } from '../bkc_abstract.jsy'
-import { bkc_storage_verify } from '../bkc_abstract.jsy'
+import { bkc_arrbuf, bkc_storage_verify } from '../core.jsy'
+import { _bkc_storage_ } from '../abstract/bkc_abstract_single.jsy'
 import { _ident, _rec_set_key } from './_xform_utils.jsy'
 
-export { bkc_arrbuf, bkc_storage_verify }
+export * from '../core.jsy'
 
 let _bkc_xform_lite_
 export function bkc_with_xform(stg_tgt, opt={}) ::

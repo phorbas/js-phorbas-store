@@ -1,7 +1,8 @@
-import { _bkc_storage_, bkc_arrbuf } from '../bkc_abstract.jsy'
+import { bkc_arrbuf } from '../core.jsy'
+import { _bkc_storage_ } from '../abstract/bkc_abstract_single.jsy'
 import {_bind_hexkey_request} from './fetch.jsy'
 
-export {bkc_arrbuf}
+export * from '../core.jsy'
 
 export default bkc_web_cache_fetch
 export async function bkc_web_cache_fetch(cache_store, url_base, opt={}) ::

@@ -1,14 +1,12 @@
-import {bkc_storage_verify} from './bkc_abstract.jsy'
+import {bkc_storage_verify} from './core.jsy'
+import * as check_utils from './validate/check_utils.jsy'
 import * as check_single from './validate/check_single.jsy'
 import * as check_aiter from './validate/check_aiter.jsy'
 import * as check_async_gen from './validate/check_async_gen.jsy'
 
-export * from './_utils.jsy'
-export {bkc_storage_verify} from './bkc_abstract.jsy'
-export * from './validate/check_utils.jsy'
-export * from './validate/check_single.jsy'
-export * from './validate/check_aiter.jsy'
-export * from './validate/check_async_gen.jsy'
+export * from './core.jsy'
+
+export {check_utils, check_single, check_aiter, check_async_gen}
 
 
 export function validate_backend(test_bdd, backend_name, opt) ::

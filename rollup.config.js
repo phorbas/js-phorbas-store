@@ -14,7 +14,15 @@ export const pkg_cfg_core = pkg_phrobas_store_group('', {
   input: [
     'code/index.jsy',
     'code/validate_backend.jsy',
+    'code/core.jsy',
     'code/js_map.jsy',
+  ]})
+
+export const pkg_abstract = pkg_phrobas_store_group('abstract', {
+  input: [
+    'code/abstract/bkc_abstract.jsy',
+    'code/abstract/bkc_abstract_single.jsy',
+    'code/abstract/bkc_abstract_stream.jsy',
   ]})
 
 export const pkg_cfg_xform = pkg_phrobas_store_group('xform', {
@@ -93,6 +101,7 @@ export const pkg_test_cfg = {
 
 export default [
   pkg_cfg_core,
+  pkg_abstract,
   pkg_cfg_xform,
   pkg_cfg_web,
   //pkg_cfg_websvr,

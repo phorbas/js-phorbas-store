@@ -1,0 +1,51 @@
+export const _bkc_storage_mixin_ = @{}
+  //bkc_opt: {}
+  //async bkc_store(hexkey, body, {signal}) ::
+  //async bkc_exists(hexkey, {signal}) ::
+  //async bkc_fetch(hexkey, {signal}) ::
+
+  //async * bkc_stream_store(hexkey_body_aiter, {signal}) ::
+  //async * bkc_stream_exists(hexkey_aiter, {signal}) ::
+  //async * bkc_stream_fetch(hexkey_aiter, {signal, xform}) ::
+
+  _bkc_record(fn_record_op) ::
+    return rec => ::
+      (rec = [... rec]).then = _rec_then
+      if fn_record_op :: rec[1] = fn_record_op(rec)
+      return rec
+
+  with(...args) ::
+    return Object.assign({__proto__: this}, ...args)
+
+function _rec_then(y,n) ::
+  let rec = [... this]
+  return Promise.resolve(rec[1])
+    .then(ans => (rec[1]=ans, rec))
+    .then(y,n)
+
+
+// bkc api verification -- binary key (binary) content
+export async function bkc_storage_verify(stg, allow_null) ::
+  stg = await stg
+  if null == stg ::
+    if allow_null :: return stg
+    throw new TypeError('Expected a non-null storage instance')
+
+  _is_fn(stg, 'bkc_exists')
+  _is_fn(stg, 'bkc_fetch')
+  _is_fn(stg, 'bkc_store')
+
+  _is_fn(stg, 'bkc_stream_exists', 2)
+  _is_fn(stg, 'bkc_stream_fetch', 2)
+  _is_fn(stg, 'bkc_stream_store', 2)
+
+  if 'object' !== typeof stg.bkc_opt ::
+    throw new TypeError('Expected object "bkc_opt" not present')
+
+  return stg
+
+function _is_fn(o, k, n_args) ::
+  let fn = o[k]
+  if 'function' !== typeof fn :: throw new TypeError(`Expected function "${k}" not present`)
+  if n_args && fn.length !== n_args :: throw new TypeError(`Expected function "${k}" to have ${n_args} args, found ${fn.length}: ${fn}`)
+

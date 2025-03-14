@@ -1,6 +1,7 @@
-import { _bkc_storage_, bkc_arrbuf } from '../bkc_abstract.jsy'
+import { bkc_arrbuf } from '../core.jsy'
+import { _bkc_storage_ } from '../abstract/bkc_abstract_single.jsy'
 
-export {bkc_arrbuf}
+export * from '../core.jsy'
 
 export {bkc_fetch as default, bkc_fetch as bkc_fetch_request}
 export async function bkc_fetch(url_base, opt={}) ::
