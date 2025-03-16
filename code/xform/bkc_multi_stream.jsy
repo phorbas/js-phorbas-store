@@ -29,9 +29,14 @@ export const _bkc_multi_stream_mixin_ = @{}
       await _resolve_stg_targets(batch)
       if kw?.signal?.aborted :: return
 
-      for let [stg, stg_batch] of Map.groupBy(batch, _by_stg) ::
-        for await let res_batch of stg.bkc_stream_store(stg_batch, kw) ::
-          if kw?.signal?.aborted :: return
+      // parallel query by storage backend
+      let batches_by_stg = Array.from @ Map.groupBy(batch, _by_stg),
+        ([stg, stg_batch]) => stg.bkc_stream_store(stg_batch, kw)
+
+      for let batch_stream of batches_by_stg ::
+        for await let res_batch of batch_stream ::
+          res_batch = await res_batch
+          // don't interup parallel store call, ignore kw.signal.aborted 
           yield _decode_key_batch(res_batch)
 
   async * bkc_stream_exists(hexkey_aiter, kw) ::
@@ -39,8 +44,13 @@ export const _bkc_multi_stream_mixin_ = @{}
       await _resolve_stg_targets(batch)
       if kw?.signal?.aborted :: return
 
-      for let [stg, stg_batch] of Map.groupBy(batch, _by_stg) ::
-        for await let res_batch of stg.bkc_stream_exists(stg_batch, kw) ::
+      // parallel query by storage backend
+      let batches_by_stg = Array.from @ Map.groupBy(batch, _by_stg),
+        ([stg, stg_batch]) => stg.bkc_stream_exists(stg_batch, kw)
+
+      for let batch_stream of batches_by_stg ::
+        for await let res_batch of batch_stream ::
+          res_batch = await res_batch
           if kw?.signal?.aborted :: return
           yield _decode_key_batch(res_batch)
 
@@ -49,8 +59,13 @@ export const _bkc_multi_stream_mixin_ = @{}
       await _resolve_stg_targets(batch)
       if kw?.signal?.aborted :: return
 
-      for let [stg, stg_batch] of Map.groupBy(batch, _by_stg) ::
-        for await let res_batch of stg.bkc_stream_fetch(stg_batch, kw) ::
+      // parallel query by storage backend
+      let batches_by_stg = Array.from @ Map.groupBy(batch, _by_stg),
+        ([stg, stg_batch]) => stg.bkc_stream_fetch(stg_batch, kw)
+
+      for let batch_stream of batches_by_stg ::
+        for await let res_batch of batch_stream ::
+          res_batch = await res_batch
           if kw?.signal?.aborted :: return
           yield _decode_key_batch(res_batch)
 
