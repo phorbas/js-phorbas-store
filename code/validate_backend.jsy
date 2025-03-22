@@ -27,8 +27,13 @@ export function validate_backend(test_bdd, backend_name, opt) ::
         throw new TypeError("create bkc_storage did not return an instance")
 
     after @::>
-      await opt.bkc_cleanup?.(_stg_, _ctx_)
-      _ctx_ = null
+      try ::
+        await opt.bkc_cleanup?.(_ctx_, _stg_)
+      catch err ::
+        console.error(err)
+        throw err
+      finally ::
+        _ctx_ = null
 
 
     it @ 'bkc storage verify', () => bkc_storage_verify(_stg_)

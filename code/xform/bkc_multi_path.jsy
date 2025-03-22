@@ -1,0 +1,64 @@
+import { bkc_multi_stream } from './bkc_multi_stream.jsy'
+
+export * from '../core.jsy'
+
+export async function bkc_multi_path(matcher_list, opt={}) ::
+  if matcher_list.trim || !matcher_list[Symbol.iterator] ::
+    matcher_list = [matcher_list]
+
+  matcher_list = Array.from(matcher_list, _as_multi_path_matcher)
+
+  const by_path = opt.by_path ?? new Map()
+  return bkc_multi_stream @:
+    __proto__: opt
+
+    bkc_lookup(rec, rec_api) ::
+      const key = rec[0]
+      for let matcher of matcher_list ::
+        let stg = matcher(key, by_path)
+
+        // delegate with sub key mapping
+        if Array.isArray(stg) ::
+          if stg[1] :: rec_api.set_key(rec, stg[1])
+          stg = stg[0]
+
+        // dereference stg by reference
+        stg = by_path.has(stg) ? by_path.get(stg) : stg
+        return stg
+
+
+export default bkc_multi_path
+
+
+
+export function _as_multi_path_matcher(matcher) ::
+  if matcher.call ::
+    return matcher // already a function
+
+  if matcher.trim :: // bind as split-on pattern
+    return key => key.split(matcher)
+
+  if matcher.exec ::
+    if matcher.pathname ::
+      // use URLPattern matcher with default baseURL
+      matcher = [matcher, 'bkc:///']
+
+    else ::
+      // use generic regexp protocol
+      return key => ::
+        let m = matcher.exec(key)
+        let g = m?.groups
+        return g ? [g.stg, g.key]
+          : m ? [m[1], m[2]]
+          : null
+
+  if ! Array.isArray(matcher) :: throw new TypeError
+
+  if matcher[0].pathname ::
+    // use URLPattern matcher with baseURL
+    const [urlPattern, baseURL] = matcher
+    return key => ::
+      let m = urlPattern.exec(key, baseURL)
+      let g = m?.pathname.groups
+      return g && [g.stg, g.key]
+
