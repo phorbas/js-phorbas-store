@@ -42,7 +42,7 @@ async function bkc_neato(stg_by_key, opt={}) ::
       : [key.slice(0,idx), key.slice(idx+sep.length)]
 
   return bkc_multi_stream @:
-    async bkc_lookup(rec, set_key) ::
+    bkc_lookup(rec, set_key) ::
       let [stg_key, key] = split_key(rec[0])
       let stg_tgt = stg_by_key.get(stg_key)
       set_key(rec, key + ' @ ' + stg_key)

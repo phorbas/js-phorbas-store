@@ -1,7 +1,7 @@
 import { bkc_arrbuf, bkc_batch_stream  } from '../core.jsy'
 import { _bkc_storage_mixin_ } from '../abstract/bkc_abstract.jsy'
 import { _bkc_multi_mixin_, _bkc_multi_with } from './bkc_multi.jsy'
-import { _decode_key_batch } from './_xform_utils.jsy'
+import { _decode_key_batch, _bind_fetch_xform } from './_xform_utils.jsy'
 
 export * from '../core.jsy'
 
@@ -15,57 +15,57 @@ export function bkc_multi_stream(opt={}) ::
 export default bkc_multi_stream
 
 const _by_stg = o => o.stg
-async function _resolve_stg_targets(batch) ::
-  for let k in batch ::
-    let p = batch[k]
-    if p?.stg?.then ::
-      p.stg = await p.stg
-
 export const _bkc_multi_stream_mixin_ = @{}
   ... _bkc_multi_mixin_
 
   async * bkc_stream_store(hexkey_body_aiter, kw) ::
-    for await let batch of bkc_batch_stream(hexkey_body_aiter, this._xf_lookup, kw) ::
-      await _resolve_stg_targets(batch)
+    for await let multi_batch of bkc_batch_stream(hexkey_body_aiter, this._xf_lookup, kw) ::
       if kw?.signal?.aborted :: return
 
       // parallel query by storage backend
-      let batches_by_stg = Array.from @ Map.groupBy(batch, _by_stg),
-        ([stg, stg_batch]) => stg.bkc_stream_store(stg_batch, kw)
+      multi_batch = Array.from @ Map.groupBy(multi_batch, _by_stg),
+        async ([stg, stg_batch]) =>
+          (await stg).bkc_stream_store(stg_batch, kw)
 
-      for let batch_stream of batches_by_stg ::
-        for await let res_batch of batch_stream ::
-          res_batch = await res_batch
-          // don't interup parallel store call, ignore kw.signal.aborted 
-          yield _decode_key_batch(res_batch)
+      for await let batch of this._multi_batch_merge(multi_batch, kw) ::
+        if kw?.signal?.aborted :: return
+        yield _decode_key_batch(batch)
 
   async * bkc_stream_exists(hexkey_aiter, kw) ::
-    for await let batch of bkc_batch_stream(hexkey_aiter, this._xf_lookup, kw) ::
-      await _resolve_stg_targets(batch)
+    for await let multi_batch of bkc_batch_stream(hexkey_aiter, this._xf_lookup, kw) ::
       if kw?.signal?.aborted :: return
 
       // parallel query by storage backend
-      let batches_by_stg = Array.from @ Map.groupBy(batch, _by_stg),
-        ([stg, stg_batch]) => stg.bkc_stream_exists(stg_batch, kw)
+      multi_batch = Array.from @ Map.groupBy(multi_batch, _by_stg),
+        async ([stg, stg_batch]) =>
+          (await stg).bkc_stream_exists(stg_batch, kw)
 
-      for let batch_stream of batches_by_stg ::
-        for await let res_batch of batch_stream ::
-          res_batch = await res_batch
-          if kw?.signal?.aborted :: return
-          yield _decode_key_batch(res_batch)
+      for await let batch of this._multi_batch_merge(multi_batch, kw) ::
+        if kw?.signal?.aborted :: return
+        yield _decode_key_batch(batch)
 
   async * bkc_stream_fetch(hexkey_aiter, kw) ::
-    for await let batch of bkc_batch_stream(hexkey_aiter, this._xf_lookup, kw) ::
-      await _resolve_stg_targets(batch)
+    let _xf_xform = _bind_fetch_xform(kw?.xform, this._xf_decode_body)
+    kw = {... kw, xform: null}
+
+    for await let multi_batch of bkc_batch_stream(hexkey_aiter, this._xf_lookup, kw) ::
       if kw?.signal?.aborted :: return
 
       // parallel query by storage backend
-      let batches_by_stg = Array.from @ Map.groupBy(batch, _by_stg),
-        ([stg, stg_batch]) => stg.bkc_stream_fetch(stg_batch, kw)
+      multi_batch = Array.from @ Map.groupBy(multi_batch, _by_stg),
+        async ([stg, stg_batch]) =>
+          (await stg).bkc_stream_fetch(stg_batch, kw)
 
-      for let batch_stream of batches_by_stg ::
-        for await let res_batch of batch_stream ::
-          res_batch = await res_batch
-          if kw?.signal?.aborted :: return
-          yield _decode_key_batch(res_batch)
+      for await let batch of this._multi_batch_merge(multi_batch, kw) ::
+        if kw?.signal?.aborted :: return
+
+        if _xf_xform ::
+          for let rec of batch ::
+            rec[1] = _xf_xform(rec[1])
+
+        yield _decode_key_batch(batch)
+
+  async * _multi_batch_merge(multi_streams, kw) ::
+    for let batch_stream of multi_streams ::
+      yield * (await batch_stream)
 

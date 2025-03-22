@@ -18,9 +18,10 @@ test_bdd.describe @ 'bkc multi variants', @::>
 function _check_multi_using(bkc_multi_variant) ::
   if 1 ::
     validate_backend @ test_bdd, 'with simple delegate', @{}
+      // simple_stream: true
       async bkc_create() ::
         let stg_tgt = bkc_with_js_map()
-        return bkc_multi_variant @ async pair => stg_tgt
+        return bkc_multi_variant @ pair => stg_tgt
 
   if 1 ::
     validate_backend @ test_bdd, 'shard by first key character', @{}
@@ -28,7 +29,7 @@ function _check_multi_using(bkc_multi_variant) ::
       async bkc_create() ::
         let by_shard = new Map()
         return bkc_multi_variant @:
-          async bkc_lookup([key]) ::
+          bkc_lookup([key]) ::
             let stg_tgt = by_shard.get(key[0])
             if undefined === stg_tgt ::
               stg_tgt = bkc_with_js_map()
@@ -41,7 +42,7 @@ function _check_multi_using(bkc_multi_variant) ::
       async bkc_create() ::
         let stg_tgt = bkc_with_js_map()
         return bkc_multi_variant @:
-          async bkc_lookup(pair) ::
+          bkc_lookup(pair) ::
             pair[2] = pair[0]
             pair[0] = 'xform-'+pair[0]
             return stg_tgt

@@ -1,0 +1,72 @@
+import { _bkc_storage_mixin_ } from '../abstract/bkc_abstract.jsy'
+import { _bkc_multi_with } from './bkc_multi.jsy'
+import { _bkc_multi_stream_mixin_ } from './bkc_multi_stream.jsy'
+
+export * from '../core.jsy'
+
+let _bkc_multi_merge_stream_
+export function bkc_multi_merge_stream(opt={}) ::
+  if 'function' === typeof opt :: opt = {bkc_lookup: opt}
+
+  _bkc_multi_merge_stream_ ??= _bkc_storage_mixin_.with(_bkc_multi_merge_stream_mixin_)
+  return _bkc_multi_with(_bkc_multi_merge_stream_, opt)
+
+export default bkc_multi_stream
+
+const _by_stg = o => o.stg
+export const _bkc_multi_merge_stream_mixin_ = @{}
+  ... _bkc_multi_stream_mixin_
+  _multi_batch_merge: _parallel_multi_batch_merge
+
+
+export async function * _parallel_multi_batch_merge(multi_streams, opt) ::
+  const min_qlen = opt?.min_qlen || 2
+  let queue=[], active_streams = new Map()
+  let resume=Promise.withResolvers(), need_more=Promise.withResolvers()
+
+  for let stream of multi_streams ::
+    active_streams.set @ stream, _qread_stream(stream, opt?.signal)
+  multi_streams = null // free references
+
+  try ::
+    while 0 !== active_streams.size ::
+      if queue.length ::
+        yield * queue.splice(0, queue.length)
+
+      if queue.length <= min_qlen ::
+        need_more.resolve(true)
+        need_more = Promise.withResolvers()
+
+        if 0 === queue.length ::
+          await resume?.promise
+          resume = Promise.withResolvers()
+
+  finally ::
+    need_more.resolve(false)
+
+  // merge all promise exceptions
+  for let done of active_streams.values() ::
+    await done
+  return
+
+
+  async function _qread_stream(stream, signal) ::
+    let done, active_key = stream
+    try ::
+      stream = await stream
+      done ||= signal?.aborted
+      if done :: return
+
+      for await let batch of stream ::
+        queue.push(batch)
+        resume?.resolve() // unblock merge with new batch
+
+        done ||= signal?.aborted
+        done ||= false === await need_more.promise
+        done ||= signal?.aborted
+        if done :: return
+
+    finally ::
+      active_streams.delete(active_key)
+      resume?.resolve() // unblock merge if this is last in active_set
+
