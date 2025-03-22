@@ -12,3 +12,8 @@ export function _decode_key_batch(batch) ::
       rec.length = 2
   return batch
 
+export const _bind_fetch_xform = (xform, _xf_decode_body) => @
+  xform && _xf_decode_body
+    ? body => xform(_xf_decode_body(body))
+    : xform || _xf_decode_body
+

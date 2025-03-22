@@ -31,7 +31,7 @@ export function _bkc_xform_record(bkc_xform_fn, encode_body) ::
   bkc_xform_fn ??= _ident
   encode_body ??= _ident
   return rec => ::
-    rec[1] &&= encode_body(bkc_arrbuf(rec[1]))
+    rec[1] &&= encode_body(bkc_arrbuf(rec[1]), rec)
     let res = bkc_xform_fn(rec, _rec_set_key) ?? rec
     if res.then :: throw new TypeError()
     return res

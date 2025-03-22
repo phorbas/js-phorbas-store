@@ -1,7 +1,7 @@
 import { bkc_arrbuf, bkc_batch_stream  } from '../core.jsy'
 import { _bkc_storage_mixin_ } from '../abstract/bkc_abstract.jsy'
 import { _bkc_xform_mixin_, _bkc_xform_with } from './bkc_xform.jsy'
-import { _decode_key_batch } from './_xform_utils.jsy'
+import { _decode_key_batch, _bind_fetch_xform } from './_xform_utils.jsy'
 
 export * from '../core.jsy'
 
@@ -28,11 +28,7 @@ export const _bkc_xform_stream_mixin_ = @{}
       yield _decode_key_batch(batch)
 
   async * bkc_stream_fetch(key_aiter, kw) ::
-    let _xf_decode_body = this._xf_decode_body
-    let xform = kw?.xform, _xf_xform=xform ?? _xf_decode_body
-    if _xf_decode_body && xform ::
-      _xf_xform = body => xform @ _xf_decode_body(body)
-
+    let _xf_xform = _bind_fetch_xform(kw?.xform, this._xf_decode_body)
     kw = {... kw, xform: null}
 
     key_aiter = bkc_batch_stream(key_aiter, this._xf_record, kw)
