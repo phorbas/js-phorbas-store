@@ -114,8 +114,8 @@ export async function validate_bkc_stream_batch_xform(_stg_, opt={}) ::
         expect(tuple[0]).equal(pair[0])
 
         // validate xform happened
-        expect(tuple[1]).to.be.an('array').lengthOf(2)
-        expect(tuple[1][0]).equal(sym_test)
+        expect(tuple[1], "stream xform incorrect").to.be.an('array').lengthOf(2)
+        expect(tuple[1][0], "stream xform incorrect").equal(sym_test)
 
         let test_body = body_by_key.get(tuple[0])
         expect @ new Uint8Array @ tuple[1][1]
