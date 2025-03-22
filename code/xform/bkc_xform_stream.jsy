@@ -1,10 +1,10 @@
 import { bkc_storage_verify } from '../core.jsy'
 import { bkc_multi_stream } from './bkc_multi_stream.jsy'
 
-export * from './bkc_multi_stream.jsy'
+export * from '../core.jsy'
 
 export async function bkc_xform_stream(stg_tgt, opt={}) ::
-  opt = @{} ...opt, stg_tgt: await bkc_storage_verify(stg_tgt)
+  opt = @{} ...opt, stg_tgt: stg_tgt && await bkc_storage_verify(stg_tgt)
   return bkc_multi_stream(opt)
 
 export default bkc_xform_stream

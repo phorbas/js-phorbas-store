@@ -43,13 +43,8 @@ export const _bkc_multi_stream_mixin_ = @{}
         yield _decode_key_batch(batch)
 
   async * bkc_stream_fetch(hexkey_aiter, kw) ::
-    ::
-      let xform = kw?.xform, _xf_decode_body = this._xf_decode_body
-      var _xf_xform = xform && _xf_decode_body
-        ? body => xform(_xf_decode_body(body))
-        : xform || _xf_decode_body
-
-      kw = {... kw, xform: null}
+    let _xf_xform = kw?.xform, _xf_decode_body = this._xf_decode_body
+    kw = {... kw, xform: null}
 
     for await let multi_batch of bkc_batch_stream(hexkey_aiter, this._xf_lookup, kw) ::
       if kw?.signal?.aborted :: return
@@ -62,8 +57,9 @@ export const _bkc_multi_stream_mixin_ = @{}
       for await let batch of this._multi_batch_merge(multi_batch, kw) ::
         if kw?.signal?.aborted :: return
 
-        if _xf_xform ::
-          for let rec of batch ::
+        for let rec of batch ::
+          rec[1] = _xf_decode_body(rec[1], rec)
+          if _xf_xform ::
             rec[1] = _xf_xform(rec[1])
 
         yield _decode_key_batch(batch)
