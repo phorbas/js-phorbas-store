@@ -27,3 +27,14 @@ export function _bkc_fetch_ans(buf, as_copy, xform) ::
   buf = _as_arrbuf(buf, as_copy)
   return xform ? Promise.resolve(buf).then(xform) : buf
 
+
+export const bkc_rec_tools = @{}
+  key: rec => rec[0]
+  orig_key: rec => rec[2] ?? rec[0]
+  body: rec => rec[1]
+  stg: rec => rec.stg
+
+  set_key(rec, key) ::
+    rec[2] ??= rec[0] //lazy capture original key
+    rec[0] = key
+

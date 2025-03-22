@@ -1,13 +1,10 @@
-import { bkc_arrbuf } from '../core.jsy'
+import { bkc_arrbuf, bkc_rec_tools } from '../core.jsy'
 import { _bkc_storage_ } from '../abstract/bkc_abstract_single.jsy'
-import { _ident, _rec_set_key } from './_xform_utils.jsy'
 
 export * from '../core.jsy'
 
 let _bkc_multi_lite
 export function bkc_multi(opt={}) ::
-  if 'function' === typeof opt :: opt = {bkc_lookup: opt}
-
   _bkc_multi_lite ??= _bkc_storage_.with(_bkc_multi_mixin_)
   return _bkc_multi_with(_bkc_multi_lite, opt)
 
@@ -15,19 +12,22 @@ export default bkc_multi
 
 
 export async function _bkc_multi_with(_bkc_multi_, opt) ::
+  if 'function' === typeof opt :: opt = {bkc_lookup: opt}
+
   return _bkc_multi_.with @:
     bkc_opt: @{} proxy: true
     _xf_decode_body: opt.decode_body
     _xf_lookup: _bkc_multi_lookup(opt.bkc_lookup, opt.encode_body, opt.stg_tgt)
 
 
-export function _bkc_multi_lookup(bkc_lookup_fn, encode_body, stg_tgt) ::
-  if ! bkc_lookup_fn?.call :: throw new TypeError()
-  encode_body ??= _ident
-  bkc_lookup_fn ??= () => stg_tgt
+export function _bkc_multi_lookup(bkc_lookup_fn, _xf_encode_body, stg_default) ::
   return rec => ::
-    rec.stg = bkc_lookup_fn(rec, _rec_set_key)
-    rec[1] &&= encode_body(bkc_arrbuf(rec[1]), rec)
+    rec.stg = stg_default
+    rec.stg = bkc_lookup_fn?.(rec, bkc_rec_tools) ?? rec.stg
+    if rec[1] ::
+      rec[1] = bkc_arrbuf(rec[1])
+      if _xf_encode_body ::
+        rec[1] = _xf_encode_body(rec[1], rec)
     return rec
 
 
@@ -43,6 +43,6 @@ export const _bkc_multi_mixin_ = @{}
   async bkc_fetch(key, kw) ::
     let rec = this._xf_lookup([key])
     let body = (await rec.stg).bkc_fetch(rec[0], kw)
-    let xform = this._xf_decode_body
-    return xform ? xform(body) : body
+    let _xf_xform = this._xf_decode_body
+    return _xf_xform ? _xf_xform(body) : body
 

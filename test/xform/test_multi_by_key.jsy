@@ -22,13 +22,11 @@ function _check_by_key_simplistic() ::
 
 async function mock_key_prefix(stg_tgt, lut_keys, mock_opt) ::
   lut_keys = @[] ... lut_keys
-  mock_opt = @{} sep: '/', bkc_xform: bkc_xform_stream, ...mock_opt
 
-  return mock_opt.bkc_xform @ stg_tgt, @{}
-    bkc_xform(rec, set_key) ::
+  return bkc_xform_stream @ stg_tgt, @{}
+    bkc_lookup(rec, rec_api) ::
       let key = rec[0]
-      set_key @ rec, `${lut_keys[key.charCodeAt(0) % lut_keys.length]}${mock_opt.sep}${key}`
-      return rec
+      rec_api.set_key @ rec, `${lut_keys[key.charCodeAt(0) % lut_keys.length]}${mock_opt?.sep || '/'}${key}`
 
 
 
@@ -42,10 +40,10 @@ async function bkc_neato(stg_by_key, opt={}) ::
       : [key.slice(0,idx), key.slice(idx+sep.length)]
 
   return bkc_multi_stream @:
-    bkc_lookup(rec, set_key) ::
+    bkc_lookup(rec, rec_api) ::
       let [stg_key, key] = split_key(rec[0])
       let stg_tgt = stg_by_key.get(stg_key)
-      set_key(rec, key + ' @ ' + stg_key)
+      rec_api.set_key(rec, key + ' @ ' + stg_key)
       return stg_tgt
 
 

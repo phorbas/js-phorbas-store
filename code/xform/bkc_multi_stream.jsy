@@ -1,18 +1,16 @@
 import { bkc_arrbuf, bkc_batch_stream  } from '../core.jsy'
 import { _bkc_storage_mixin_ } from '../abstract/bkc_abstract.jsy'
 import { _bkc_multi_mixin_, _bkc_multi_with } from './bkc_multi.jsy'
-import { _decode_key_batch, _bind_fetch_xform } from './_xform_utils.jsy'
 
 export * from '../core.jsy'
 
 let _bkc_multi_stream_
 export function bkc_multi_stream(opt={}) ::
-  if 'function' === typeof opt :: opt = {bkc_lookup: opt}
-
   _bkc_multi_stream_ ??= _bkc_storage_mixin_.with(_bkc_multi_stream_mixin_)
   return _bkc_multi_with(_bkc_multi_stream_, opt)
 
 export default bkc_multi_stream
+
 
 const _by_stg = o => o.stg
 export const _bkc_multi_stream_mixin_ = @{}
@@ -45,8 +43,13 @@ export const _bkc_multi_stream_mixin_ = @{}
         yield _decode_key_batch(batch)
 
   async * bkc_stream_fetch(hexkey_aiter, kw) ::
-    let _xf_xform = _bind_fetch_xform(kw?.xform, this._xf_decode_body)
-    kw = {... kw, xform: null}
+    ::
+      let xform = kw?.xform, _xf_decode_body = this._xf_decode_body
+      var _xf_xform = xform && _xf_decode_body
+        ? body => xform(_xf_decode_body(body))
+        : xform || _xf_decode_body
+
+      kw = {... kw, xform: null}
 
     for await let multi_batch of bkc_batch_stream(hexkey_aiter, this._xf_lookup, kw) ::
       if kw?.signal?.aborted :: return
@@ -66,6 +69,16 @@ export const _bkc_multi_stream_mixin_ = @{}
         yield _decode_key_batch(batch)
 
   async * _multi_batch_merge(multi_streams, kw) ::
+    const signal = kw?.signal
     for let batch_stream of multi_streams ::
-      yield * (await batch_stream)
+      yield * await batch_stream
+      if signal?.aborted :: return
+
+
+function _decode_key_batch(batch) ::
+  for let rec of batch ::
+    if rec.length > 2 ::
+      rec[0] = rec[2]
+      rec.length = 2
+  return batch
 

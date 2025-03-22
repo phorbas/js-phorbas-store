@@ -1,54 +1,11 @@
-import { bkc_arrbuf, bkc_storage_verify } from '../core.jsy'
-import { _bkc_storage_ } from '../abstract/bkc_abstract_single.jsy'
-import { _ident, _rec_set_key } from './_xform_utils.jsy'
+import { bkc_storage_verify } from '../core.jsy'
+import { bkc_multi } from './bkc_multi.jsy'
 
-export * from '../core.jsy'
+export * from './bkc_multi.jsy'
 
-let _bkc_xform_lite_
-export function bkc_with_xform(stg_tgt, opt={}) ::
-  if 'function' === typeof opt :: opt = {bkc_xform: opt}
-
-  _bkc_xform_lite_ ??= _bkc_storage_.with(_bkc_xform_mixin_)
-  return _bkc_xform_with(_bkc_xform_lite_, stg_tgt, opt)
+export async function bkc_with_xform(stg_tgt, opt={}) ::
+  opt = @{} ...opt, stg_tgt: await bkc_storage_verify(stg_tgt)
+  return bkc_multi(opt)
 
 export default bkc_with_xform
-
-
-export async function _bkc_xform_with(_bkc_mixin_, stg_tgt, opt) ::
-  stg_tgt = await bkc_storage_verify(stg_tgt)
-  return _bkc_mixin_.with @:
-    stg_tgt
-
-    get bkc_opt() :: return @{}
-      ... this.stg_tgt.bkc_opt
-      proxy: true
-
-    _xf_record: _bkc_xform_record(opt.bkc_xform, opt.encode_body)
-    _xf_decode_body: opt.decode_body
-
-
-export function _bkc_xform_record(bkc_xform_fn, encode_body) ::
-  bkc_xform_fn ??= _ident
-  encode_body ??= _ident
-  return rec => ::
-    rec[1] &&= encode_body(bkc_arrbuf(rec[1]), rec)
-    let res = bkc_xform_fn(rec, _rec_set_key) ?? rec
-    if res.then :: throw new TypeError()
-    return res
-
-
-export const _bkc_xform_mixin_ = @{}
-  async bkc_store(key, body, kw) ::
-    [key, body] = this._xf_record([key, body])
-    return this.stg_tgt.bkc_store(key, body, kw)
-
-  async bkc_exists(key, kw) ::
-    [key] = this._xf_record([key])
-    return this.stg_tgt.bkc_exists(key, kw)
-
-  async bkc_fetch(key, kw) ::
-    [key] = this._xf_record([key])
-    let body = this.stg_tgt.bkc_fetch(key, kw)
-    let xform = this._xf_decode_body
-    return xform ? xform(body) : body
 

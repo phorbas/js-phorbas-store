@@ -18,13 +18,11 @@ test_bdd.describe @ 'bkc xform variants', @::>
     validate_backend @ test_bdd, 'xform noop', @{}
       bkc_create: () =>
         bkc_xform_variant @ bkc_with_js_map(), @{}
-          bkc_xform(rec) :: return rec
-
+          bkc_lookup(rec) ::
 
     const _test_xform_keys_prefix = @{}
-      bkc_xform(rec, set_key) ::
-        set_key(rec, 'xform-'+rec[0])
-        return rec
+      bkc_lookup(rec, rec_api) ::
+        rec_api.set_key(rec, 'xform-'+rec[0])
 
     validate_backend @ test_bdd, 'xform key prefix',
       () => bkc_xform_variant @ bkc_with_js_map(), @{}
