@@ -17,8 +17,9 @@ export const _bkc_storage_ = @{}
     return yield * bkc_batch_stream(hexkey_aiter, _bkc_exists, kw)
 
   async * bkc_stream_fetch(hexkey_aiter, kw) ::
+    let _xf_xform = kw?.xform
     let _bkc_fetch = this._bkc_record @
-      ([hexkey]) => this.bkc_fetch(hexkey, kw).then(kw?.xform)
+      ([hexkey]) => this.bkc_fetch(hexkey, kw).then(_xf_xform)
 
     return yield * bkc_batch_stream(hexkey_aiter, _bkc_fetch, kw)
 

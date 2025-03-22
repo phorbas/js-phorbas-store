@@ -3,16 +3,18 @@ import {_bkc_storage_mixin_} from './bkc_abstract.jsy'
 export const _bkc_stream_storage_ = @{}
   ... _bkc_storage_mixin_
 
+  async bkc_store(hexkey, body, kw) ::
+    for await let [rec] of this.bkc_stream_store([[hexkey, body]], kw) ::
+      return rec[1]
+
   async bkc_exists(hexkey, kw) ::
     for await let [rec] of this.bkc_stream_exists([[hexkey]], kw) ::
       return rec[1]
     return 0
 
   async bkc_fetch(hexkey, kw) ::
+    let _xf_xform = kw?.xform
     for await let [rec] of this.bkc_stream_fetch([[hexkey]], kw) ::
-      return rec[1]
-
-  async bkc_store(hexkey, body, kw) ::
-    for await let [rec] of this.bkc_stream_store([[hexkey, body]], kw) ::
+      if _xf_xform :: rec[1] = _xf_xform(rec[1])
       return rec[1]
 

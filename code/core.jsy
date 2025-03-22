@@ -35,6 +35,7 @@ export const bkc_rec_tools = @{}
   stg: rec => rec.stg
 
   set_key(rec, key) ::
-    rec[2] ??= rec[0] //lazy capture original key
-    rec[0] = key
+    if key ::
+      rec[2] ??= rec[0] //lazy capture original key
+      rec[0] = key
 
