@@ -7,7 +7,7 @@ import {bkc_with_lmdb} from '@phorbas/store/esm/local/lmdb.js'
 
 import lmdb from 'node-lmdb'
 
-test_bdd.describe.only('bkc_with_lmdb Level package', async () => {
+test_bdd.describe('bkc_with_lmdb Level package', async () => {
   validate_backend(test_bdd, 'standard',
     async () => bkc_with_lmdb(await _lmdb_env(), {}) )
 
