@@ -23,9 +23,7 @@ export async function * bkc_batch_stream(aiter_batches, bkc_fn, kw) ::
       if bkc_fn :: batch = batch.map(bkc_fn)
       yield batch
 
-export function _bkc_fetch_ans(buf, as_copy, xform) ::
-  buf = _as_arrbuf(buf, as_copy)
-  return xform ? Promise.resolve(buf).then(xform) : buf
+export const _bkc_fetch_ans = (buf, as_copy) => _as_arrbuf(buf, as_copy)
 
 
 export const bkc_rec_tools = @{}

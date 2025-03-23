@@ -65,7 +65,6 @@ export function validate_backend(test_bdd, backend_name, opt) ::
 
       it @ 'stream with async iteration', () => check_aiter.validate_bkc_stream(_stg_)
       it @ 'stream with async batch', () => check_aiter.validate_bkc_stream_batch(_stg_)
-      it @ 'stream with async fetch with xform', () => check_aiter.validate_bkc_stream_batch_xform(_stg_)
       it @ 'stream with abort signal', () => check_aiter.validate_bkc_stream_batch_abort(_stg_)
 
 

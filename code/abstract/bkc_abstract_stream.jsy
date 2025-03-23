@@ -13,8 +13,6 @@ export const _bkc_stream_storage_ = @{}
     return 0
 
   async bkc_fetch(hexkey, kw) ::
-    let _xf_xform = kw?.xform
     for await let [rec] of this.bkc_stream_fetch([[hexkey]], kw) ::
-      if _xf_xform :: rec[1] = _xf_xform(rec[1])
       return rec[1]
 

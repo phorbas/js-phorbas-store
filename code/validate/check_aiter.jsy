@@ -78,57 +78,6 @@ export async function validate_bkc_stream_batch(_stg_, opt={}) ::
         expect(tuple[1]).to.equal(1)
 
 
-export async function validate_bkc_stream_batch_xform(_stg_, opt={}) ::
-  let test_key_list = _rand_hexkey_batch(opt.count ?? 5)
-  let test_body_list = test_key_list.map(_hexkey_with_rand_body(opt.rand_width ?? 32))
-
-  :: // bkc_stream_store() batches of bkc_pair works with Promise.all
-    let ans_stream_store = _stg_.bkc_stream_store(test_body_list)
-    for await let batch of ans_stream_store ::
-      for await let rec of batch ::
-
-  :: // bkc_stream_exists()
-    let ans_stream_exists = _stg_.bkc_stream_exists(test_key_list)
-    for await let batch of ans_stream_exists ::
-      for await let [hk, entry_exists] of batch ::
-        expect(hk).to.be.a.string
-        expect(test_key_list.includes(hk)).to.be.true
-        expect(await entry_exists).to.equal(1)
-
-  :: // xform with bkc_stream_fetch() batches of bkc_pair works with Promise.all
-    let sym_test = Symbol('validate bkc_stream_fetch xform')
-    let ans_stream_fetch = _stg_.bkc_stream_fetch @ test_key_list, @{}
-      xform: async buf => [sym_test, await buf]
-
-    let body_by_key = new Map(test_body_list)
-
-    for await let batch_result of ans_stream_fetch ::
-
-      for let rec of batch_result ::
-        expect(rec).to.be.an.instanceOf(Array).lengthOf(2)
-        expect(rec[0]).to.be.a.string
-        expect(rec.then, 'bkc_stream_fetch rec.then').to.be.a('function')
-
-        let tuple = await rec.then()
-        expect(tuple[0]).to.be.a.string
-        expect(tuple[0]).equal(rec[0])
-
-        // validate xform happened
-        expect(tuple[1], "stream xform incorrect").to.be.an('array').lengthOf(2)
-        expect(tuple[1][0], "stream xform incorrect").equal(sym_test)
-
-        let test_body = body_by_key.get(tuple[0])
-        expect @ new Uint8Array @ tuple[1][1]
-        .to.deep.equal @ test_body
-
-      // check that Promise.all works with batch_results
-      for let tuple of await Promise.all(batch_result) ::
-        expect(tuple[0]).to.be.a.string
-
-        let test_body = body_by_key.get(tuple[0])
-        expect @ new Uint8Array @ tuple[1][1]
-        .to.deep.equal @ test_body
-
 
 export async function validate_bkc_stream_batch_abort(_stg_, opt={}) ::
   let test_key_list = _rand_hexkey_batch(opt.count ?? 2)

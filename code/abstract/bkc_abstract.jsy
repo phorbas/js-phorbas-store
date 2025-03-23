@@ -6,7 +6,7 @@ export const _bkc_storage_mixin_ = @{}
 
   //async * bkc_stream_store(hexkey_body_aiter, {signal}) ::
   //async * bkc_stream_exists(hexkey_aiter, {signal}) ::
-  //async * bkc_stream_fetch(hexkey_aiter, {signal, xform}) ::
+  //async * bkc_stream_fetch(hexkey_aiter, {signal}) ::
 
   _bkc_record(fn_record_op) ::
     return rec => ::

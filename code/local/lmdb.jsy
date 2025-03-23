@@ -36,7 +36,7 @@ export async function bkc_with_lmdb(lmdb_env, opt) ::
         let _txn = lmdb_env.beginTxn()
         for let rec of batch ::
           let buf = _txn.getBinary(dbi, rec[0]) ?? void 0
-          rec[1] = _bkc_fetch_ans(buf, false, kw?.xform)
+          rec[1] = _bkc_fetch_ans(buf, false)
 
         await _txn.commit()
         yield batch

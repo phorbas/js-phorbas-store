@@ -47,8 +47,7 @@ export const _bkc_multi_stream_mixin_ = @{}
         yield _decode_key_batch(batch, remap)
 
   async * bkc_stream_fetch(hexkey_aiter, kw) ::
-    let _xf_xform = kw?.xform, _xf_decode_body = this._xf_decode_body
-    kw = {... kw, xform: null}
+    let _xf_decode_body = this._xf_decode_body
 
     const _bkc_rec = this._bkc_record()
     for await let multi_batch of bkc_batch_stream(hexkey_aiter, _bkc_rec, kw) ::
@@ -73,9 +72,7 @@ export const _bkc_multi_stream_mixin_ = @{}
 
       function _reunite([key, body]) ::
         let rec = by_key.get(key)
-        body = _xf_decode_body(body, rec)
-        if _xf_xform :: body = _xf_xform(body)
-        rec[1] = body
+        rec[1] = _xf_decode_body(body, rec)
         return rec
 
   async * _multi_batch_merge(multi_streams, kw) ::

@@ -55,7 +55,7 @@ const _bkc_indexdb_proto_ = _bkc_stream_storage_.with @:
       await txn_done
 
       for const rec of batch ::
-        rec[1] = _bkc_fetch_ans(rec[1].result, false, kw?.xform)
+        rec[1] = _bkc_fetch_ans(rec[1].result, false)
 
       yield batch
 
