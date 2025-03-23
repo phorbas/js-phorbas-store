@@ -1,0 +1,44 @@
+import * as test_bdd from '#test_bdd'
+import {expect} from 'chai'
+
+import {validate_backend} from '@phorbas/store/esm/validate_backend.js'
+import {bkc_with_js_map} from '@phorbas/store'
+import {bkc_with_opaque, bkc_xform_stream} from '@phorbas/store/esm/xform/index.js'
+
+import {opaque_basic, opaque_tahoe} from '@phorbas/opaque'
+
+
+async function mock_inject_opaque_key({opaque, mock_tgt, key_mode}) ::
+  const _as_rec_key = opaque.as_rec_key ??
+    @{}
+      tuple: okey => okey.hk21()
+      hk1: okey => okey[1]
+    [key_mode ?? 'hk1']
+
+  // Inject mock opaque key transform
+  return bkc_xform_stream @ mock_tgt, @{}
+    bkc_lookup(rec, rec_api) ::
+      let hexkey = rec[0]
+      let okey = opaque.from_content(hexkey)
+      rec_api.set_key @ rec, okey.then(_as_rec_key)
+
+
+test_bdd.describe @ 'bkc with opaque variants', @::
+  const test_matrix = @[]
+    _with_opaque_test @: key_mode: 'hk1', opaque_basic
+    _with_opaque_test @: key_mode: 'tuple', opaque_basic
+    _with_opaque_test @: key_mode: 'hk1', opaque_tahoe
+    _with_opaque_test @: key_mode: 'tuple', opaque_tahoe
+
+  for let {key_mode, opaque_name, opaque} of test_matrix ::
+    validate_backend @ test_bdd, `bkc with ${opaque_name} and key_mode: "${key_mode}"`,
+      () => mock_inject_opaque_key @:
+          key_mode, opaque,
+          mock_tgt: bkc_with_opaque @:
+            opaque, stg_tgt: bkc_with_js_map()
+
+
+function _with_opaque_test({key_mode, ... by_name}) ::
+  let [[opaque_name, opaque]] = Object.entries(by_name)
+  return @{} key_mode, opaque_name, opaque
+

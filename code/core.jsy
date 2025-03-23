@@ -29,13 +29,15 @@ export function _bkc_fetch_ans(buf, as_copy, xform) ::
 
 
 export const bkc_rec_tools = @{}
+  with_ctx(ctx) :: return {__proto__: this, ...ctx}
+
   key: rec => rec[0]
-  orig_key: rec => rec[2] ?? rec[0]
+  orig_key: rec => rec.orig ?? rec[0]
   body: rec => rec[1]
   stg: rec => rec.stg
 
   set_key(rec, key) ::
-    if key ::
-      rec[2] ??= rec[0] //lazy capture original key
-      rec[0] = key
+    let orig = rec.orig ??= rec[0]
+    this.remap?.set(orig, key)
+    rec[0] = key
 

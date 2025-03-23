@@ -4,4 +4,5 @@ export * from './bkc_multi_path.jsy'
 
 export * from './bkc_xform.jsy'
 export * from './bkc_xform_stream.jsy'
+export * from './bkc_with_opaque.jsy'
 

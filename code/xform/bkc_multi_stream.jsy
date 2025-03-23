@@ -17,52 +17,66 @@ export const _bkc_multi_stream_mixin_ = @{}
   ... _bkc_multi_mixin_
 
   async * bkc_stream_store(hexkey_body_aiter, kw) ::
-    for await let multi_batch of bkc_batch_stream(hexkey_body_aiter, this._xf_lookup, kw) ::
+    const _bkc_rec = this._bkc_record()
+    for await let multi_batch of bkc_batch_stream(hexkey_body_aiter, _bkc_rec, kw) ::
+      const remap = new Map(), _xf_lookup = this._xf_lookup(null, {remap})
+      await _encode_multi_batch @ multi_batch.map(_xf_lookup)
       if kw?.signal?.aborted :: return
 
       // parallel query by storage backend
       multi_batch = Array.from @ Map.groupBy(multi_batch, _by_stg),
-        async ([stg, stg_batch]) =>
-          (await stg).bkc_stream_store(stg_batch, kw)
+        ([stg, stg_batch]) => stg.bkc_stream_store(stg_batch, kw)
 
       for await let batch of this._multi_batch_merge(multi_batch, kw) ::
         if kw?.signal?.aborted :: return
-        yield _decode_key_batch(batch)
+        yield _decode_key_batch(batch, remap)
 
   async * bkc_stream_exists(hexkey_aiter, kw) ::
-    for await let multi_batch of bkc_batch_stream(hexkey_aiter, this._xf_lookup, kw) ::
+    const _bkc_rec = this._bkc_record()
+    for await let multi_batch of bkc_batch_stream(hexkey_aiter, _bkc_rec, kw) ::
+      const remap = new Map(), _xf_lookup = this._xf_lookup(null, {remap})
+      await _encode_multi_batch @ multi_batch.map(_xf_lookup)
       if kw?.signal?.aborted :: return
 
       // parallel query by storage backend
       multi_batch = Array.from @ Map.groupBy(multi_batch, _by_stg),
-        async ([stg, stg_batch]) =>
-          (await stg).bkc_stream_exists(stg_batch, kw)
+        ([stg, stg_batch]) => stg.bkc_stream_exists(stg_batch, kw)
 
       for await let batch of this._multi_batch_merge(multi_batch, kw) ::
         if kw?.signal?.aborted :: return
-        yield _decode_key_batch(batch)
+        yield _decode_key_batch(batch, remap)
 
   async * bkc_stream_fetch(hexkey_aiter, kw) ::
     let _xf_xform = kw?.xform, _xf_decode_body = this._xf_decode_body
     kw = {... kw, xform: null}
 
-    for await let multi_batch of bkc_batch_stream(hexkey_aiter, this._xf_lookup, kw) ::
+    const _bkc_rec = this._bkc_record()
+    for await let multi_batch of bkc_batch_stream(hexkey_aiter, _bkc_rec, kw) ::
+      const remap = new Map(), _xf_lookup = this._xf_lookup(null, {remap})
+      await _encode_multi_batch @ multi_batch.map(_xf_lookup)
       if kw?.signal?.aborted :: return
 
       // parallel query by storage backend
-      multi_batch = Array.from @ Map.groupBy(multi_batch, _by_stg),
-        async ([stg, stg_batch]) =>
-          (await stg).bkc_stream_fetch(stg_batch, kw)
+      multi_batch = Array.from @ Map.groupBy(multi_batch, _by_stg), _stream_fetch
 
       for await let batch of this._multi_batch_merge(multi_batch, kw) ::
         if kw?.signal?.aborted :: return
+        yield _decode_key_batch(batch, remap)
 
-        for let rec of batch ::
-          rec[1] = _xf_decode_body(rec[1], rec)
-          if _xf_xform ::
-            rec[1] = _xf_xform(rec[1])
 
-        yield _decode_key_batch(batch)
+    async function * _stream_fetch([stg, stg_batch]) ::
+      let by_key = new Map()
+      for let rec of stg_batch :: by_key.set(rec[0], rec)
+
+      for await let batch of stg.bkc_stream_fetch(stg_batch, kw) ::
+        yield batch.map(_reunite)
+
+      function _reunite([key, body]) ::
+        let rec = by_key.get(key)
+        body = _xf_decode_body(body, rec)
+        if _xf_xform :: body = _xf_xform(body)
+        rec[1] = body
+        return rec
 
   async * _multi_batch_merge(multi_streams, kw) ::
     const signal = kw?.signal
@@ -71,10 +85,22 @@ export const _bkc_multi_stream_mixin_ = @{}
       if signal?.aborted :: return
 
 
-function _decode_key_batch(batch) ::
+async function _encode_multi_batch(multi_batch) ::
+  for let idx in multi_batch ::
+    let rec = multi_batch[idx]
+    // only await thenables
+    if rec.then :: multi_batch[idx] = await rec
+
+async function _decode_key_batch(batch, remap) ::
+  let rev = new Map()
+  for let [orig, key] of remap ::
+    if key?.then :: key = await key
+    rev.set(key, orig)
+
   for let rec of batch ::
-    if rec.length > 2 ::
-      rec[0] = rec[2]
-      rec.length = 2
+    let rk = rev.get(rec[0])
+    if undefined !== rk ::
+      rec[0] = rk.then ? await rk : rk
+
   return batch
 

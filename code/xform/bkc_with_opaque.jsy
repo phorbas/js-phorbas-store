@@ -1,0 +1,39 @@
+import { bkc_multi_stream } from './bkc_multi_stream.jsy'
+
+export * from '../core.jsy'
+
+export async function bkc_with_opaque(opt) ::
+  let opaque = await opt.opaque
+  let as_okey = key => opaque.from_hk21(key)
+  return bkc_multi_stream(_bkc_opaque_codec(as_okey, opt))
+
+
+
+const _get_hk2 = hk21 => hk21[0]
+export function _bkc_opaque_codec(as_okey, _proto_) ::
+  return @{}
+    __proto__: _proto_
+
+    bkc_lookup(rec, rec_api) ::
+      rec.okey ??= as_okey(rec[0])
+      rec_api.set_key(rec, rec.okey.then(_get_hk2))
+
+    async encode_body(body, rec) ::
+      if ! rec.okey :: throw new Error()
+
+      body = await body
+      if body?.byteLength ::
+        let okey = rec.okey = await rec.okey
+        body = okey.encode_body?.(body) ?? okey.encipher?.(body) ?? body
+        return body
+
+    async decode_body(body, rec) ::
+      if ! rec.okey :: throw new Error()
+      body = await body
+      if body?.byteLength ::
+        let okey = await rec.okey
+        body = okey.decode_body?.(body) ?? okey.decipher?.(body) ?? body
+        return body
+
+export default bkc_with_opaque
+

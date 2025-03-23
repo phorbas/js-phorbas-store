@@ -42,8 +42,7 @@ function _check_multi_using(bkc_multi_variant) ::
       async bkc_create() ::
         let stg_tgt = bkc_with_js_map()
         return bkc_multi_variant @:
-          bkc_lookup(pair) ::
-            pair[2] = pair[0]
-            pair[0] = 'xform-'+pair[0]
+          bkc_lookup(rec, rec_api) ::
+            rec_api.set_key(rec, 'xform-'+rec[0])
             return stg_tgt
 
