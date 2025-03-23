@@ -1,5 +1,6 @@
 import './test_xform.jsy'
 import './test_multi.jsy'
 import './test_multi_by_key.jsy'
+import './test_channel.jsy'
 import './test_opaque.jsy'
 

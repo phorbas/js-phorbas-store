@@ -35,6 +35,8 @@ export const pkg_cfg_xform = pkg_phrobas_store_group('xform', {
     'code/xform/bkc_xform.jsy',
     'code/xform/bkc_xform_stream.jsy',
     'code/xform/bkc_with_opaque.jsy',
+
+    'code/xform/bkc_channel.jsy',
   ]})
 
 export const pkg_cfg_web = pkg_phrobas_store_group('web', {
