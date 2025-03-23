@@ -12,16 +12,16 @@ export async function validate_bkc_stream_batch(_stg_, opt={}) ::
 
     for await let batch_result of ans_stream_store ::
 
-      for let pair of batch_result ::
-        expect(pair).to.be.an.instanceOf(Array).lengthOf(2)
-        expect(pair[0]).to.be.a.string
-        expect(pair.then).to.be.a('function')
+      for let rec of batch_result ::
+        expect(rec).to.be.an.instanceOf(Array).lengthOf(2)
+        expect(rec[0]).to.be.a.string
+        expect(rec.then, 'bkc_stream_store rec.then').to.be.a('function')
 
-        let tuple = await pair.then()
+        let tuple = await rec.then()
         expect(tuple[0]).to.be.a.string
-        expect(tuple[0]).equal(pair[0])
+        expect(tuple[0]).equal(rec[0])
         expect(tuple[1]).to.be.null
-        expect(tuple[1]).to.equal(await pair[1])
+        expect(tuple[1]).to.equal(await rec[1])
 
       for let tuple of await Promise.all(batch_result) ::
         expect(tuple[0]).to.be.a.string
@@ -35,17 +35,17 @@ export async function validate_bkc_stream_batch(_stg_, opt={}) ::
 
     for await let batch_result of ans_stream_fetch ::
 
-      for let pair of batch_result ::
-        expect(pair).to.be.an.instanceOf(Array).lengthOf(2)
-        expect(pair[0]).to.be.a.string
-        expect(pair.then).to.be.a('function')
+      for let rec of batch_result ::
+        expect(rec).to.be.an.instanceOf(Array).lengthOf(2)
+        expect(rec[0]).to.be.a.string
+        expect(rec.then, 'bkc_stream_fetch rec.then').to.be.a('function')
 
-        let tuple = await pair.then()
+        let tuple = await rec.then()
         expect(tuple[0]).to.be.a.string
-        expect(tuple[0]).equal(pair[0])
+        expect(tuple[0]).equal(rec[0])
 
         expect @ new Uint8Array @ tuple[1]
-        .to.deep.equal @ new Uint8Array @ await pair[1]
+        .to.deep.equal @ new Uint8Array @ await rec[1]
         .to.deep.equal @ body_by_key.get(tuple[0])
 
 
@@ -62,16 +62,16 @@ export async function validate_bkc_stream_batch(_stg_, opt={}) ::
 
     for await let batch_result of ans_stream_exists ::
 
-      for let pair of batch_result ::
-        expect(pair).to.be.an.instanceOf(Array).lengthOf(2)
-        expect(pair[0]).to.be.a.string
-        expect(pair.then).to.be.a('function')
+      for let rec of batch_result ::
+        expect(rec).to.be.an.instanceOf(Array).lengthOf(2)
+        expect(rec[0]).to.be.a.string
+        expect(rec.then, 'bkc_stream_exists rec.then').to.be.a('function')
 
-        let tuple = await pair.then()
+        let tuple = await rec.then()
         expect(tuple[0]).to.be.a.string
-        expect(tuple[0]).equal(pair[0])
+        expect(tuple[0]).equal(rec[0])
         expect(tuple[1]).to.equal(1)
-        expect(tuple[1]).to.equal(await pair[1])
+        expect(tuple[1]).to.equal(await rec[1])
 
       for let tuple of await Promise.all(batch_result) ::
         expect(tuple[0]).to.be.a.string
@@ -85,7 +85,7 @@ export async function validate_bkc_stream_batch_xform(_stg_, opt={}) ::
   :: // bkc_stream_store() batches of bkc_pair works with Promise.all
     let ans_stream_store = _stg_.bkc_stream_store(test_body_list)
     for await let batch of ans_stream_store ::
-      for await let pair of batch ::
+      for await let rec of batch ::
 
   :: // bkc_stream_exists()
     let ans_stream_exists = _stg_.bkc_stream_exists(test_key_list)
@@ -104,14 +104,14 @@ export async function validate_bkc_stream_batch_xform(_stg_, opt={}) ::
 
     for await let batch_result of ans_stream_fetch ::
 
-      for let pair of batch_result ::
-        expect(pair).to.be.an.instanceOf(Array).lengthOf(2)
-        expect(pair[0]).to.be.a.string
-        expect(pair.then).to.be.a('function')
+      for let rec of batch_result ::
+        expect(rec).to.be.an.instanceOf(Array).lengthOf(2)
+        expect(rec[0]).to.be.a.string
+        expect(rec.then, 'bkc_stream_fetch rec.then').to.be.a('function')
 
-        let tuple = await pair.then()
+        let tuple = await rec.then()
         expect(tuple[0]).to.be.a.string
-        expect(tuple[0]).equal(pair[0])
+        expect(tuple[0]).equal(rec[0])
 
         // validate xform happened
         expect(tuple[1], "stream xform incorrect").to.be.an('array').lengthOf(2)
@@ -146,9 +146,9 @@ export async function validate_bkc_stream_batch_abort(_stg_, opt={}) ::
   ::
     let count=0, ac = new AbortController(), hexkey_aiter = testgen(true, ac)
     for await let batch of _stg_.bkc_stream_store(hexkey_aiter, {signal: ac.signal}) ::
-      for let pair of batch ::
-        expect(pair[0]).to.equal(test_key_list[count])
-        expect(await pair[1]).to.be.null
+      for let rec of batch ::
+        expect(rec[0]).to.equal(test_key_list[count])
+        expect(await rec[1]).to.be.null
 
       count++
     expect(count).to.be.oneOf([1,2])
@@ -156,9 +156,9 @@ export async function validate_bkc_stream_batch_abort(_stg_, opt={}) ::
   ::
     let count=0, ac = new AbortController(), hexkey_aiter = testgen(false, ac)
     for await let batch of _stg_.bkc_stream_exists(hexkey_aiter, {signal: ac.signal}) ::
-      for let pair of batch ::
-        expect(pair[0]).to.equal(test_key_list[count])
-        expect(await pair[1]).to.be.oneOf([0,1])
+      for let rec of batch ::
+        expect(rec[0]).to.equal(test_key_list[count])
+        expect(await rec[1]).to.be.oneOf([0,1])
 
       count++
     expect(count).to.be.oneOf([1,2])
@@ -166,10 +166,10 @@ export async function validate_bkc_stream_batch_abort(_stg_, opt={}) ::
   ::
     let count=0, ac = new AbortController(), hexkey_aiter = testgen(false, ac)
     for await let batch of _stg_.bkc_stream_fetch(hexkey_aiter, {signal: ac.signal}) ::
-      for let pair of batch ::
-        expect(pair[0]).to.equal(test_key_list[count])
-        expect(await pair[1]).to.be.an('ArrayBuffer')
-        expect(new Uint8Array(await pair[1]))
+      for let rec of batch ::
+        expect(rec[0]).to.equal(test_key_list[count])
+        expect(await rec[1]).to.be.an('ArrayBuffer')
+        expect(new Uint8Array(await rec[1]))
         .to.deep.equal(new Uint8Array(test_body_list[count][1]))
 
       count++
