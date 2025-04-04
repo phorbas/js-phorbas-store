@@ -4,7 +4,7 @@
   "type": "module",
   "dependencies": {
     "@vscode/sqlite3": "^5.0.8",
-    "knex": "^1.0.4"
+    "knex": "^2.4.0"
   },
   "scripts": {
     "prestart": "test -d ./node_modules || npm -s install",
