@@ -1,4 +1,4 @@
-# @phorbas/store integration tests for LevelDB backends
+# @phorbas/store integration tests
 
 ## Integration test using Docker
 

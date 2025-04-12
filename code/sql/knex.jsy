@@ -46,7 +46,7 @@ export async function bkc_with_knex(knex, opt={}) ::
         return _as_arrbuf(ans.bc)
 
     async bkc_store(hexkey, body) ::
-      body = new Uint8Array(await bkc_arrbuf(body))
+      body = new Buffer(await bkc_arrbuf(body))
 
       try ::
         await knex(table).insert({hk: hexkey, bc: body})
