@@ -1,0 +1,43 @@
+import { _as_arrbuf, bkc_arrbuf } from '../core.jsy'
+import { _bkc_storage_ } from '../abstract/bkc_abstract_single.jsy'
+
+export * from '../core.jsy'
+
+// For use with node:sqlite as of v23.11 or better-sqlite3
+export default bkc_better_sqlite
+export async function bkc_better_sqlite(db, opt={}) ::
+  const immutable = !! opt.immutable
+  const quoted_table = JSON.stringify('' + (opt.table || 'phorbas_kv'))
+  db.prepare(`CREATE TABLE IF NOT EXISTS ${quoted_table} ( "hk" TEXT PRIMARY KEY, "bc" BLOB );`)
+    .run()
+
+  const sql_has = db.prepare @ `SELECT 1 as r FROM ${quoted_table} WHERE "hk"=?`
+  const sql_get = db.prepare @ `SELECT "hk", "bc" FROM ${quoted_table} WHERE "hk"=?`
+  const sql_set = db.prepare @ `INSERT ${immutable ? '' : 'OR REPLACE'} INTO ${quoted_table} ("hk", "bc") VALUES (?, ?)`
+
+  return _bkc_storage_.with @:
+    bkc_opt: @{} immutable
+
+    async bkc_exists(hexkey) ::
+      let ans = await sql_has.get(hexkey)
+      return ans?.r ? 1 : 0
+
+    async bkc_fetch(hexkey) ::
+      let ans = await sql_get.get(hexkey)
+      if null != ans ::
+        return _as_arrbuf(ans.bc)
+
+    async bkc_store(hexkey, body) ::
+      body = new Uint8Array(await bkc_arrbuf(body))
+
+      try ::
+        await sql_set.run(hexkey, body)
+        return null
+      catch err ::
+        if immutable ::
+          if 'SQLITE_CONSTRAINT_PRIMARYKEY' === err.code ::
+            return false
+          if 'constraint failed' === err.errstr ::
+            return false
+        throw err
+

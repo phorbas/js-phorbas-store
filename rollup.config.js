@@ -89,6 +89,7 @@ export const pkg_cfg_nosql = pkg_phrobas_store_group('nosql', {
 export const pkg_cfg_sql = pkg_phrobas_store_group('sql', {
   input: [
     'code/sql/sqlite3.jsy',
+    'code/sql/better_sqlite3.jsy',
     'code/sql/knex.jsy',
     //'code/sql/cassandra.jsy',
   ]})
@@ -114,7 +115,7 @@ export default [
   pkg_cfg_local,
   pkg_cfg_adapter,
   // pkg_cfg_nosql,
-  // pkg_cfg_sql,
+  pkg_cfg_sql,
 
   pkg_test_cfg,
 ]

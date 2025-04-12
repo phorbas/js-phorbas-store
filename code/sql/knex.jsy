@@ -1,14 +1,15 @@
-import {bkc_hexkey_api, as_hex_key, as_u8_key} from '../_utils.jsy'
+import { _as_arrbuf, bkc_arrbuf } from '../core.jsy'
+import { _bkc_storage_ } from '../abstract/bkc_abstract_single.jsy'
 
-export {as_hex_key, as_u8_key}
+export * from '../core.jsy'
 
 export default bkc_with_knex
 export async function bkc_with_knex(knex, opt={}) ::
-  let immutable = !! opt.immutable
-  let table = opt.table || 'phorbas_kv'
+  const immutable = !! opt.immutable
+  const table = opt.table || 'phorbas_kv'
 
   if ! await knex.schema.hasTable(table) ::
-    await knex.schema.createTable @ table, @\ t ::
+    await knex.schema.createTable @ table, t => ::
       let {key_type, blob_type} = opt
 
       let col_key = key_type
@@ -24,41 +25,43 @@ export async function bkc_with_knex(knex, opt={}) ::
       col_bc.notNullable()
 
 
-  return bkc_hexkey_api @:
+  return _bkc_storage_.with @:
     bkc_opt: @{} immutable
 
-    async hk_has(hex_key) ::
+    async bkc_exists(hexkey) ::
       let ans = await knex(table)
         .select('hk')
-        .where('hk', hex_key)
+        .where('hk', hexkey)
         .first()
 
       return null != ans ? 1 : 0
 
-    async hk_get(hex_key) ::
+    async bkc_fetch(hexkey) ::
       let ans = await knex(table)
         .select('bc')
-        .where('hk', hex_key)
+        .where('hk', hexkey)
         .first()
 
       if null != ans ::
-        return Uint8Array.from(ans.bc)
+        return _as_arrbuf(ans.bc)
 
-    async hk_set(hex_key, u8_content) ::
-      let bc = u8_content
+    async bkc_store(hexkey, body) ::
+      body = new Uint8Array(await bkc_arrbuf(body))
 
       try ::
-        await knex(table).insert({hk: hex_key, bc})
+        await knex(table).insert({hk: hexkey, bc: body})
+        return null
       catch err ::
         if immutable ::
           // Note: better to ensure `err` is a constraint error, but
           // inconsistent error returns between backends
           return false
 
-        try ::
-          await knex(table)
-            .where({hk: hex_key})
-            .update({bc})
-        catch err2 ::
-          return err
+      try ::
+        await knex(table)
+          .where({hk: hexkey})
+          .update({bc: body})
+        return null
+      catch err ::
+        return err
 

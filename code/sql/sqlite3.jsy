@@ -1,42 +1,44 @@
-import {bkc_hexkey_api, as_hex_key, as_u8_key} from '../_utils.jsy'
+import { _as_arrbuf, bkc_arrbuf } from '../core.jsy'
+import { _bkc_storage_ } from '../abstract/bkc_abstract_single.jsy'
 
-export {as_hex_key, as_u8_key}
+export * from '../core.jsy'
 
 export default bkc_with_sqlite3
-export async function bkc_with_sqlite3(db, opt={}) ::
-  let immutable = !! opt.immutable
-  let table = opt.table || 'phorbas_kv'
+// for use with node-sqlite3
+export async function bkc_with_sqlite3(db, opt={}) :: const immutable = !! opt.immutable
+  const quoted_table = JSON.stringify('' + (opt.table || 'phorbas_kv'))
   ::
-    let sql_create = `CREATE TABLE IF NOT EXISTS "${table}" ( "hk" TEXT PRIMARY KEY, "bc" BLOB );`
+    let sql_create = `CREATE TABLE IF NOT EXISTS ${quoted_table} ( "hk" TEXT PRIMARY KEY, "bc" BLOB );`
     await new Promise @\ resolve, reject ::
       db.run @ sql_create, err => err ? reject(err) : resolve()
 
-  let sql_has = `SELECT 1 FROM "${table}" WHERE "hk"=?`
-  let sql_get = `SELECT "hk", "bc" FROM "${table}" WHERE "hk"=?`
-  let sql_set = `INSERT ${immutable ? '' : 'OR REPLACE'} INTO "${table}" ("hk", "bc") VALUES (?, ?)`
+  const sql_has = `SELECT 1 as "r" FROM ${quoted_table} WHERE "hk"=?`
+  const sql_get = `SELECT "hk", "bc" FROM ${quoted_table} WHERE "hk"=?`
+  const sql_set = `INSERT ${immutable ? '' : 'OR REPLACE'} INTO ${quoted_table} ("hk", "bc") VALUES (?, ?)`
 
-  return bkc_hexkey_api @:
+  return _bkc_storage_.with @:
     bkc_opt: @{} immutable
 
-    hk_has: hex_key =>
-      new Promise @\ resolve, reject ::
-        db.get @ sql_has, hex_key,
+    bkc_exists: (hexkey) =>
+      new Promise @\ resolve, reject ::>
+        db.get @ sql_has, hexkey,
           @\ err, ans ::
             if (err) return reject(err)
-            resolve(ans ? 1 : 0)
+            resolve(ans?.r ? 1 : 0)
 
-    hk_get: hex_key =>
-      new Promise @\ resolve, reject ::
-        db.get @ sql_get, hex_key,
+    bkc_fetch: (hexkey) =>
+      new Promise @\ resolve, reject ::>
+        db.get @ sql_get, hexkey,
           @\ err, ans ::
             if (err) return reject(err)
             resolve @ null == ans ? void ans
-              : Uint8Array.from(ans.bc)
+              : _as_arrbuf(ans.bc)
 
-    hk_set: @\ hex_key, u8_content =>
-      new Promise @\ resolve ::
-        db.run @ sql_set, hex_key, Buffer.from(u8_content),
-          err => !err ? resolve()
+    bkc_store: (hexkey, body) =>
+      new Promise @\ resolve ::>
+        body = new Uint8Array(await bkc_arrbuf(body))
+        db.run @ sql_set, hexkey, body,
+          err => !err ? resolve(null)
             : immutable && 19===err.errno ? resolve(false)
             : resolve(err)
 
