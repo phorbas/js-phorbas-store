@@ -4,17 +4,23 @@ services:
     image: mcr.microsoft.com/mssql/server:latest
     environment:
       ACCEPT_EULA: "Y"
-      SA_PASSWORD: integ_pass # for userid "sa"
+      SA_PASSWORD: int3g_Pass # for userid "sa"
+
+  mssql_2022:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: int3g_Pass # for userid "sa"
 
   mssql_2019:
     image: mcr.microsoft.com/mssql/server:2019-latest
     environment:
       ACCEPT_EULA: "Y"
-      SA_PASSWORD: integ_pass # for userid "sa"
+      SA_PASSWORD: int3g_Pass # for userid "sa"
 
   mssql_2017:
     image: mcr.microsoft.com/mssql/server:2017-latest
     environment:
       ACCEPT_EULA: "Y"
-      SA_PASSWORD: integ_pass # for userid "sa"
+      SA_PASSWORD: int3g_Pass # for userid "sa"
 
