@@ -2,14 +2,14 @@ import * as test_bdd from '#test_bdd'
 import {expect} from 'chai'
 
 import {validate_backend} from '@phorbas/store/esm/validate_backend.js'
-import {bkc_with_js_map} from '@phorbas/store'
-import {bkc_with_xform} from '@phorbas/store'
+import {bkc_js_map} from '@phorbas/store'
+import {bkc_xform} from '@phorbas/store'
 import {bkc_xform_stream} from '@phorbas/store/esm/xform/bkc_xform_stream.js'
 
 
 test_bdd.describe @ 'bkc xform variants', @::>
-  test_bdd.describe @ 'bkc_with_xform', @::>
-    _check_xform_using(bkc_with_xform)
+  test_bdd.describe @ 'bkc_xform', @::>
+    _check_xform_using(bkc_xform)
 
   test_bdd.describe @ 'bkc_xform_stream', @::>
     _check_xform_using(bkc_xform_stream)
@@ -17,7 +17,7 @@ test_bdd.describe @ 'bkc xform variants', @::>
   function _check_xform_using(bkc_xform_variant) ::
     validate_backend @ test_bdd, 'xform noop', @{}
       bkc_create: () =>
-        bkc_xform_variant @ bkc_with_js_map(), @{}
+        bkc_xform_variant @ bkc_js_map(), @{}
           bkc_lookup(rec) ::
 
     const _test_xform_keys_prefix = @{}
@@ -25,7 +25,7 @@ test_bdd.describe @ 'bkc xform variants', @::>
         rec_api.set_key(rec, 'xform-'+rec[0])
 
     validate_backend @ test_bdd, 'xform key prefix',
-      () => bkc_xform_variant @ bkc_with_js_map(), @{}
+      () => bkc_xform_variant @ bkc_js_map(), @{}
         ... _test_xform_keys_prefix
 
 
@@ -43,11 +43,11 @@ test_bdd.describe @ 'bkc xform variants', @::>
           return body.slice(4)
 
     validate_backend @ test_bdd, 'xform body prefix',
-      () => bkc_xform_variant @ bkc_with_js_map(), @{}
+      () => bkc_xform_variant @ bkc_js_map(), @{}
         ... _test_xform_body_prefix
 
     validate_backend @ test_bdd, 'xform key and body prefix',
-      () => bkc_xform_variant @ bkc_with_js_map(), @{}
+      () => bkc_xform_variant @ bkc_js_map(), @{}
         ... _test_xform_body_prefix
         ... _test_xform_keys_prefix
 

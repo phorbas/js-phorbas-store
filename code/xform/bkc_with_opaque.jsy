@@ -2,7 +2,7 @@ import { bkc_multi_stream } from './bkc_multi_stream.jsy'
 
 export * from '../core.jsy'
 
-export async function bkc_with_opaque(opt) ::
+export async function bkc_opaque(opt) ::
   let opaque = await opt.opaque
   let as_okey = key => opaque.from_hk21(key)
   return bkc_multi_stream(_bkc_opaque_codec(as_okey, opt))
@@ -35,5 +35,5 @@ export function _bkc_opaque_codec(as_okey, _proto_) ::
         body = okey.decode_body?.(body) ?? okey.decipher?.(body) ?? body
         return body
 
-export default bkc_with_opaque
+export default bkc_opaque
 

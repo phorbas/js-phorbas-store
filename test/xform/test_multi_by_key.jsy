@@ -2,14 +2,14 @@ import * as test_bdd from '#test_bdd'
 import {expect} from 'chai'
 
 import {validate_backend} from '@phorbas/store/esm/validate_backend.js'
-import {bkc_with_js_map} from '@phorbas/store'
+import {bkc_js_map} from '@phorbas/store'
 import {bkc_multi_stream, bkc_xform_stream, bkc_multi_path} from '@phorbas/store/esm/xform/index.js'
 
 
 
 async function mock_js_map() ::
   let mock_db = new Map()
-  let stg = await bkc_with_js_map(mock_db)
+  let stg = await bkc_js_map(mock_db)
   stg.mock_db = mock_db
   return stg
 

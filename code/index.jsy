@@ -3,7 +3,7 @@ export * from './abstract/bkc_abstract.jsy'
 export * from './abstract/bkc_abstract_single.jsy'
 export * from './abstract/bkc_abstract_stream.jsy'
 
-export {bkc_with_js_map} from './js_map.jsy'
+export {bkc_js_map, bkc_with_js_map} from './js_map.jsy'
 
 export * from './xform/bkc_multi.jsy'
 export * from './xform/bkc_xform.jsy'

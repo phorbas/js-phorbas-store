@@ -2,7 +2,7 @@ import * as test_bdd from '#test_bdd'
 import {expect} from 'chai'
 
 import {validate_backend} from '@phorbas/store/esm/validate_backend.js'
-import {bkc_with_js_map} from '@phorbas/store'
+import {bkc_js_map} from '@phorbas/store'
 import {bkc_multi} from '@phorbas/store'
 import {bkc_multi_stream} from '@phorbas/store/esm/xform/bkc_multi_stream.js'
 
@@ -20,7 +20,7 @@ function _check_multi_using(bkc_multi_variant) ::
     validate_backend @ test_bdd, 'with simple delegate', @{}
       // simple_stream: true
       async bkc_create() ::
-        let stg_tgt = bkc_with_js_map()
+        let stg_tgt = bkc_js_map()
         return bkc_multi_variant @ pair => stg_tgt
 
   if 1 ::
@@ -32,7 +32,7 @@ function _check_multi_using(bkc_multi_variant) ::
           bkc_lookup([key]) ::
             let stg_tgt = by_shard.get(key[0])
             if undefined === stg_tgt ::
-              stg_tgt = bkc_with_js_map()
+              stg_tgt = bkc_js_map()
               by_shard.set(key[0], stg_tgt)
 
             return stg_tgt
@@ -40,7 +40,7 @@ function _check_multi_using(bkc_multi_variant) ::
   if 1 ::
     validate_backend @ test_bdd, 'with delegate and key xform', @{}
       async bkc_create() ::
-        let stg_tgt = bkc_with_js_map()
+        let stg_tgt = bkc_js_map()
         return bkc_multi_variant @:
           bkc_lookup(rec, rec_api) ::
             rec_api.set_key(rec, 'xform-'+rec[0])

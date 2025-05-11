@@ -3,8 +3,7 @@ import { _bkc_storage_ } from './abstract/bkc_abstract_single.jsy'
 
 export * from './core.jsy'
 
-export default bkc_with_js_map
-export async function bkc_with_js_map(map_db, opt={}) ::
+export async function bkc_js_map(map_db, opt={}) ::
   const immutable = !! opt.immutable
   const as_copy = opt.as_copy ?? true // default to copy to prevent accidental mutation
 
@@ -27,3 +26,6 @@ export async function bkc_with_js_map(map_db, opt={}) ::
       map_db.set(hexkey, await bkc_arrbuf(body))
       return null
 
+export @{}
+  bkc_js_map as default
+  bkc_js_map as bkc_with_js_map

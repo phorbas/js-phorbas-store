@@ -3,9 +3,9 @@ import { bkc_multi } from './bkc_multi.jsy'
 
 export * from '../core.jsy'
 
-export async function bkc_with_xform(stg_tgt, opt={}) ::
+export async function bkc_xform(stg_tgt, opt={}) ::
   opt = @{} ...opt, stg_tgt: stg_tgt && await bkc_storage_verify(stg_tgt)
   return bkc_multi(opt)
 
-export default bkc_with_xform
+export default bkc_xform
 
