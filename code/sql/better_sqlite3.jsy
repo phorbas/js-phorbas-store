@@ -39,5 +39,5 @@ export async function bkc_better_sqlite(db, opt={}) ::
             return false
           if 'constraint failed' === err.errstr ::
             return false
-        throw err
+        return err
 

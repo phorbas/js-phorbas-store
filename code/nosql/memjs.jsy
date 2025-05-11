@@ -1,27 +1,35 @@
-import {bkc_hexkey_api, as_hex_key, as_u8_key} from '../_utils.jsy'
+import { _as_arrbuf, bkc_arrbuf } from '../core.jsy'
+import { _bkc_storage_ } from '../abstract/bkc_abstract_single.jsy'
 
-export {as_hex_key, as_u8_key}
+export * from '../core.jsy'
 
-export default bkc_with_memjs
-export async function bkc_with_memjs(memjs, opt={}) ::
-  let opt_path = '' + (opt.path || '')
+export default bkc_memjs
+export async function bkc_memjs(memjs, opt={}) ::
+  const immutable = !! opt.immutable
+  const opt_path = '' + (opt.path || '')
   if opt_path :: delete opt.path
-  return bkc_hexkey_api @:
 
-    async hk_has(hex_key) ::
-      const {value} = await memjs.get(opt_path + hex_key)
-      return null != value ? 1 : 0
+  return _bkc_storage_.with @:
+    bkc_opt: @{} immutable
 
-    async hk_get(hex_key) ::
-      const {value: buf} = await memjs.get(opt_path + hex_key)
+    async bkc_exists(hexkey) ::
+      let {value:buf} = await memjs.get(opt_path + hexkey)
+      return null != buf ? 1 : 0
+
+    async bkc_fetch(hexkey) ::
+      let {value:buf} = await memjs.get(opt_path + hexkey)
       if null != buf ::
-        return Uint8Array.from(buf)
+        return _as_arrbuf(buf)
 
-    async hk_set(hex_key, u8_content) ::
+    async bkc_store(hexkey, body) ::
+      if immutable ::
+        let {value:buf} = await memjs.get(opt_path + hexkey)
+        if null != buf :: return false
+
+      body = new Uint8Array(await bkc_arrbuf(body))
       try ::
-        await memjs.set(opt_path + hex_key,
-          Buffer.from(u8_content),
-          opt || {})
+        await memjs.set(opt_path + hexkey, body, opt)
+        return null
       catch err ::
         return err
 
