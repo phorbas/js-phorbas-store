@@ -38,11 +38,18 @@ export function _as_path_matcher(matcher) ::
     return key => key.split(matcher)
 
   if matcher.exec ::
+    if matcher.pathname ::
+      // use URLPattern pathname groups
+      matcher.baseURL ??= matcher.protocol+':/'
+      return key => ::
+        let m = matcher.exec(key, matcher.baseURL)
+        let g = m?.pathname?.groups
+        return g && [g.stg, g.key]
+
+    // use RegExp groups
     return key => ::
       let m = matcher.exec(key)
-      let g = matcher.pathname
-        ? m?.pathname?.groups // use URLPattern groups
-        : m?.groups // use regexp named groups
+      let g = m?.groups // use regexp named groups
       return g ? [g.stg, g.key]
         : m ? [m[1], m[2]]
         : null

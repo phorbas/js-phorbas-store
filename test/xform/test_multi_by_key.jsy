@@ -48,13 +48,15 @@ test_bdd.describe @ 'bkc multi by key', @::>
 
   if globalThis.URLPattern ::
     _check_by_matcher @
-      new URLPattern @: pathname: '/some/path_prefix/:stg/:key'
+      new URLPattern @:
+        pathname: '/some/path_prefix/:stg/:key'
+        protocol: 'bkc'
       @{} test_name: 'multi by URLPattern with pathname'
           sep:'/', prefix:_some_path_prefix
 
     _check_by_matcher @
-      new URLPattern('/some/path_prefix/:stg/:key', 'bkc://')
-      @{} test_name: 'multi by URLPattern with bkc:// prefix'
+      new URLPattern('/some/path_prefix/:stg/:key', 'bkc:/')
+      @{} test_name: 'multi by URLPattern with bkc:/ prefix'
           sep:'/', prefix:_some_path_prefix
 
 
