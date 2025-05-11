@@ -1,11 +1,11 @@
-import { bkc_multi_stream } from './bkc_multi_stream.jsy'
+import { bkc_multi } from './bkc_multi.jsy'
 
 export * from '../core.jsy'
 
 export async function bkc_opaque(opt) ::
   let opaque = await opt.opaque
   let as_okey = key => opaque.from_hk21(key)
-  return bkc_multi_stream(_bkc_opaque_codec(as_okey, opt))
+  return bkc_multi(_bkc_opaque_codec(as_okey, opt))
 
 
 
