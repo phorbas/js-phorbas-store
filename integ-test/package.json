@@ -1,7 +1,7 @@
 {
   "private": true,
   "type": "module",
-  "dependencies": {
+  "old-dependencies": {
     "aws-sdk": "^2.1692.0",
     "aws4fetch": "^1.0.20",
     "ky": "^0.30.0",
@@ -14,24 +14,13 @@
     "pouchdb-adapter-memory": "^7.3.1",
     "s3leveldown": "^2.2.2"
   },
-  "devDependencies": {
+  "old-devDependencies": {
     "@phorbas/opaque": "^0.3.3",
     "@phorbas/store": "file:..",
     "qsrv": "^0.2.8"
   },
   "scripts": {
-    "prebuild": "test -d ./node_modules || npm -s install",
-    "build": "npx rollup --config",
-    "watch": "npx rollup --config --watch",
-    "clean": "rm ./esm/* ./cjs/*",
-    "dkr_deps": "cd int--core; npm -s run dkr_deps",
-    "dkr_prune": "cd int--core; npm -s run dkr_prune",
-    "preserve": "npm -s run build ; npm -s run dkr_deps",
-    "serve": "npm -s run serve:one",
-    "serve:one": "qsrv -f unittest.html -- ./ ./esm/",
-    "pretest": "npm -s run build ; npm -s run dkr_deps",
-    "test": "npm -s run test:one",
-    "test:one": "NODE_OPTIONS=--enable-source-maps  mocha ./cjs/unittest.node.js",
-    "test:min": "NODE_OPTIONS=--enable-source-maps  mocha --reporter=min ./cjs/unittest.node.js"
+    "dkr_deps": "cd ./integ--core && npm -s run dkr_deps",
+    "dkr_prune": "cd ./integ--core && npm -s run dkr_prune"
   }
 }
