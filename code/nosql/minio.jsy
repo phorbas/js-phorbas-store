@@ -1,9 +1,10 @@
-import {bkc_hexkey_api, as_hex_key, as_u8_key} from '../_utils.jsy'
+import { _as_arrbuf, bkc_arrbuf } from '../core.jsy'
+import { _bkc_storage_ } from '../abstract/bkc_abstract_single.jsy'
 
-export {as_hex_key, as_u8_key}
+export * from '../core.jsy'
 
-export default bkc_with_minio
-export async function bkc_with_minio(minio, opt={}) ::
+export default bkc_minio
+export async function bkc_minio(minio, opt={}) ::
   if 'string' === typeof opt ::
     opt = {bucket: opt}
 
@@ -14,38 +15,38 @@ export async function bkc_with_minio(minio, opt={}) ::
   if ! await minio.bucketExists(bucket) ::
     throw new Error('bucket does not exist on server')
 
-  return bkc_hexkey_api @:
+  return _bkc_storage_.with @:
+    bkc_opt: @{}
 
-    async hk_has(hex_key) ::
+    async bkc_exists(hexkey) ::
       try ::
-        await minio.statObject( bucket, `${base}${hex_key}${ext}` )
+        await minio.statObject( bucket, `${base}${hexkey}${ext}` )
         return 1
       catch err ::
-        if 'NotFound' === err.code ::
-          return 0
-        else throw err
+        if 'NotFound' !== err.code ::
+          throw err
+        return 0
 
-    async hk_get(hex_key) ::
-      let stream
+    async bkc_fetch(hexkey) ::
       try ::
-        stream = await minio.getObject( bucket, `${base}${hex_key}${ext}` )
+        var stream = await minio.getObject( bucket, `${base}${hexkey}${ext}` )
       catch err ::
-        if 'NoSuchKey' === err.code ::
-          return
-        else throw err
+        if 'NoSuchKey' !== err.code ::
+          throw err
+        return
 
       const parts = []
       for await const p of stream ::
         parts.push(p)
 
-      return Uint8Array.from @
-        Buffer.concat(parts)
+      return new Blob(parts).arrayBuffer()
 
-    async hk_set(hex_key, u8_content) ::
+    async bkc_store(hexkey, body) ::
+      body = Buffer.from(await bkc_arrbuf(body))
       try ::
-        await minio.putObject @
-          bucket, `${base}${hex_key}${ext}`,
-          Buffer.from(u8_content)
+        await minio.putObject(
+          bucket, `${base}${hexkey}${ext}`, body)
+        return null
       catch err ::
         return err
 

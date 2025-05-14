@@ -74,10 +74,10 @@ export const pkg_cfg_adapter = pkg_phrobas_store_group('adapter', {
 export const pkg_cfg_nosql = pkg_phrobas_store_group('nosql', {
   input: [
     'code/nosql/memjs.jsy',
-  ],
-  todo_input: [
     'code/nosql/minio.jsy',
     'code/nosql/s3_aws4fetch.jsy',
+  ],
+  todo_input: [
     'code/nosql/ioredis.jsy',
     'code/nosql/mongojs.jsy',
     'code/nosql/rethinkdb.jsy',
