@@ -6,13 +6,13 @@ import { AwsClient } from 'aws4fetch'
 
 
 validate_backend(test_bdd,
-  `nosql/aws4fetch`, {
+  `nosql/s3_aws4fetch bkc_s3_aws4fetch`, {
     async bkc_create(ctx) {
       const s3_client = new AwsClient({ service: 's3' ,
         accessKeyId: 'minioadmin', secretAccessKey: 'minioadmin' }) // using minio for integ server
 
       return bkc_s3_aws4fetch(
         'http://s3minio2025:9000/phorbas-aws4fetch/',
-        s3_client, {autocreate: true}) 
+        s3_client, {autocreate: true})
     },
   })

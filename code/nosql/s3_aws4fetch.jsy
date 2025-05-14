@@ -6,7 +6,7 @@ export * from '../core.jsy'
 export default bkc_s3_fetch
 export async function bkc_s3_fetch(url_bucket, opt={}) ::
   let module = await opt.module ?? 'https://cdn.jsdelivr.net/npm/aws4fetch/dist/aws4fetch.esm.js'
-  if module.trim :: module = await import(module)
+  if module.trim :: module = await import(/* @vite-ignore */ module)
 
   let aws4fetch = new module.AwsClient({service: 's3', ... opt})
   return bkc_s3_aws4fetch(url_bucket, aws4fetch, opt)

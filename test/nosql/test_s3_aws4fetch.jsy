@@ -1,0 +1,15 @@
+import * as test_bdd from '#test_bdd'
+import {expect} from 'chai'
+
+import {validate_backend} from '@phorbas/store/esm/validate_backend.js'
+import {bkc_s3_fetch} from '@phorbas/store/esm/nosql/s3_aws4fetch.js'
+
+
+if 'undefined' !== typeof window ::
+  test_bdd.describe @ 'nosql/s3_aws4fetch', @::>
+    validate_backend @ test_bdd,
+      `bkc_s3_fetch to 127.0.0.1:9000`,
+      () => bkc_s3_fetch @
+        'http://127.0.0.1:9000/phorbas-aws4fetch/',
+        @{} accessKeyId: 'minioadmin', secretAccessKey: 'minioadmin'
+

@@ -105,6 +105,7 @@ export const pkg_test_cfg = {
     'test-xform': './test/xform/unittest.jsy',
     'test-web': './test/web/unittest.jsy',
     'test-local': './test/local/unittest.jsy',
+    'test-nosql': './test/nosql/unittest.jsy',
   },
 }
 
