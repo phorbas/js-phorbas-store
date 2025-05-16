@@ -76,6 +76,8 @@ export const pkg_cfg_nosql = pkg_phrobas_store_group('nosql', {
     'code/nosql/memjs.jsy',
     'code/nosql/minio.jsy',
     'code/nosql/s3_aws4fetch.jsy',
+    'code/nosql/pouchdb.jsy',
+    'code/nosql/couchdb.jsy',
   ],
   todo_input: [
     'code/nosql/ioredis.jsy',
@@ -84,8 +86,6 @@ export const pkg_cfg_nosql = pkg_phrobas_store_group('nosql', {
     'code/nosql/arangojs.jsy',
     'code/nosql/dynamodb.jsy',
     'code/nosql/consulkv.jsy',
-    'code/nosql/pouchdb.jsy',
-    'code/nosql/couchdb.jsy',
   ]})
 
 export const pkg_cfg_sql = pkg_phrobas_store_group('sql', {

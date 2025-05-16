@@ -1,14 +1,14 @@
-import {bkc_hexkey_api, as_hex_key, as_u8_key} from '../_utils.jsy'
+import { _as_arrbuf, bkc_arrbuf } from '../core.jsy'
+import { _bkc_storage_ } from '../abstract/bkc_abstract_single.jsy'
 
-export {as_hex_key, as_u8_key}
-
-export default bkc_with_couchdb
+export * from '../core.jsy'
 
 const _mode_direct = @{}
-  to_attach: u8 => u8
-  from_attach: buf => Uint8Array.from(buf)
+  to_attach: (arrbuf, type) => arrbuf
+  from_attach: arrbuf => arrbuf
 
-export async function bkc_with_couchdb(db_nano, opt={}) ::
+export default bkc_couchdb
+export async function bkc_couchdb(db_nano, opt={}) ::
   if opt.database ::
     // autocreate database, if not exists
     await db_nano.db.create(opt.database).catch(()=>{})
@@ -17,17 +17,17 @@ export async function bkc_with_couchdb(db_nano, opt={}) ::
   let immutable = !! opt.immutable
   let opt_path = '' + (opt.path || '/phorbas/').replace(/^\/+/, '')
   let opt_pre = opt.pre || 'phorbas-'
-  let opt_ext = opt.ext || '.cbor'
-  let opt_mime = opt.mime || 'application/x-phorbas+cbor'
+  let opt_ext = opt.ext || '.bkc'
+  let opt_mime = opt.mime || 'application/x-phorbas+bkc'
 
   let {to_attach, from_attach} = _mode_direct
 
-  return bkc_hexkey_api @:
+  return _bkc_storage_.with @:
     bkc_opt: @{} immutable
 
-    async hk_has(hex_key) ::
-      let docId = opt_path + hex_key
-      let attachmentId = opt_pre + hex_key + opt_ext
+    async bkc_exists(hexkey) ::
+      let docId = opt_path + hexkey
+      let attachmentId = opt_pre + hexkey + opt_ext
       try ::
         let {_attachments} = await db_nano.get(docId)
         return _attachments[attachmentId] ? 1 : 0
@@ -36,19 +36,20 @@ export async function bkc_with_couchdb(db_nano, opt={}) ::
           throw err
         return 0
 
-    async hk_get(hex_key) ::
-      let docId = opt_path + hex_key
-      let attachmentId = opt_pre + hex_key + opt_ext
+    async bkc_fetch(hexkey) ::
+      let docId = opt_path + hexkey
+      let attachmentId = opt_pre + hexkey + opt_ext
       try ::
-        let res_att = await db_nano.attachment.get(docId, attachmentId)
+        let res_att = _as_arrbuf @
+          await db_nano.attachment.get(docId, attachmentId)
         if null != res_att ::
           return from_attach(res_att)
       catch err ::
         if 'missing' != err.reason && 404 != err.statusCode ::
           throw err
 
-    async hk_set(hex_key, u8_content) ::
-      let docId = opt_path + hex_key
+    async bkc_store(hexkey, body) ::
+      let docId = opt_path + hexkey
       try ::
         var {_rev} = await db_nano.get(docId)
         if immutable && _rev ::
@@ -57,12 +58,15 @@ export async function bkc_with_couchdb(db_nano, opt={}) ::
         if 'missing' != err.reason && 404 != err.statusCode ::
           return err
 
-      let attachmentId = opt_pre + hex_key + opt_ext
+      //body = new Uint8Array(await bkc_arrbuf(body))
+      body = await bkc_arrbuf(body)
+      let attachmentId = opt_pre + hexkey + opt_ext
       try ::
         await db_nano.attachment.insert @
           docId, attachmentId,
-          to_attach(u8_content, opt_mime), opt_mime,
+          to_attach(body, opt_mime), opt_mime,
           {rev: _rev}
+        return null
       catch err ::
         return err
 
