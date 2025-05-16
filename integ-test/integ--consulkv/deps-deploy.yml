@@ -1,0 +1,8 @@
+version: '3.7'
+services:
+  consul_r1_15:
+    image: consul:1.15
+
+  consul_r1_14:
+    image: consul:1.14
+
