@@ -1,28 +1,39 @@
-import {bkc_hexkey_api, as_hex_key, as_u8_key} from '../_utils.jsy'
-import {u8_to_base64, base64_to_u8} from 'u8-utils'
+import { _as_arrbuf, bkc_arrbuf } from '../core.jsy'
+import { _bkc_storage_ } from '../abstract/bkc_abstract_single.jsy'
+import {base64_to_u8, u8_to_base64} from 'u8-utils/base64.js'
 
-export {as_hex_key, as_u8_key}
+export * from '../core.jsy'
 
-export default bkc_with_arangojs
-export async function bkc_with_arangojs(adb_collection) ::
-  return bkc_hexkey_api @:
+export default bkc_arangojs
+export async function bkc_arangojs(adb_collection, opt={}) ::
+  const immutable = !! opt.immutable
 
-    async hk_has(hex_key) ::
-      const exists = await adb_collection
-        .documentExists(hex_key)
+  return _bkc_storage_.with @:
+    bkc_opt: @{} immutable
+
+    async bkc_exists(hexkey) ::
+      let exists = await adb_collection.documentExists(hexkey, opt.exists)
       return exists ? 1 : 0
 
-    async hk_get(hex_key) ::
-      const doc = await adb_collection
-        .document(hex_key, {graceful: true})
+    async bkc_fetch(hexkey) ::
+      let doc = await adb_collection.document(hexkey, {graceful: true})
 
       if null != doc ::
-        return base64_to_u8(doc.hc)
+        let u8 = base64_to_u8(doc.hc)
+        return _as_arrbuf(u8)
 
-    async hk_set(hex_key, u8_content) ::
-      const doc = @{}
-        _key: hex_key
-        hc: u8_to_base64(u8_content)
+    async bkc_store(hexkey, body) ::
+      let exists = await adb_collection.documentExists(hexkey, opt.exists)
+      if exists && immutable :: return false
 
-      try :: await adb_collection.save(doc)
-      catch err :: return err
+      body = new Uint8Array(await bkc_arrbuf(body))
+      let doc = @{} _key: hexkey, hc: u8_to_base64(body)
+
+      try ::
+        if exists ::
+          await adb_collection.replace(hexkey, doc, opt.replace)
+        else ::
+          await adb_collection.save(doc, opt.save)
+        return null
+      catch err ::
+        return err
