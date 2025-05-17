@@ -1,0 +1,10 @@
+version: '3.7'
+services: 
+  dynamodb_latest:
+    image: amazon/dynamodb-local:latest
+
+  dynamodb_2_6:
+    image: amazon/dynamodb-local:2.6.1
+
+  dynamodb_1_25:
+    image: amazon/dynamodb-local:1.25.0

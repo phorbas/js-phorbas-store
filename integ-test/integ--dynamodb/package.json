@@ -1,0 +1,22 @@
+{
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "integ_test": {
+    "docker_run_args": [
+      "--network=integ_phorbas_store_default"
+    ]
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.812.0"
+  },
+  "scripts": {
+    "dkr_deps": "docker stack deploy --detach=false -c deps-deploy.yml integ_phorbas_store",
+    "pretest": "npm -s run dkr_deps",
+    "build": "npx zx ./README.md --no-docker",
+    "test:one": "cd ./esm-test && node --test",
+    "test:only": "cd ./esm-test && node --test --test-only",
+    "test:dkr": "npx zx ./README.md",
+    "test": "npx zx ./README.md"
+  }
+}

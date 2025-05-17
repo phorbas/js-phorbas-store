@@ -1,149 +1,81 @@
-import {bkc_binkey_api} from '../_utils.jsy'
+import { _as_arrbuf, bkc_arrbuf } from '../core.jsy'
+import { _bkc_storage_ } from '../abstract/bkc_abstract_single.jsy'
 
-export default bkc_with_dynamodb_direct
+export * from '../core.jsy'
 
-export async function bkc_with_dynamodb_direct(ddb, opt={}) ::
-  let [table, attr_bk, attr_bc] = await _ddb_ensureTable(ddb, opt)
+export default bkc_dynamodb
+export async function bkc_dynamodb(ddb, opt={}) ::
+  const [table, attr_hexkey, attr_body] = await _ddb_ensureTable(ddb, opt)
 
-  return bkc_binkey_api @:
+  return _bkc_storage_.with @:
+    bkc_opt: @{}
 
-    async bk_has(u8_key) ::
-      let op = ddb.batchGetItem @:
+    async bkc_exists(hexkey) ::
+      let res = await ddb.batchGetItem @:
         RequestItems: @{}
           [table]: @{}
             Keys: @[]
-              @{} [attr_bk]: {B: u8_key}
-            ProjectionExpression: attr_bk
+              @{} [attr_hexkey]: {S: hexkey}
+            ProjectionExpression: attr_hexkey
 
-      let res = await op.promise()
       for let ea of res.Responses[table] ::
         return 1
       return 0
 
 
-    async bk_get(u8_key) ::
-      let op = ddb.batchGetItem @:
+    async bkc_fetch(hexkey) ::
+      let res = await ddb.batchGetItem @:
         RequestItems: @{}
           [table]: @{}
             Keys: @[]
-              @{} [attr_bk]: {B: u8_key}
+              @{} [attr_hexkey]: {S: hexkey}
+            ProjectionExpression: attr_body
 
-            ProjectionExpression: attr_bc
-
-      let res = await op.promise()
       for let ea of res.Responses[table] ::
-        return Uint8Array.from(ea[attr_bc].B)
+        return _as_arrbuf(ea[attr_body].B)
 
 
-    async bk_set(u8_key, u8_content) ::
-      let op = ddb.batchWriteItem @:
-        RequestItems: @{}
-          [table]: @[] @{}
-            PutRequest: @{}
-              Item: @{}
-                [attr_bk]: {B: u8_key}
-                [attr_bc]: {B: u8_content}
+    async bkc_store(hexkey, body) ::
+      body = new Uint8Array(await bkc_arrbuf(body))
 
       try ::
-        await op.promise()
+        await ddb.batchWriteItem @:
+          RequestItems: @{}
+            [table]: @[]
+              @{} PutRequest: @{}
+                Item: @{}
+                  [attr_hexkey]: {S: hexkey}
+                  [attr_body]: {B: body}
+
+        return null
       catch err ::
         return err
 
 
-
-export async function bkc_with_dynamodb_batch(ddb, opt={}) ::
-  // Proof of concept impl; not production ready 
-  let [table, attr_bk, attr_bc] = await _ddb_ensureTable(ddb, opt)
-  let attr_both = `${attr_bk}, ${attr_bc}`
-
-  return @{}
-
-    async bkc_exists(u8_key_list) ::
-      let params = @:
-        RequestItems: @{}
-          [table]: @{}
-            Keys: u8_key_list.map @
-              u8_key => @: [attr_bk]: {B: u8_key}
-            ProjectionExpression: attr_bk
-
-      let op = ddb.batchGetItem(params)
-      let res = (await op.promise()).Responses[table]
-
-      // TODO: better matching with u8_keys -- content present & absent
-      return u8_key_list.map @\ u8_key ::
-        for let ea of res ::
-          let m = ea[attr_bk].B.compare(u8_key)
-          if 0 === m ::
-            return [u8_key, 1]
-        return [u8_key, 0]
-
-
-    async bkc_fetch(u8_key_list) ::
-      let params = @:
-        RequestItems: @{}
-          [table]: @{}
-            Keys: u8_key_list.map @
-              u8_key => @: [attr_bk]: {B: u8_key}
-            ProjectionExpression: attr_both
-
-      let op = ddb.batchGetItem(params)
-      let res = (await op.promise()).Responses[table]
-
-      // TODO: better matching with u8_keys -- content present & absent
-      // TODO: handle UnprocessedKeys
-      return u8_key_list.map @\ u8_key ::
-        for let ea of res ::
-          let m = ea[attr_bk].B.compare(u8_key)
-          if 0 === m ::
-            let u8_content = Uint8Array.from(ea[attr_bc].B)
-            return [u8_key, u8_content]
-        return [u8_key]
-
-
-    async bkc_store(u8_pair_list) ::
-      let params = @:
-        RequestItems: @{}
-          [table]: u8_pair_list.map @
-            u8_pair => @:
-              PutRequest: @{}
-                Item: @{}
-                  [attr_bk]: {B: u8_pair[0]}
-                  [attr_bc]: {B: u8_pair[1]}
-
-      // TODO: what about failed individual writes
-      // TODO: handle UnprocessedKeys
-      let op = ddb.batchWriteItem(params)
-      try ::
-        let res = await op.promise()
-        return u8_pair_list.map(pair => [pair[0]])
-      catch err ::
-        return u8_pair_list.map(pair => [pair[0], err])
-
-
 async function _ddb_ensureTable(ddb, opt) ::
   let table = opt.table || 'phorbas_kv'
-  let attr_bk = opt.bk || 'bk'
-  let attr_bc = opt.bc || 'bc'
-
-  let op_create = ddb.createTable({
-    TableName: table,
-    ProvisionedThroughput: {
-      ReadCapacityUnits: 1,
-      WriteCapacityUnits: 1,
-    },
-    AttributeDefinitions: [
-      { AttributeName: attr_bk, AttributeType: 'B' },
-    ],
-    KeySchema: [
-      { AttributeName: attr_bk, KeyType: 'HASH' },
-    ],
-    ... opt.create_table })
+  let attr_hexkey = opt.hk || 'hk'
+  let attr_body = opt.bc || 'bc'
 
   try ::
-    await op_create.promise()
-  catch err ::
-    if 'ResourceInUseException' !== err.code ::
-      throw err
+    await ddb.createTable({
+      TableName: table,
+      ProvisionedThroughput: {
+        ReadCapacityUnits: 1,
+        WriteCapacityUnits: 1,
+      },
+      AttributeDefinitions: [
+        { AttributeName: attr_hexkey, AttributeType: 'S' },
+      ],
+      KeySchema: [
+        { AttributeName: attr_hexkey, KeyType: 'HASH' },
+      ],
+      ... opt.create_table })
 
-  return [table, attr_bk, attr_bc]
+  catch err ::
+    if `${err}`.startsWith('#ResourceInUseException') ::
+      throw err
+    // else table already exists
+
+  return [table, attr_hexkey, attr_body]
 
