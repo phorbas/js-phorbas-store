@@ -1,92 +1,38 @@
-import {bkc_hexkey_api, as_hex_key, as_u8_key} from '../_utils.jsy'
+import { _as_arrbuf, bkc_arrbuf } from '../core.jsy'
+import { _bkc_storage_ } from '../abstract/bkc_abstract_single.jsy'
 
-export {as_hex_key, as_u8_key}
+export * from '../core.jsy'
 
-export default bkc_with_rethinkdb_batch
-
-
-export async function bkc_with_rethinkdb_direct(opt={}) ::
+export default bkc_rethinkdb
+export async function bkc_rethinkdb(opt={}) ::
   const {connection, table} = opt
 
-  return bkc_hexkey_api @:
+  return _bkc_storage_.with @:
+    bkc_opt: @{}
 
-    async hk_has(hex_key) ::
-      const res = await table
-        .get(hex_key)
+    async bkc_exists(hexkey) ::
+      let res = await table
+        .get(hexkey)
         .run(connection)
+
       return null != res ? 1 : 0
 
-    async hk_get(hex_key) ::
-      const res = await table
-        .get(hex_key)
+    async bkc_fetch(hexkey) ::
+      let res = await table
+        .get(hexkey)
         .run(connection)
 
       if null != res ::
-        return Uint8Array.from(res.bc)
+        return _as_arrbuf(res.bc)
 
-    async hk_set(hex_key, u8_content) ::
+    async bkc_store(hexkey, body) ::
+      body = new Uint8Array(await bkc_arrbuf(body))
       try ::
         await table
-          .insert @:
-            id: hex_key
-            bc: Buffer.from(u8_content)
-
+          .insert @ 
+            @{} id: hexkey, bc: Buffer.from(body)
+            @{} conflict: 'replace'
           .run(connection)
+        return null
       catch err ::
         return err
-
-
-export async function bkc_with_rethinkdb_batch(opt={}) ::
-  const {connection, table} = opt
-
-  return @{}
-
-    async bkc_exists(u8_key_list) ::
-      const ans=[], ops=[], ns={}
-      for let u8_key of u8_key_list ::
-        let tip = [u8_key, 0], hex_key = as_hex_key(u8_key)
-        ns[hex_key] = tip
-        ops.push(hex_key)
-        ans.push(tip)
-
-      const results = await table
-        .getAll(... ops)
-        .coerceTo('array')
-        .run(connection)
-
-      for const {id} of results ::
-        ns[id][1] = 1
-      return ans
-
-    async bkc_fetch(u8_key_list) ::
-      const ans=[], ops=[], ns={}
-      for let u8_key of u8_key_list ::
-        let tip = [u8_key], hex_key = as_hex_key(u8_key)
-        ns[hex_key] = tip
-        ops.push(hex_key)
-        ans.push(tip)
-
-      const results = await table
-        .getAll(... ops)
-        .coerceTo('array')
-        .run(connection)
-
-      for const {id, bc} of results ::
-        ns[id][1] = Uint8Array.from(bc)
-      return ans
-
-    async bkc_store(u8_pair_list) ::
-      const ans = [], ops=[]
-
-      for let [u8_key, u8_content] of u8_pair_list ::
-        const hex_key = as_hex_key(u8_key)
-        ans.push @# u8_key
-        ops.push @:
-          id: hex_key
-          bc: Buffer.from(u8_content)
-
-      const results = await table
-        .insert(ops)
-        .run(connection)
-      return ans
-

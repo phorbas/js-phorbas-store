@@ -81,11 +81,11 @@ export const pkg_cfg_nosql = pkg_phrobas_store_group('nosql', {
     'code/nosql/arangojs.jsy',
     'code/nosql/consulkv.jsy',
     'code/nosql/dynamodb.jsy',
+    'code/nosql/rethinkdb.jsy',
   ],
   todo_input: [
     'code/nosql/ioredis.jsy',
     'code/nosql/mongojs.jsy',
-    'code/nosql/rethinkdb.jsy',
   ]})
 
 export const pkg_cfg_sql = pkg_phrobas_store_group('sql', {
