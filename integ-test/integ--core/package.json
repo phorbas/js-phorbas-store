@@ -6,6 +6,10 @@
     "rollup_add_files": ["node-http-store.mjs"],
     "docker_run_args": ["--network=integ_phorbas_store_default"]
   },
+  "dependencies": {
+    "aws4fetch": "^1.0.20",
+    "minio": "^8.0.5"
+  },
   "scripts": {
     "serve": "node esm-test/node-http-store.mjs",
 

@@ -4,25 +4,29 @@ networks:
     attachable: true
 
 services:
-  sql_adminer:
-    image: adminer
-    ports: ['18082:8080']
-
-  mitmproxy:
-    image: mitmproxy/mitmproxy:5.1.1
-    command: mitmweb --web-host 0.0.0.0
-    ports: ['18081:8081']
-
-  minio:
+  s3minio2025:
     image: minio/minio
-    ports: ["9000:9000"]
-    command: 'server /data'
+    ports: ["9000:9000", "9001:9001"]
+    command: 'server /data --console-address ":9001"'
     environment:
-      MINIO_ACCESS_KEY: AKIAIOSFODNN7EXAMPLE
-      MINIO_SECRET_KEY: wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+      MINIO_API_ROOT_ACCESS: on
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
 
-  phorbas_core:
-    image: integ_phorbas_store_core
-    ports: ["9099:9099"]
-    command: 'npm -s run serve'
+  # phorbas_core:
+  #   image: integ_phorbas_store_core
+  #   ports: ["9099:9099"]
+  #   command: 'npm -s run serve'
+
+  ##############
+  ## Utilities
+
+  # sql_adminer:
+  #   image: adminer
+  #   ports: ['18082:8080']
+
+  # mitmproxy:
+  #   image: mitmproxy/mitmproxy:5.1.1
+  #   command: mitmweb --web-host 0.0.0.0
+  #   ports: ['18081:8081']
 

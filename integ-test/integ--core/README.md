@@ -1,5 +1,10 @@
 # @phorbas/store integration tests for core backends
 
+The `integ--core` package provides backend services for browser-based tests as well.
+
+Includes: `fetch`, `s3_aws4fetch`, `minio`, `pouchdb`, 
+
+
 ## Integration test using Docker
 
 Use `npx zx README.md` to run this integration test.

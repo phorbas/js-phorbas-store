@@ -106,6 +106,9 @@ export const pkg_test_cfg = {
     'test-web': './test/web/unittest.jsy',
     'test-local': './test/local/unittest.jsy',
     'test-nosql': './test/nosql/unittest.jsy',
+
+    'test-integ-web': './test/web/integtest.jsy',
+    'test-integ-nosql': './test/nosql/integtest.jsy',
   },
 }
 

@@ -9,10 +9,11 @@
 </head><body>
 
 <header>
-  <h1>Unit tests for browser environment
+  <h1>Integration tests for browser environment
   <small style='font-size: large'>
-    (to <a href='./integtest.html'>Integration Tests</a>)
+    (to <a href='./unittest.html'>Unit Tests</a>)
   </small></h1>
+  <p>Requires docker services. Run <code>npm run dkr_deps</code></p>
 </header>
 
 <div id="mocha"></div>
@@ -20,9 +21,8 @@
 <script type=module>
   mocha.setup({ui: 'bdd'}).checkLeaks()
 
-  await import('./esm-test/test-core.js')
-  await import('./esm-test/test-xform.js')
-  await import('./esm-test/test-web.js')
+  await import('./esm-test/test-integ-web.js')
+  await import('./esm-test/test-integ-nosql.js')
 
   mocha.run()
 </script>

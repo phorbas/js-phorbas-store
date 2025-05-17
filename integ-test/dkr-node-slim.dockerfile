@@ -4,7 +4,7 @@ WORKDIR /app
 COPY ./package.json /app/package.json
 RUN npm install --production
 
-ENV NODE_OPTIONS="--enable-source-maps"
+ENV NODE_OPTIONS="--enable-source-maps" CICD_ENV="docker"
 ENTRYPOINT ["npm", "-s", "run"]
 CMD ["test:one"]
 
