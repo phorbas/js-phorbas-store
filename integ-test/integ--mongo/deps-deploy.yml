@@ -1,0 +1,31 @@
+version: '3.7'
+services:
+  mongo_latest:
+    image: mongo:latest
+
+  mongo_v8:
+    image: mongo:8
+
+  mongo_v7:
+    image: mongo:7
+
+
+  ferretdb_v2:
+    image: ghcr.io/ferretdb/ferretdb:2
+    environment:
+      - FERRETDB_POSTGRESQL_URL=postgres://postgres:integ_pass@postgres_docdb_v17:5432/postgres
+
+  postgres_docdb_v17:
+    image: ghcr.io/ferretdb/postgres-documentdb:17
+    environment:
+      POSTGRES_PASSWORD: integ_pass
+      POSTGRES_USER: postgres
+
+  # mongo_express:
+  #   image: 'mongo-express'
+  #   #ports: ['8081:8081']
+  #   deploy: {replicas: 0}
+  #   environment:
+  #     ME_CONFIG_MONGODB_SERVER: mongo_v8
+
+
