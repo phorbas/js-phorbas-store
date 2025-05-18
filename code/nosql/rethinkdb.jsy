@@ -5,7 +5,7 @@ export * from '../core.jsy'
 
 export default bkc_rethinkdb
 export async function bkc_rethinkdb(opt={}) ::
-  const {connection, table} = opt
+  const conn=opt.connection, table=opt.table
 
   return _bkc_storage_.with @:
     bkc_opt: @{}

@@ -82,9 +82,9 @@ export const pkg_cfg_nosql = pkg_phrobas_store_group('nosql', {
     'code/nosql/consulkv.jsy',
     'code/nosql/dynamodb.jsy',
     'code/nosql/rethinkdb.jsy',
+    'code/nosql/ioredis.jsy',
   ],
   todo_input: [
-    'code/nosql/ioredis.jsy',
     'code/nosql/mongojs.jsy',
   ]})
 
@@ -93,7 +93,6 @@ export const pkg_cfg_sql = pkg_phrobas_store_group('sql', {
     'code/sql/sqlite3.jsy',
     'code/sql/better_sqlite3.jsy',
     'code/sql/knex.jsy',
-    //'code/sql/cassandra.jsy',
   ]})
 
 export const pkg_test_cfg = {

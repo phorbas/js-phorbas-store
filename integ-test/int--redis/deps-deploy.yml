@@ -1,8 +1,0 @@
-version: '3.7'
-services:
-  redis_v5:
-    image: redis:5
-
-  redis_v6:
-    image: redis:6
-

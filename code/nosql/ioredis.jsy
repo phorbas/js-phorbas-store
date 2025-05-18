@@ -1,74 +1,36 @@
-import {bkc_hexkey_api, as_hex_key, as_u8_key} from '../_utils.jsy'
+import { _as_arrbuf, bkc_arrbuf } from '../core.jsy'
+import { _bkc_storage_ } from '../abstract/bkc_abstract_single.jsy'
 
-export {as_hex_key, as_u8_key}
+export * from '../core.jsy'
 
-export default bkc_with_ioredis_pipeline
+export default bkc_ioredis
+export async function bkc_ioredis(ioredis, opt={}) ::
+  const immutable = !! opt.immutable
+  const opt_path = `${opt.path || ''}`
 
+  return _bkc_storage_.with @:
+    bkc_opt: @{} immutable
 
-export async function bkc_with_ioredis_direct(ioredis, opt={}) ::
-  let opt_path = '' + (opt.path || '')
-  return bkc_hexkey_api @:
+    async bkc_exists(hexkey) ::
+      let v = await ioredis.exists(opt_path + hexkey)
+      return v ? 1 : 0
 
-    async hk_has(hex_key) ::
-      return await ioredis.exists(opt_path + hex_key)
-
-    async hk_get(hex_key) ::
-      const buf = await ioredis.getBuffer(opt_path + hex_key)
+    async bkc_fetch(hexkey) ::
+      let buf = await ioredis.getBuffer(opt_path + hexkey)
       if null != buf ::
-        return Uint8Array.from(buf)
+        return _as_arrbuf(buf)
 
-    async hk_set(hex_key, u8_content) ::
+    async bkc_store(hexkey, body) ::
+      if immutable ::
+        let v = await ioredis.exists(opt_path + hexkey)
+        if v :: return false
+
+      body = await bkc_arrbuf(body)
       try ::
-        await ioredis.setBuffer(
-          opt_path + hex_key,
-          Buffer.from(u8_content))
+        await ioredis.setBuffer @
+          opt_path + hexkey,
+          Buffer.from(body)
+        return null
       catch err ::
         return err
-
-
-export async function bkc_with_ioredis_pipeline(ioredis, opt={}) ::
-  let opt_path = '' + (opt.path || '')
-  return @{}
-
-    async bkc_exists(u8_key_list) ::
-      const ops = []
-      for let u8_key of u8_key_list ::
-        ops.push @# 'exists', opt_path + as_hex_key(u8_key)
-
-      const res = await ioredis.pipeline(ops).exec()
-
-      for let i=0; i<res.length; i++ ::
-        //const [err, ans] = res[i]
-        res[i][0] = u8_key_list[i]
-      return res
-
-    async bkc_fetch(u8_key_list) ::
-      const ops = []
-      for let u8_key of u8_key_list ::
-        ops.push @# 'getBuffer', opt_path + as_hex_key(u8_key)
-
-      const res = await ioredis.pipeline(ops).exec()
-
-      for let i=0; i<res.length; i++ ::
-        const [err, buf] = res[i]
-        res[i][0] = u8_key_list[i]
-        res[i][1] = null == buf ? void buf
-          : Uint8Array.from(buf)
-      return res
-
-    async bkc_store(u8_pair_list) ::
-      const ops = []
-
-      for let [u8_key, u8_content] of u8_pair_list ::
-        ops.push @# 'setBuffer',
-          opt_path + as_hex_key(u8_key),
-          Buffer.from(u8_content)
-
-      const res = await ioredis.pipeline(ops).exec()
-
-      for let i=0; i<res.length; i++ ::
-        const [err, buf] = res[i]
-        res[i][0] = u8_pair_list[i][0]
-        res[i][1] = null == err ? void err : err
-      return res
 

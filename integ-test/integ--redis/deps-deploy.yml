@@ -1,0 +1,19 @@
+version: '3.7'
+services:
+  redis_v8:
+    image: redis:8
+
+  redis_v7:
+    image: redis:7
+
+  redis_v6:
+    image: redis:6
+
+  redis_v5:
+    image: redis:5
+
+  valkey_v8:
+    image: valkey/valkey:8
+
+  valkey_v7:
+    image: valkey/valkey:7
