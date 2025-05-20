@@ -1,0 +1,64 @@
+const _core_headers = @{}
+  'X-Content-Type-Options': 'nosniff'
+
+export async function handle_bkc_exists(stg, key, Response) ::
+  let res_json = {key, exists: await stg.bkc_exists(key)}
+  return _json_response @ Response, res_json,
+    @{} status: res_json.exists ? 200 : 404
+
+export async function handle_bkc_fetch(stg, key, Response) ::
+  let body = await stg.bkc_fetch(key)
+  return new Response @
+    new Uint8Array(body || [])
+    @{} status: body ? 200 : 404
+        headers: @{}
+          ... _core_headers
+          'Content-Type': 'application/octet-stream',
+          'Content-Length': body?.byteLength || 0
+
+export async function handle_bkc_store(stg, key, body, Response) ::
+  body = await body
+  let res_json = {key, size: body.size ?? body.byteLength}
+  let err = await stg.bkc_store(key, body)
+  if ! @ res_json.ok = null == err ::
+    res_json.err = ''+err
+
+  return _json_response @ Response, res_json,
+    @{} status: err ? 500 : 200,
+
+
+
+export function handle_bkc(opt) ::
+  opt = @{}
+    request_for: ctx => ctx.req
+    stg_for: ctx => opt.stg
+    key_for: ctx => ctx.params?.key
+    body_for: (ctx, req) => req.arrayBuffer()
+    ... opt
+
+  const Response = opt.Response || globalThis.Response
+  return async ctx => ::
+    let request = opt.request_for(ctx)
+    let stg = opt.stg_for(ctx, request)
+    let key = opt.key_for(ctx, request)
+
+    switch request.method ::
+      case 'HEAD':
+        return await handle_bkc_exists(stg, key, Response)
+      case 'GET':
+        return await handle_bkc_fetch(stg, key, Response)
+      case 'PUT': case 'POST': ::
+        return await handle_bkc_store(stg, key, 
+          opt.body_for(ctx, request), Response)
+
+
+
+export function _json_response(Response, json_obj, {headers, ...args}) ::
+  let res = new TextEncoder().encode(JSON.stringify(json_obj))
+  args.headers = @{}
+    ... _core_headers
+    'Content-Type': 'application/json',
+    'Content-Length': res.byteLength
+    ... headers
+  return new Response(res, args)
+

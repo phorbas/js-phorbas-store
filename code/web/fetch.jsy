@@ -10,29 +10,45 @@ export async function bkc_fetch(url_base, opt={}) ::
   const fetch_opts = opt.fetch_opts
   const immutable = !! opt.immutable
 
+  async function bkc_exists(hexkey, kw) ::
+    let resp = await fetch @
+      as_req(url_base, hexkey, kw?.signal),
+      @{} ... fetch_opts
+          method: 'HEAD'
+          headers: @{} 'x-hk': hexkey
+          signal: kw?.signal
+
+    return resp.ok ? 1 : 0
+
   return _bkc_storage_.with @:
     bkc_opt: @{} immutable
 
     bkc_exists
+
     async bkc_fetch(hexkey, kw) ::
       let resp = await fetch @
         as_req(url_base, hexkey, kw?.signal),
         @{} ... fetch_opts
-            method: 'GET', headers: {'x-hk': hexkey}, 
+            method: 'GET'
+            headers: @{} 'x-hk': hexkey
             signal: kw?.signal
 
       if resp.ok ::
-        return resp.arrayBuffer()
+        return await resp.arrayBuffer()
 
     async bkc_store(hexkey, body, kw) ::
       if immutable && await bkc_exists(hexkey, kw) ::
         return false
 
       body = await bkc_arrbuf(body)
+
       let resp = await fetch @
         as_req(url_base, hexkey, kw?.signal),
         @{} ... fetch_opts
-            method: 'POST', headers: {'x-hk': hexkey}
+            method: 'POST'
+            headers: @{}
+              'Content-Type': 'application/octet-stream',
+              'x-hk': hexkey
             signal: kw?.signal
             body
 
@@ -44,15 +60,6 @@ export async function bkc_fetch(url_base, opt={}) ::
         return err
 
       return null
-
-  async function bkc_exists(hexkey, kw) ::
-    let resp = await fetch @
-      as_req(url_base, hexkey, kw?.signal),
-      @{} ... fetch_opts
-          method: 'HEAD', headers: {'x-hk': hexkey}
-          signal: kw?.signal
-
-    return resp.ok ? 1 : 0
 
 
 export function _bind_hexkey_request(opt) ::

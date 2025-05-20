@@ -52,10 +52,9 @@ export const pkg_cfg_web = pkg_phrobas_store_group('web', {
 
 export const pkg_cfg_websvr = pkg_phrobas_store_group('websvr', {
   input: [
-    'code/websvr/websvr_core_bkc.jsy',
-    'code/websvr/websvr_core_opaque.jsy',
-    'code/websvr/websvr_node_bkc.jsy',
-    'code/websvr/websvr_node_opaque.jsy',
+    'code/websvr/webstd.jsy',
+    'code/websvr/http_bkc.jsy',
+    'code/websvr/hono_bkc.jsy',
   ]})
 
 export const pkg_cfg_local = pkg_phrobas_store_group('local', {
@@ -114,7 +113,7 @@ export default [
   pkg_abstract,
   pkg_cfg_xform,
   pkg_cfg_web,
-  //pkg_cfg_websvr,
+  pkg_cfg_websvr,
   pkg_cfg_local,
   pkg_cfg_adapter,
   pkg_cfg_nosql,

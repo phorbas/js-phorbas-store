@@ -3,24 +3,41 @@
   "version": "0.0.0",
   "type": "module",
   "integ_test": {
-    "rollup_add_files": ["node-http-store.mjs"],
-    "docker_run_args": ["--network=integ_phorbas_store_default"]
+    "rollup_add_files": [
+      "./websvr-hono-store.mjs",
+      "./websvr-http-store.mjs",
+      "./websvr-multi-store.mjs"
+    ],
+    "docker_build_args": [
+      "--tag", "integ_phorbas_store_core",
+      "--file=../dkr-node-slim.dockerfile"
+    ],
+    "docker_run_args": [
+      "--network=integ_phorbas_store_default"
+    ]
   },
   "dependencies": {
+    "@hono/node-server": "^1.14.2",
     "aws4fetch": "^1.0.20",
+    "express": "^5.1.0",
+    "hono": "^4.7.10",
     "minio": "^8.0.5"
   },
   "scripts": {
-    "serve": "node esm-test/node-http-store.mjs",
-
+    "clean": "rm -rf ./esm-test",
+    "serve": "node esm-test/websvr-multi-store.js",
+    "predkr_deps": "npm run build",
     "dkr_deps": "docker stack deploy --detach=false -c deps-deploy.yml integ_phorbas_store",
     "dkr_prune": "docker stack deploy --detach=false --prune -c deps-deploy.yml integ_phorbas_store",
     "pretest": "npm -s run dkr_deps",
-
     "build": "npx zx ./README.md --no-docker",
     "test:one": "cd ./esm-test && node --test",
     "test:only": "cd ./esm-test && node --test --test-only",
     "test:dkr": "npx zx ./README.md",
     "test": "npx zx ./README.md"
+  },
+  "devDependencies": {
+    "@jsy-lang/jsy": "^0.10.9",
+    "@jsy-lang/nodejs": "^0.2.3"
   }
 }

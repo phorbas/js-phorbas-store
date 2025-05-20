@@ -13,10 +13,10 @@ services:
       MINIO_ROOT_USER: minioadmin
       MINIO_ROOT_PASSWORD: minioadmin
 
-  # phorbas_core:
-  #   image: integ_phorbas_store_core
-  #   ports: ["9099:9099"]
-  #   command: 'npm -s run serve'
+  phorbas_core:
+    image: integ_phorbas_store_core
+    ports: ["9098:9098", "9099:9099"]
+    command: serve
 
   ##############
   ## Utilities

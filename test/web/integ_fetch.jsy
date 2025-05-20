@@ -5,19 +5,20 @@ import {validate_backend} from '@phorbas/store/esm/validate_backend.js'
 import {bkc_fetch} from '@phorbas/store/esm/web/fetch.js'
 
 if globalThis.fetch ::
-  // TODO: re-enable with websvr implementation
-  test_bdd.describe.skip @ 'bkc_fetch variants', @::>
+  test_bdd.describe.only @ 'bkc_fetch variants', @::>
     validate_backend @ test_bdd,
-      'fetch with param `node int--core/node-http-store.mjs`',
-      () => bkc_fetch(new URL('http://127.0.0.1:9099/browser/param/a/b/c/'))
+      'fetch with param `node int--core/websvr-hono-store.mjs`',
+      () => bkc_fetch(new URL('http://127.0.0.1:9098/use_hono/a/b/c/'))
+
 
     validate_backend @ test_bdd,
-      'fetch immutable with param `node int--core/node-http-store.mjs`',
+      'fetch with param `node int--core/websvr-http-store.mjs`',
+      () => bkc_fetch(new URL('http://127.0.0.1:9099/use_http/a/b/c/'))
+
+
+    validate_backend @ test_bdd,
+      'fetch immutable with param `node int--core/websvr-http-store.mjs`',
       () => bkc_fetch @
-        new URL('http://127.0.0.1:9099/browser/param/a/b/c/')
+        new URL('http://127.0.0.1:9099/use_http/a/b/c/')
         @{} immutable: true
-
-    validate_backend @ test_bdd,
-      'fetch with shared `node int--core/node-http-store.mjs`',
-      () => bkc_fetch(new URL('http://127.0.0.1:9099/browser/shared/d/e/f/'))
 

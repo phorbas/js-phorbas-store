@@ -1,0 +1,38 @@
+import { pipeline } from 'node:stream/promises'
+import { handle_bkc } from './webstd.jsy'
+
+export function _http_bkc(fn_send, opt) ::
+  const _bkc_handle = handle_bkc @:
+    request_for: ctxreq => ctxreq
+
+    async body_for(ctxreq) ::
+      let c, chunks = []
+      for await c of ctxreq ::
+        chunks.push(c)
+      return new Blob(chunks).arrayBuffer()
+
+    ... opt
+
+  return async (req, resp) => ::
+    let ans = await _bkc_handle(req)
+    if ans ::
+      await fn_send(req, resp, ans)
+    return !! ans
+
+
+export async function _http_send(req, resp, ans) ::
+  resp.writeHead(ans.status, ans.statusText, ans.headers)
+  await pipeline(ans.body, resp)
+  resp.end()
+
+export const http_bkc = opt => _http_bkc(_http_send, opt)
+
+
+
+export const _express_send = (req, resp, ans) =>
+  resp.set(ans.headers)
+    .status(ans.status)
+    .send(new Uint8Array(ans.body))
+
+export const express_bkc = opt => _http_bkc(_express_send, opt)
+
