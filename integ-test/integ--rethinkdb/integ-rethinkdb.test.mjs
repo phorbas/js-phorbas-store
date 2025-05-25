@@ -1,7 +1,7 @@
 import * as test_bdd from 'node:test'
 
 import {validate_backend} from '@phorbas/store/esm/validate_backend.js'
-import {bkc_rethinkdb} from '@phorbas/store/esm/nosql/rethinkdb.js'
+import {kbc_rethinkdb} from '@phorbas/store/esm/nosql/rethinkdb.js'
 
 import rethinkdb from 'rethinkdb'
 
@@ -10,12 +10,12 @@ for (const host of ['some_rethink']) {
   validate_backend(test_bdd,
     `${host} with rethinkdb`, {
 
-      bkc_create: async ctx =>
-        bkc_rethinkdb(
+      kbc_create: async ctx =>
+        kbc_rethinkdb(
           ctx.cfg = await init_rethink_test(
             host, 'phorbas_test', 'phorbas_kv_batch')),
 
-      bkc_cleanup: ctx => ctx.cfg.connection.close(),
+      kbc_cleanup: ctx => ctx.cfg.connection.close(),
     })
 }
 

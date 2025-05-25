@@ -1,52 +1,52 @@
-import { bkc_arrbuf } from '../core.jsy'
-import { _bkc_storage_ } from '../abstract/bkc_abstract_single.jsy'
+import { kbc_arrbuf } from '../core.jsy'
+import { _kbc_storage_ } from '../abstract/abstract_single.jsy'
 
 export * from '../core.jsy'
 
-export default bkc_with_level
-export async function bkc_with_level(levelup, opt={}) ::
+export default kbc_with_level
+export async function kbc_with_level(levelup, opt={}) ::
   const immutable = !! opt.immutable
   const lvl_opt = @{}
     keyEncoding: 'utf8',
     valueEncoding: 'binary',
     ...opt.level_options
 
-  return _bkc_storage_.with @:
-    bkc_opt: @{} immutable
+  return _kbc_storage_.with @:
+    kbc_opt: @{} immutable
 
-    async bkc_exists(hexkey) ::
+    async kbc_exists(key) ::
       try ::
-        let res = await levelup.get(hexkey, lvl_opt)
+        let res = await levelup.get(key, lvl_opt)
         return null == res ? 0 : 1
 
       catch err ::
         if ! err.notFound :: throw err
         return 0
 
-    async bkc_fetch(hexkey) ::
+    async kbc_fetch(key) ::
       try ::
-        let buf = await levelup.get(hexkey, lvl_opt)
+        let buf = await levelup.get(key, lvl_opt)
         return !buf ? void buf
           : new Uint8Array(buf).buffer 
       catch err ::
         if ! err.notFound :: throw err
 
-    async bkc_store(hexkey, body) ::
+    async kbc_store(key, body) ::
       if immutable ::
         try ::
-          let res = await levelup.get(hexkey, lvl_opt)
+          let res = await levelup.get(key, lvl_opt)
           if null != res :: return false
         catch err ::
           if ! err.notFound :: throw err
 
       try ::
-        body = await bkc_arrbuf(body)
-        await levelup.put(hexkey, Buffer.from(body), lvl_opt)
+        body = await kbc_arrbuf(body)
+        await levelup.put(key, Buffer.from(body), lvl_opt)
         return null
       catch err ::
         return err
 
     /*
-    async * bkc_stream_store(hexkey_body_iter) ::
+    async * kbc_stream_store(key_body_iter) ::
       // TODO: update to batching storage
     */

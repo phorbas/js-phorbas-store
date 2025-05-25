@@ -1,18 +1,18 @@
-import { _as_arrbuf, bkc_arrbuf } from '../core.jsy'
-import { _bkc_storage_ } from '../abstract/bkc_abstract_single.jsy'
+import { _as_arrbuf, kbc_arrbuf } from '../core.jsy'
+import { _kbc_storage_ } from '../abstract/abstract_single.jsy'
 
 export * from '../core.jsy'
 
-export default bkc_s3_fetch
-export async function bkc_s3_fetch(url_bucket, opt={}) ::
+export default kbc_s3_fetch
+export async function kbc_s3_fetch(url_bucket, opt={}) ::
   let module = await opt.module ?? 'https://cdn.jsdelivr.net/npm/aws4fetch/dist/aws4fetch.esm.js'
   if module.trim :: module = await import(/* @vite-ignore */ module)
 
   let aws4fetch = new module.AwsClient({service: 's3', ... opt})
-  return bkc_s3_aws4fetch(url_bucket, aws4fetch, opt)
+  return kbc_s3_aws4fetch(url_bucket, aws4fetch, opt)
 
 
-export async function bkc_s3_aws4fetch(url_bucket, aws4fetch, opt={}) ::
+export async function kbc_s3_aws4fetch(url_bucket, aws4fetch, opt={}) ::
   url_bucket = new URL(url_bucket)
   if ! url_bucket.pathname.endsWith('/') ::
     throw new Error('url must end with a slash ("/")')
@@ -23,12 +23,12 @@ export async function bkc_s3_aws4fetch(url_bucket, aws4fetch, opt={}) ::
   await _s3fetch_ensure_bucket(url_bucket, aws4fetch, opt.autocreate, _as_error)
 
   const _key_url = _s3fetch_bind_url(url_bucket, opt.base, opt.ext)
-  return _bkc_storage_.with @:
-    bkc_opt: @{}
+  return _kbc_storage_.with @:
+    kbc_opt: @{}
 
-    async bkc_exists(hexkey) ::
+    async kbc_exists(key) ::
       let resp = await aws4fetch.fetch @
-        _key_url(hexkey)
+        _key_url(key)
         @{} method: 'HEAD'
 
       if resp.ok ::
@@ -38,9 +38,9 @@ export async function bkc_s3_aws4fetch(url_bucket, aws4fetch, opt={}) ::
       return 0
 
 
-    async bkc_fetch(hexkey) ::
+    async kbc_fetch(key) ::
       let resp = await aws4fetch.fetch @
-        _key_url(hexkey)
+        _key_url(key)
         @{} method: 'GET'
 
       if resp.ok ::
@@ -49,10 +49,10 @@ export async function bkc_s3_aws4fetch(url_bucket, aws4fetch, opt={}) ::
         throw _as_error(resp)
 
 
-    async bkc_store(hexkey, body) ::
-      body = await bkc_arrbuf(body)
+    async kbc_store(key, body) ::
+      body = await kbc_arrbuf(body)
       let resp = await aws4fetch.fetch @
-        _key_url(hexkey)
+        _key_url(key)
         @{} method: 'PUT', body,
             headers: @{}
               'Content-Type': 'application/octet-stream'
@@ -63,8 +63,7 @@ export async function bkc_s3_aws4fetch(url_bucket, aws4fetch, opt={}) ::
 
 function _s3fetch_bind_url(url_bucket, base, ext) ::
   base ||= ''; ext ||= ''
-  return hexkey =>
-    new URL(`${base}${hexkey}${ext}`, url_bucket)
+  return key => new URL(`${base}${key}${ext}`, url_bucket)
 
 
 async function _s3fetch_ensure_bucket(url_bucket, s3_aws4fetch, autocreate, _as_error) ::

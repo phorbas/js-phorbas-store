@@ -1,9 +1,9 @@
 import { createServer } from 'http'
-import { bkc_js_map } from '@phorbas/store'
-import { http_bkc } from '@phorbas/store/esm/websvr/http_bkc.js'
+import { kbc_js_map } from '@phorbas/store'
+import { http_kbc } from '@phorbas/store/esm/websvr/http_kbc.js'
 
-const stg = await bkc_js_map()
-const example_http = http_bkc({stg})
+const stg = await kbc_js_map()
+const example_http = http_kbc({stg})
 
 async function demo_handler(req, resp) {
   req.params ??= {}

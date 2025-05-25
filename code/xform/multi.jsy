@@ -1,0 +1,62 @@
+import { kbc_arrbuf, kbc_rec_tools } from '../core.jsy'
+import { _kbc_storage_ } from '../abstract/abstract_single.jsy'
+
+export * from '../core.jsy'
+
+let _kbc_multi_lite
+export function kbc_multi(opt={}) ::
+  _kbc_multi_lite ??= _kbc_storage_.with(_kbc_multi_mixin_)
+  return _kbc_multi_with(_kbc_multi_lite, opt)
+
+export default kbc_multi
+
+
+const _ident = x => x
+export function _kbc_multi_with(_kbc_multi_, opt) ::
+  opt = opt.call ? { kbc_lookup: opt } : { __proto__: opt }
+
+  return _kbc_multi_.with @:
+    kbc_opt: @{} proxy: true
+    get stg_default() :: return opt.stg_tgt
+    set stg_default(stg) :: return opt.stg_tgt = stg
+
+    _xf_decode_body: opt.decode_body ?? _ident
+    _xf_lookup: _kbc_multi_lookup(opt.kbc_lookup, opt.encode_body, opt)
+
+
+export function _kbc_multi_lookup(kbc_lookup_fn, _xf_encode_body, opt) ::
+  _xf_encode_body ??= _ident
+  return _xf_lookup(null)
+
+  function _xf_lookup(rec, ctx) ::
+    if null === rec ::
+      return _xf_lookup.bind(kbc_rec_tools.with_ctx(ctx))
+
+    rec.stg = opt?.stg_tgt
+    rec.stg = kbc_lookup_fn?.(rec, this) ?? rec.stg
+    rec[1] &&= _xf_encode_body(kbc_arrbuf(rec[1]), rec, this)
+    return rec[0].then || rec.stg?.then ? _rec_async(rec) : rec
+
+async function _rec_async(rec) ::
+  rec.stg = await rec.stg
+  rec[0] = await rec[0]
+  return rec
+
+
+export const _kbc_multi_mixin_ = @{}
+  async kbc_store(key, body, kw) ::
+    let rec = this._xf_lookup([key, body])
+    rec = rec.then ? await rec : rec
+    return rec.stg.kbc_store(rec[0], rec[1], kw)
+
+  async kbc_exists(key, kw) ::
+    let rec = this._xf_lookup([key])
+    rec = rec.then ? await rec : rec
+    return rec.stg.kbc_exists(rec[0], kw)
+
+  async kbc_fetch(key, kw) ::
+    let rec = this._xf_lookup([key])
+    rec = rec.then ? await rec : rec
+    let body = rec.stg.kbc_fetch(rec[0], kw)
+    return this._xf_decode_body(body, rec)
+

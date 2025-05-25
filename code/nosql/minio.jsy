@@ -1,10 +1,10 @@
-import { _as_arrbuf, bkc_arrbuf } from '../core.jsy'
-import { _bkc_storage_ } from '../abstract/bkc_abstract_single.jsy'
+import { _as_arrbuf, kbc_arrbuf } from '../core.jsy'
+import { _kbc_storage_ } from '../abstract/abstract_single.jsy'
 
 export * from '../core.jsy'
 
-export default bkc_minio
-export async function bkc_minio(minio, opt={}) ::
+export default kbc_minio
+export async function kbc_minio(minio, opt={}) ::
   if 'string' === typeof opt ::
     opt = {bucket: opt}
 
@@ -15,21 +15,21 @@ export async function bkc_minio(minio, opt={}) ::
   if ! await minio.bucketExists(bucket) ::
     throw new Error('bucket does not exist on server')
 
-  return _bkc_storage_.with @:
-    bkc_opt: @{}
+  return _kbc_storage_.with @:
+    kbc_opt: @{}
 
-    async bkc_exists(hexkey) ::
+    async kbc_exists(key) ::
       try ::
-        await minio.statObject( bucket, `${base}${hexkey}${ext}` )
+        await minio.statObject( bucket, `${base}${key}${ext}` )
         return 1
       catch err ::
         if 'NotFound' !== err.code ::
           throw err
         return 0
 
-    async bkc_fetch(hexkey) ::
+    async kbc_fetch(key) ::
       try ::
-        var stream = await minio.getObject( bucket, `${base}${hexkey}${ext}` )
+        var stream = await minio.getObject( bucket, `${base}${key}${ext}` )
       catch err ::
         if 'NoSuchKey' !== err.code ::
           throw err
@@ -41,11 +41,11 @@ export async function bkc_minio(minio, opt={}) ::
 
       return new Blob(parts).arrayBuffer()
 
-    async bkc_store(hexkey, body) ::
-      body = Buffer.from(await bkc_arrbuf(body))
+    async kbc_store(key, body) ::
+      body = Buffer.from(await kbc_arrbuf(body))
       try ::
         await minio.putObject(
-          bucket, `${base}${hexkey}${ext}`, body)
+          bucket, `${base}${key}${ext}`, body)
         return null
       catch err ::
         return err

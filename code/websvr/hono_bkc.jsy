@@ -1,7 +1,0 @@
-import {handle_bkc} from './webstd.jsy'
-
-const hono_bkc = opt => handle_bkc @:
-  key_for: (ctx, req) => req.param('key')
-  ... opt
-
-export { hono_bkc, hono_bkc as default }

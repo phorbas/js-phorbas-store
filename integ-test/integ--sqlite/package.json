@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "type": "module",
   "integ_test": {
+    "docker_build_args": ["--file=../dkr-node-full.dockerfile"]
   },
   "dependencies": {
     "@keyv/sqlite": "^4.0.2",
@@ -15,6 +16,7 @@
     "build": "npx zx ./README.md --no-docker",
     "test:one": "cd ./esm-test && node --test",
     "test:only": "cd ./esm-test && node --test --test-only",
+    "test:dkr": "npx zx ./README.md",
     "test": "npx zx ./README.md"
   }
 }

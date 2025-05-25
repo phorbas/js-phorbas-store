@@ -9,7 +9,8 @@
   },
   "dependencies": {
     "nano": "^10.1.4",
-    "pouchdb": "^9.0.0"
+    "pouchdb": "^9.0.0",
+    "pouchdb-adapter-memory": "^9.0.0"
   },
   "scripts": {
     "dkr_deps": "docker stack deploy --detach=false -c deps-deploy.yml integ_phorbas_store",

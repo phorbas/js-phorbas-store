@@ -1,29 +1,35 @@
-import { _as_arrbuf, bkc_arrbuf } from '../core.jsy'
-import { _bkc_storage_ } from '../abstract/bkc_abstract_single.jsy'
+import { _as_arrbuf, kbc_arrbuf } from '../core.jsy'
+import { _kbc_storage_ } from '../abstract/abstract_single.jsy'
 
 export * from '../core.jsy'
 
-const _mode_auto = @{}
-  to_attach: (arrbuf, type) => arrbuf
-  from_attach: arrbuf => arrbuf
+const _as_u8 = arrbuf => new Uint8Array(arrbuf),
+  _as_blob = arrbuf => new Blob([arrbuf])
 
+export const kbc_pouchdb_direct = (pouchdb, opt) =>
+  _kbc_pouchdb(pouchdb, opt, _as_u8)
 
-export default bkc_pouchdb
-export async function bkc_pouchdb(pouchdb, opt={}) ::
-  let immutable = !! opt.immutable
-  let opt_path = '' + (opt.path || '/phorbas/').replace(/^\/+/, '')
-  let opt_pre = opt.pre || 'phorbas-'
-  let opt_ext = opt.ext || '.bkc'
-  let opt_mime = opt.mime || 'application/x-phorbas+bkc'
+export const kbc_pouchdb_blob = (pouchdb, opt) =>
+  _kbc_pouchdb(pouchdb, opt, _as_blob)
 
-  let {to_attach, from_attach} = opt.mode || _mode_auto
+export const kbc_pouchdb = (pouchdb, opt) =>
+  _kbc_pouchdb(pouchdb, opt, globalThis.indexedDB ? _as_blob : _as_u8)
 
-  return _bkc_storage_.with @:
-    bkc_opt: @{} immutable
+export default kbc_pouchdb
 
-    async bkc_exists(hexkey) ::
-      let docId = opt_path + hexkey
-      let attachmentId = opt_pre + hexkey + opt_ext
+export async function _kbc_pouchdb(pouchdb, opt={}, as_attachment) ::
+  const immutable = !! opt.immutable,
+    opt_path = '' + (opt.path || '/phorbas/').replace(/^\/+/, ''),
+    opt_pre = opt.pre || 'phorbas-',
+    opt_ext = opt.ext || '.kbc',
+    opt_mime = opt.mime || 'application/octet-stream'
+
+  return _kbc_storage_.with @:
+    kbc_opt: @{} immutable
+
+    async kbc_exists(key) ::
+      let docId = opt_path + key
+      let attachmentId = opt_pre + key + opt_ext
       try ::
         let {_attachments} = await pouchdb.get(docId)
         return _attachments[attachmentId] ? 1 : 0
@@ -32,20 +38,20 @@ export async function bkc_pouchdb(pouchdb, opt={}) ::
           throw err
         return 0
 
-    async bkc_fetch(hexkey) ::
-      let docId = opt_path + hexkey
-      let attachmentId = opt_pre + hexkey + opt_ext
+    async kbc_fetch(key) ::
+      let docId = opt_path + key
+      let attachmentId = opt_pre + key + opt_ext
       try ::
-        let res_att = _as_arrbuf @
-          await pouchdb.getAttachment(docId, attachmentId)
+        let res_att = await pouchdb.getAttachment(docId, attachmentId)
         if null != res_att ::
-          return from_attach(res_att)
+          res_att = res_att.arrayBuffer?.() ?? _as_arrbuf(res_att)
+          return await res_att
       catch err ::
         if 404 !== err.status ::
           throw err
 
-    async bkc_store(hexkey, body) ::
-      let docId = opt_path + hexkey
+    async kbc_store(key, body) ::
+      let docId = opt_path + key
       try ::
         var {_rev} = await pouchdb.get(docId)
         if immutable && _rev ::
@@ -54,13 +60,12 @@ export async function bkc_pouchdb(pouchdb, opt={}) ::
         if 404 !== err.status ::
           return err
 
-      //body = new Uint8Array(await bkc_arrbuf(body))
-      body = await bkc_arrbuf(body)
-      let attachmentId = opt_pre + hexkey + opt_ext
+      body = await kbc_arrbuf(body)
+      let attachmentId = opt_pre + key + opt_ext
       try ::
         await pouchdb.putAttachment @
           docId, attachmentId, _rev,
-          to_attach(body, opt_mime), opt_mime
+          await as_attachment(body, opt_mime), opt_mime
         return null
       catch err ::
         return err

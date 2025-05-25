@@ -1,0 +1,11 @@
+import * as test_bdd from 'node:test'
+
+import {validate_backend} from '@phorbas/store/esm/validate_backend.js'
+import {kbc_with_keyv} from '@phorbas/store/esm/adapter/keyv.js'
+
+import {Keyv} from 'keyv'
+
+validate_backend @ test_bdd, 'keyv with Map()', @::>
+  const store = new Map()
+  return kbc_with_keyv( new Keyv({store}) )
+

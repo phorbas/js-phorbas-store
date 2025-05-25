@@ -1,13 +1,13 @@
 import {expect} from 'chai'
 
-import {_expect_aiter, _rand_hexkey_batch, _hexkey_with_rand_body} from './check_utils.jsy'
+import {_expect_aiter, _rand_key_batch, _key_with_rand_body} from './check_utils.jsy'
 
-export async function validate_bkc_stream_batch(_stg_, opt={}) ::
-  let test_key_list = _rand_hexkey_batch(opt.count ?? 5)
-  let test_body_list = test_key_list.map(_hexkey_with_rand_body(opt.rand_width ?? 32))
+export async function validate_kbc_stream_batch(_stg_, opt={}) ::
+  let test_key_list = _rand_key_batch(opt.count ?? 5)
+  let test_body_list = test_key_list.map(_key_with_rand_body(opt.rand_width ?? 32))
 
-  :: // bkc_stream_store() batches of bkc_pair works with Promise.all
-    let ans_stream_store = _stg_.bkc_stream_store(test_body_list)
+  :: // kbc_stream_store() batches of kbc_pair works with Promise.all
+    let ans_stream_store = _stg_.kbc_stream_store(test_body_list)
     _expect_aiter(ans_stream_store)
 
     for await let batch_result of ans_stream_store ::
@@ -15,7 +15,7 @@ export async function validate_bkc_stream_batch(_stg_, opt={}) ::
       for let rec of batch_result ::
         expect(rec).to.be.an.instanceOf(Array).lengthOf(2)
         expect(rec[0]).to.be.a.string
-        expect(rec.then, 'bkc_stream_store rec.then').to.be.a('function')
+        expect(rec.then, 'kbc_stream_store rec.then').to.be.a('function')
 
         let tuple = await rec.then()
         expect(tuple[0]).to.be.a.string
@@ -28,8 +28,8 @@ export async function validate_bkc_stream_batch(_stg_, opt={}) ::
         expect(tuple[1]).to.be.null
 
 
-  :: // bkc_stream_fetch() batches of bkc_pair works with Promise.all
-    let ans_stream_fetch = _stg_.bkc_stream_fetch(test_key_list)
+  :: // kbc_stream_fetch() batches of kbc_pair works with Promise.all
+    let ans_stream_fetch = _stg_.kbc_stream_fetch(test_key_list)
 
     let body_by_key = new Map(test_body_list)
 
@@ -38,7 +38,7 @@ export async function validate_bkc_stream_batch(_stg_, opt={}) ::
       for let rec of batch_result ::
         expect(rec).to.be.an.instanceOf(Array).lengthOf(2)
         expect(rec[0]).to.be.a.string
-        expect(rec.then, 'bkc_stream_fetch rec.then').to.be.a('function')
+        expect(rec.then, 'kbc_stream_fetch rec.then').to.be.a('function')
 
         let tuple = await rec.then()
         expect(tuple[0]).to.be.a.string
@@ -56,8 +56,8 @@ export async function validate_bkc_stream_batch(_stg_, opt={}) ::
         .to.deep.equal @ body_by_key.get(tuple[0])
 
 
-  :: // bkc_stream_exists() batches of bkc_pair works with Promise.all
-    let ans_stream_exists = _stg_.bkc_stream_exists(test_body_list)
+  :: // kbc_stream_exists() batches of kbc_pair works with Promise.all
+    let ans_stream_exists = _stg_.kbc_stream_exists(test_body_list)
     _expect_aiter(ans_stream_exists)
 
     for await let batch_result of ans_stream_exists ::
@@ -65,7 +65,7 @@ export async function validate_bkc_stream_batch(_stg_, opt={}) ::
       for let rec of batch_result ::
         expect(rec).to.be.an.instanceOf(Array).lengthOf(2)
         expect(rec[0]).to.be.a.string
-        expect(rec.then, 'bkc_stream_exists rec.then').to.be.a('function')
+        expect(rec.then, 'kbc_stream_exists rec.then').to.be.a('function')
 
         let tuple = await rec.then()
         expect(tuple[0]).to.be.a.string
@@ -79,9 +79,9 @@ export async function validate_bkc_stream_batch(_stg_, opt={}) ::
 
 
 
-export async function validate_bkc_stream_batch_abort(_stg_, opt={}) ::
-  let test_key_list = _rand_hexkey_batch(opt.count ?? 2)
-  let test_body_list = test_key_list.map(_hexkey_with_rand_body(opt.rand_width ?? 32))
+export async function validate_kbc_stream_batch_abort(_stg_, opt={}) ::
+  let test_key_list = _rand_key_batch(opt.count ?? 2)
+  let test_body_list = test_key_list.map(_key_with_rand_body(opt.rand_width ?? 32))
 
   async function * testgen(inc_body, abort_controller) ::
     expect(abort_controller.signal).to.be.a('AbortSignal')
@@ -93,8 +93,8 @@ export async function validate_bkc_stream_batch_abort(_stg_, opt={}) ::
 
 
   ::
-    let count=0, ac = new AbortController(), hexkey_aiter = testgen(true, ac)
-    for await let batch of _stg_.bkc_stream_store(hexkey_aiter, {signal: ac.signal}) ::
+    let count=0, ac = new AbortController(), key_aiter = testgen(true, ac)
+    for await let batch of _stg_.kbc_stream_store(key_aiter, {signal: ac.signal}) ::
       for let rec of batch ::
         expect(rec[0]).to.equal(test_key_list[count])
         expect(await rec[1]).to.be.null
@@ -103,8 +103,8 @@ export async function validate_bkc_stream_batch_abort(_stg_, opt={}) ::
     expect(count).to.be.oneOf([1,2])
 
   ::
-    let count=0, ac = new AbortController(), hexkey_aiter = testgen(false, ac)
-    for await let batch of _stg_.bkc_stream_exists(hexkey_aiter, {signal: ac.signal}) ::
+    let count=0, ac = new AbortController(), key_aiter = testgen(false, ac)
+    for await let batch of _stg_.kbc_stream_exists(key_aiter, {signal: ac.signal}) ::
       for let rec of batch ::
         expect(rec[0]).to.equal(test_key_list[count])
         expect(await rec[1]).to.be.oneOf([0,1])
@@ -113,8 +113,8 @@ export async function validate_bkc_stream_batch_abort(_stg_, opt={}) ::
     expect(count).to.be.oneOf([1,2])
 
   ::
-    let count=0, ac = new AbortController(), hexkey_aiter = testgen(false, ac)
-    for await let batch of _stg_.bkc_stream_fetch(hexkey_aiter, {signal: ac.signal}) ::
+    let count=0, ac = new AbortController(), key_aiter = testgen(false, ac)
+    for await let batch of _stg_.kbc_stream_fetch(key_aiter, {signal: ac.signal}) ::
       for let rec of batch ::
         expect(rec[0]).to.equal(test_key_list[count])
         expect(await rec[1]).to.be.an('ArrayBuffer')
@@ -125,12 +125,12 @@ export async function validate_bkc_stream_batch_abort(_stg_, opt={}) ::
     expect(count).to.be.oneOf([1,2])
 
 
-export async function validate_bkc_stream(_stg_, opt={}) ::
-  let test_key_list = _rand_hexkey_batch(opt.count ?? 5)
-  let test_body_list = test_key_list.map(_hexkey_with_rand_body(opt.rand_width ?? 32))
+export async function validate_kbc_stream(_stg_, opt={}) ::
+  let test_key_list = _rand_key_batch(opt.count ?? 5)
+  let test_body_list = test_key_list.map(_key_with_rand_body(opt.rand_width ?? 32))
 
   :: // random keys should not exist
-    let ans_stream_exists = _stg_.bkc_stream_exists @
+    let ans_stream_exists = _stg_.kbc_stream_exists @
       opt.use_keys ? test_key_list : test_body_list
 
     _expect_aiter(ans_stream_exists)
@@ -146,7 +146,7 @@ export async function validate_bkc_stream(_stg_, opt={}) ::
     expect(count).to.equal(test_key_list.length)
 
   :: // body for random key should be undefined
-    let ans_stream_fetch = _stg_.bkc_stream_fetch @
+    let ans_stream_fetch = _stg_.kbc_stream_fetch @
       opt.use_keys ? test_key_list : test_body_list
 
     _expect_aiter(ans_stream_fetch)
@@ -162,7 +162,7 @@ export async function validate_bkc_stream(_stg_, opt={}) ::
     expect(count).to.equal(test_key_list.length)
 
   :: // store test body at key
-    let ans_stream_store = _stg_.bkc_stream_store(test_body_list)
+    let ans_stream_store = _stg_.kbc_stream_store(test_body_list)
 
     _expect_aiter(ans_stream_store)
 
@@ -177,7 +177,7 @@ export async function validate_bkc_stream(_stg_, opt={}) ::
     expect(count).to.equal(test_key_list.length)
 
   :: // check keys now exist
-    let ans_stream_exists = _stg_.bkc_stream_exists @
+    let ans_stream_exists = _stg_.kbc_stream_exists @
       opt.use_keys ? test_key_list : test_body_list
 
     _expect_aiter(ans_stream_exists)
@@ -194,7 +194,7 @@ export async function validate_bkc_stream(_stg_, opt={}) ::
 
 
   :: // check round-trip of body content
-    let ans_stream_fetch = _stg_.bkc_stream_fetch @
+    let ans_stream_fetch = _stg_.kbc_stream_fetch @
       opt.use_keys ? test_key_list : test_body_list
 
     _expect_aiter(ans_stream_fetch)

@@ -1,0 +1,11 @@
+import { kbc_storage_verify } from '../core.jsy'
+import { kbc_multi } from './multi.jsy'
+
+export * from '../core.jsy'
+
+export const kbc_xform = (stg_tgt, opt) =>
+  kbc_multi @: ...opt,
+    stg_tgt: stg_tgt && kbc_storage_verify(stg_tgt)
+
+export default kbc_xform
+

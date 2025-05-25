@@ -10,6 +10,7 @@
     "build": "npx zx ./README.md --no-docker",
     "test:one": "cd ./esm-test && node --test",
     "test:only": "cd ./esm-test && node --test --test-only",
+    "test:dkr": "npx zx ./README.md",
     "test": "npx zx ./README.md"
   }
 }

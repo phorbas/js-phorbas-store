@@ -1,0 +1,11 @@
+import { kbc_storage_verify } from '../core.jsy'
+import { kbc_multi_stream } from './multi_stream.jsy'
+
+export * from '../core.jsy'
+
+export const kbc_xform_stream = (stg_tgt, opt) =>
+  kbc_multi_stream @: ...opt,
+    stg_tgt: stg_tgt && kbc_storage_verify(stg_tgt)
+
+export default kbc_xform_stream
+

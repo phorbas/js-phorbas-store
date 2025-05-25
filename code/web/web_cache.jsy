@@ -1,41 +1,41 @@
-import { bkc_arrbuf } from '../core.jsy'
-import { _bkc_storage_ } from '../abstract/bkc_abstract_single.jsy'
+import { kbc_arrbuf } from '../core.jsy'
+import { _kbc_storage_ } from '../abstract/abstract_single.jsy'
 
 export * from '../core.jsy'
 
-export default bkc_web_cache
-export async function bkc_web_cache(cache_store, url_base, opt={}) ::
+export default kbc_web_cache
+export async function kbc_web_cache(cache_store, url_base, opt={}) ::
   const immutable = !! opt.immutable
   const prefix = opt.prefix ?? ''
   const _opt_match = opt.match ?? {ignoreMethod: true}
-  const _as_req = hexkey =>
-    new Request(new URL(prefix+hexkey, url_base), opt.request)
+  const _as_req = key =>
+    new Request(new URL(prefix+key, url_base), opt.request)
 
   cache_store = await cache_store
-  return _bkc_storage_.with @:
-    bkc_opt: @{} immutable
+  return _kbc_storage_.with @:
+    kbc_opt: @{} immutable
 
-    async bkc_exists(hexkey) ::
-      let req = _as_req(hexkey)
+    async kbc_exists(key) ::
+      let req = _as_req(key)
       let resp = await cache_store.match(req, _opt_match)
 
       return undefined !== resp ? 1 : 0
 
-    async bkc_fetch(hexkey) ::
-      let req = _as_req(hexkey)
+    async kbc_fetch(key) ::
+      let req = _as_req(key)
       let resp = await cache_store.match(req, _opt_match)
 
       if undefined !== resp ::
         return resp.arrayBuffer()
 
-    async bkc_store(hexkey, body) ::
-      let req = _as_req(hexkey)
+    async kbc_store(key, body) ::
+      let req = _as_req(key)
       if immutable ::
         let resp = await cache_store.match(req, _opt_match)
         if undefined !== resp :: return false
 
       let resp = new Response @
-        body = await bkc_arrbuf(body),
+        body = await kbc_arrbuf(body),
         @{} status: 200, headers: @{} 'Content-Length': body.byteLength
 
       await cache_store.put(req, resp)

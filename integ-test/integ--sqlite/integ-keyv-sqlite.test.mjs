@@ -3,19 +3,19 @@ import { mkdtemp } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 
 import {validate_backend} from '@phorbas/store/esm/validate_backend.js'
-import {bkc_with_keyv} from '@phorbas/store/esm/adapter/keyv.js'
+import {kbc_with_keyv} from '@phorbas/store/esm/adapter/keyv.js'
 import Keyv from 'keyv'
 import KeyvSqlite from '@keyv/sqlite'
 
 validate_backend(test_bdd, `keyv with Map()`, ()=>
-  bkc_with_keyv(
+  kbc_with_keyv(
     new Keyv({ store: new Map() })
   ))
 
 validate_backend(test_bdd, `keyv with @keyv/sqlite`, {
-  async bkc_create() {
+  async kbc_create() {
     const base = await mkdtemp(`${tmpdir()}/var-test-keyv-sql--`)
-    return bkc_with_keyv(
+    return kbc_with_keyv(
       new Keyv(
         new KeyvSqlite(
           `sqlite://${base}/keyv-db.sqlite`,

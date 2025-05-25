@@ -1,4 +1,4 @@
-# @phorbas/store integration tests for filesystem backends
+# @phorbas/store integration tests
 
 ## Integration test using Docker
 
@@ -13,12 +13,13 @@ await fs.emptyDir(`./esm-test`)
 
 if (false !== cli.build) {
   await $`npx rollup ${cfg.rollup_args} ${cfg.rollup_files}`
+  await $`docker build ${cfg.docker_build_args} .`
 }
 
 if (false !== cli.docker) {
-  await $`docker build ${cfg.docker_build_args} .`
   let _dkr_id_ = await $`docker build ${cfg.docker_build_args} -q .`
   await $`docker run ${cfg.docker_run_args} --rm -t ${_dkr_id_} ${cli._}`
 }
 ```
+
 

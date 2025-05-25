@@ -1,42 +1,42 @@
-import { _as_arrbuf, bkc_arrbuf } from '../core.jsy'
-import { _bkc_storage_ } from '../abstract/bkc_abstract_single.jsy'
+import { _as_arrbuf, kbc_arrbuf } from '../core.jsy'
+import { _kbc_storage_ } from '../abstract/abstract_single.jsy'
 
 export * from '../core.jsy'
 
-export default bkc_dynamodb
-export async function bkc_dynamodb(ddb, opt={}) ::
-  const [table, attr_hexkey, attr_body] = await _ddb_ensureTable(ddb, opt)
+export default kbc_dynamodb
+export async function kbc_dynamodb(ddb, opt={}) ::
+  const [table, attr_key, attr_body] = await _ddb_ensureTable(ddb, opt)
 
-  return _bkc_storage_.with @:
-    bkc_opt: @{}
+  return _kbc_storage_.with @:
+    kbc_opt: @{}
 
-    async bkc_exists(hexkey) ::
+    async kbc_exists(key) ::
       let res = await ddb.batchGetItem @:
         RequestItems: @{}
           [table]: @{}
             Keys: @[]
-              @{} [attr_hexkey]: {S: hexkey}
-            ProjectionExpression: attr_hexkey
+              @{} [attr_key]: {S: key}
+            ProjectionExpression: attr_key
 
       for let ea of res.Responses[table] ::
         return 1
       return 0
 
 
-    async bkc_fetch(hexkey) ::
+    async kbc_fetch(key) ::
       let res = await ddb.batchGetItem @:
         RequestItems: @{}
           [table]: @{}
             Keys: @[]
-              @{} [attr_hexkey]: {S: hexkey}
+              @{} [attr_key]: {S: key}
             ProjectionExpression: attr_body
 
       for let ea of res.Responses[table] ::
         return _as_arrbuf(ea[attr_body].B)
 
 
-    async bkc_store(hexkey, body) ::
-      body = new Uint8Array(await bkc_arrbuf(body))
+    async kbc_store(key, body) ::
+      body = new Uint8Array(await kbc_arrbuf(body))
 
       try ::
         await ddb.batchWriteItem @:
@@ -44,7 +44,7 @@ export async function bkc_dynamodb(ddb, opt={}) ::
             [table]: @[]
               @{} PutRequest: @{}
                 Item: @{}
-                  [attr_hexkey]: {S: hexkey}
+                  [attr_key]: {S: key}
                   [attr_body]: {B: body}
 
         return null
@@ -54,7 +54,7 @@ export async function bkc_dynamodb(ddb, opt={}) ::
 
 async function _ddb_ensureTable(ddb, opt) ::
   let table = opt.table || 'phorbas_kv'
-  let attr_hexkey = opt.hk || 'hk'
+  let attr_key = opt.k || 'k'
   let attr_body = opt.bc || 'bc'
 
   try ::
@@ -65,10 +65,10 @@ async function _ddb_ensureTable(ddb, opt) ::
         WriteCapacityUnits: 1,
       },
       AttributeDefinitions: [
-        { AttributeName: attr_hexkey, AttributeType: 'S' },
+        { AttributeName: attr_key, AttributeType: 'S' },
       ],
       KeySchema: [
-        { AttributeName: attr_hexkey, KeyType: 'HASH' },
+        { AttributeName: attr_key, KeyType: 'HASH' },
       ],
       ... opt.create_table })
 
@@ -77,5 +77,5 @@ async function _ddb_ensureTable(ddb, opt) ::
       throw err
     // else table already exists
 
-  return [table, attr_hexkey, attr_body]
+  return [table, attr_key, attr_body]
 

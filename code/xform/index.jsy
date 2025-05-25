@@ -1,10 +1,10 @@
-export * from './bkc_multi.jsy'
-export * from './bkc_multi_stream.jsy'
-export * from './bkc_multi_path.jsy'
+export * from './multi.jsy'
+export * from './multi_stream.jsy'
+export * from './multi_path.jsy'
 
-export * from './bkc_xform.jsy'
-export * from './bkc_xform_stream.jsy'
-export * from './bkc_opaque.jsy'
+export * from './xform.jsy'
+export * from './xform_stream.jsy'
+export * from './opaque.jsy'
 
-export * from './bkc_channel.jsy'
+export * from './channel.jsy'
 

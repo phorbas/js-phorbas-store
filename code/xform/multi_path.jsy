@@ -1,0 +1,58 @@
+import { kbc_multi_stream } from './multi_stream.jsy'
+
+export * from '../core.jsy'
+
+export function kbc_multi_path(matcher_list, opt={}) ::
+  if matcher_list.trim || !matcher_list[Symbol.iterator] ::
+    matcher_list = [matcher_list]
+
+  matcher_list = Array.from(matcher_list, _as_path_matcher)
+
+  const by_path = opt.by_path ?? new Map()
+  return kbc_multi_stream @:
+    __proto__: opt
+
+    kbc_lookup(rec, rec_api) ::
+      const key = rec[0]
+      for let matcher of matcher_list ::
+        let stg = matcher(key, by_path)
+        if null != stg ::
+          // delegate with sub key mapping
+          if Array.isArray(stg) ::
+            if stg[1] :: rec_api.set_key(rec, stg[1])
+            stg = stg[0]
+
+          // dereference stg by reference
+          return by_path.get(stg) ?? stg
+
+
+export default kbc_multi_path
+
+
+
+export function _as_path_matcher(matcher) ::
+  if matcher.call ::
+    return matcher // already a function
+
+  if matcher.trim :: // bind as split-on pattern
+    return key => key.split(matcher)
+
+  if matcher.exec ::
+    if matcher.pathname ::
+      // use URLPattern pathname groups
+      matcher.baseURL ??= matcher.protocol+':/'
+      return key => ::
+        let m = matcher.exec(key, matcher.baseURL)
+        let g = m?.pathname?.groups
+        return g && [g.stg, g.key]
+
+    // use RegExp groups
+    return key => ::
+      let m = matcher.exec(key)
+      let g = m?.groups // use regexp named groups
+      return g ? [g.stg, g.key]
+        : m ? [m[1], m[2]]
+        : null
+
+  throw new TypeError
+

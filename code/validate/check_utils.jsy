@@ -1,14 +1,14 @@
 import {expect} from 'chai'
 
 import {u8_to_hex} from 'u8-utils'
-import {bkc_arrbuf} from '../core.jsy'
+import {kbc_arrbuf} from '../core.jsy'
 
 export {u8_to_hex}
 
 export const _rand_u8 = n => globalThis.crypto.getRandomValues(new Uint8Array(n))
-export const _rand_hexkey = () => u8_to_hex(_rand_u8(8))
-export const _rand_hexkey_batch = (length=5) => Array.from({length}, _rand_hexkey)
-export const _hexkey_with_rand_body = width => (hk=_rand_hexkey()) => [hk, _rand_u8(width)]
+export const _rand_key = () => u8_to_hex(_rand_u8(8))
+export const _rand_key_batch = (length=5) => Array.from({length}, _rand_key)
+export const _key_with_rand_body = width => (hk=_rand_key()) => [hk, _rand_u8(width)]
 
 
 export async function _as_body_testpair(body) ::
@@ -16,7 +16,7 @@ export async function _as_body_testpair(body) ::
     body = _rand_u8(body)
 
   let was_iter = !Array.isArray(body) && body[Symbol.iterator] && body.next
-  let body_buf = await bkc_arrbuf(body)
+  let body_buf = await kbc_arrbuf(body)
   if was_iter :: body = body_buf // iterator was consumed; used the result
 
   return @{} raw: body, buf: body_buf,

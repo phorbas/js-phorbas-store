@@ -1,0 +1,7 @@
+import {handle_kbc} from './webstd.jsy'
+
+const hono_kbc = opt => handle_kbc @:
+  key_for: (ctx, req) => req.param('key')
+  ... opt
+
+export { hono_kbc, hono_kbc as default }

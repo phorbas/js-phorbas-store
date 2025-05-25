@@ -1,0 +1,24 @@
+import { _kbc_storage_mixin_ } from './abstract.jsy'
+import { kbc_batch_stream } from '../core.jsy'
+
+export const _kbc_storage_ = @{}
+  ... _kbc_storage_mixin_
+
+  async * kbc_stream_store(key_body_aiter, kw) ::
+    let _kbc_store = this._kbc_record @
+      ([key, body]) => this.kbc_store(key, body, kw)
+
+    return yield * kbc_batch_stream(key_body_aiter, _kbc_store, kw)
+
+  async * kbc_stream_exists(key_aiter, kw) ::
+    let _kbc_exists = this._kbc_record @
+      ([key]) => this.kbc_exists(key, kw)
+
+    return yield * kbc_batch_stream(key_aiter, _kbc_exists, kw)
+
+  async * kbc_stream_fetch(key_aiter, kw) ::
+    let _kbc_fetch = this._kbc_record @
+      ([key]) => this.kbc_fetch(key, kw)
+
+    return yield * kbc_batch_stream(key_aiter, _kbc_fetch, kw)
+

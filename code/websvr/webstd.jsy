@@ -1,13 +1,13 @@
 const _core_headers = @{}
   'X-Content-Type-Options': 'nosniff'
 
-export async function handle_bkc_exists(stg, key, Response) ::
-  let res_json = {key, exists: await stg.bkc_exists(key)}
+export async function handle_kbc_exists(stg, key, Response) ::
+  let res_json = {key, exists: await stg.kbc_exists(key)}
   return _json_response @ Response, res_json,
     @{} status: res_json.exists ? 200 : 404
 
-export async function handle_bkc_fetch(stg, key, Response) ::
-  let body = await stg.bkc_fetch(key)
+export async function handle_kbc_fetch(stg, key, Response) ::
+  let body = await stg.kbc_fetch(key)
   return new Response @
     new Uint8Array(body || [])
     @{} status: body ? 200 : 404
@@ -16,10 +16,10 @@ export async function handle_bkc_fetch(stg, key, Response) ::
           'Content-Type': 'application/octet-stream',
           'Content-Length': body?.byteLength || 0
 
-export async function handle_bkc_store(stg, key, body, Response) ::
+export async function handle_kbc_store(stg, key, body, Response) ::
   body = await body
   let res_json = {key, size: body.size ?? body.byteLength}
-  let err = await stg.bkc_store(key, body)
+  let err = await stg.kbc_store(key, body)
   if ! @ res_json.ok = null == err ::
     res_json.err = ''+err
 
@@ -28,7 +28,7 @@ export async function handle_bkc_store(stg, key, body, Response) ::
 
 
 
-export function handle_bkc(opt) ::
+export function handle_kbc(opt) ::
   opt = @{}
     request_for: ctx => ctx.req
     stg_for: ctx => opt.stg
@@ -44,11 +44,11 @@ export function handle_bkc(opt) ::
 
     switch request.method ::
       case 'HEAD':
-        return await handle_bkc_exists(stg, key, Response)
+        return await handle_kbc_exists(stg, key, Response)
       case 'GET':
-        return await handle_bkc_fetch(stg, key, Response)
+        return await handle_kbc_fetch(stg, key, Response)
       case 'PUT': case 'POST': ::
-        return await handle_bkc_store(stg, key, 
+        return await handle_kbc_store(stg, key, 
           opt.body_for(ctx, request), Response)
 
 

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>@phorbas/store unittest</title>
+  <link rel="stylesheet" href="https://unpkg.com/mocha@10/mocha.css" />
+  <script src="https://unpkg.com/mocha@10/mocha.js"></script>
+</head><body>
+
+<header>
+  <h1>Integration tests for browser environment
+  <small style='font-size: large'>
+    (to <a href='./unittest.html'>Unit Tests</a>)
+  </small></h1>
+  <p>Requires docker services. Run <code>npm run dkr_deps</code></p>
+</header>
+
+<div id="mocha"></div>
+
+<script type=module>
+  mocha.setup({ui: 'bdd'}).checkLeaks()
+
+  await import('./esm-test/test-integ-web.js')
+  await import('./esm-test/test-integ-local.js')
+  await import('./esm-test/test-integ-nosql.js')
+
+  mocha.run()
+</script>

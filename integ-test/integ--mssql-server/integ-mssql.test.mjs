@@ -1,7 +1,7 @@
 import * as test_bdd from 'node:test'
 
 import {validate_backend} from '@phorbas/store/esm/validate_backend.js'
-import {bkc_with_knex} from '@phorbas/store/esm/sql/knex.js'
+import {kbc_with_knex} from '@phorbas/store/esm/sql/knex.js'
 import knex from 'knex'
 
 // List MSSQL versions to test -- see ./deps-deploy.yml
@@ -19,31 +19,31 @@ for (const [host, valid_client_list] of Object.entries(mssql_hosts)) {
     validate_backend(test_bdd,
       `knex to ${host}: ${client} client`,
       { 
-        async bkc_create(ctx) {
+        async kbc_create(ctx) {
           ctx.kdb = knex({ client,
             connection: {
               host, user: 'sa',
               password: 'int3g_Pass',
             }})
-          return bkc_with_knex( ctx.kdb )
+          return kbc_with_knex( ctx.kdb )
         },
 
-        bkc_cleanup: ctx => ctx.kdb.destroy(),
+        kbc_cleanup: ctx => ctx.kdb.destroy(),
       })
 
     validate_backend(test_bdd,
       `knex to ${host}, immutable: ${client} client`,
       { 
-        async bkc_create(ctx) {
+        async kbc_create(ctx) {
           ctx.kdb = knex({ client,
             connection: {
               host, user: 'sa',
               password: 'int3g_Pass',
             }})
-          return bkc_with_knex( ctx.kdb, { immutable: true })
+          return kbc_with_knex( ctx.kdb, { immutable: true })
         },
 
-        bkc_cleanup: ctx => ctx.kdb.destroy(),
+        kbc_cleanup: ctx => ctx.kdb.destroy(),
       })
   }
 }

@@ -1,10 +1,10 @@
 export * from './core.jsy'
-export * from './abstract/bkc_abstract.jsy'
-export * from './abstract/bkc_abstract_single.jsy'
-export * from './abstract/bkc_abstract_stream.jsy'
+export * from './abstract/abstract.jsy'
+export * from './abstract/abstract_single.jsy'
+export * from './abstract/abstract_stream.jsy'
 
-export {bkc_js_map, bkc_with_js_map} from './js_map.jsy'
+export * from './js_map.jsy'
 
-export * from './xform/bkc_multi.jsy'
-export * from './xform/bkc_xform.jsy'
-export * from './xform/bkc_channel.jsy'
+export * from './xform/multi.jsy'
+export * from './xform/xform.jsy'
+export * from './xform/channel.jsy'

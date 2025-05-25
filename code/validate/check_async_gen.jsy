@@ -1,13 +1,13 @@
 import {expect} from 'chai'
 
-import {_expect_aiter, _expect_agen_done, _rand_hexkey_batch, _hexkey_with_rand_body} from './check_utils.jsy'
+import {_expect_aiter, _expect_agen_done, _rand_key_batch, _key_with_rand_body} from './check_utils.jsy'
 
-export async function validate_bkc_stream_async_gen(_stg_, opt={}) ::
-  let test_key_list = _rand_hexkey_batch(opt.count ?? 5)
-  let test_body_list = test_key_list.map(_hexkey_with_rand_body(opt.rand_width ?? 32))
+export async function validate_kbc_stream_async_gen(_stg_, opt={}) ::
+  let test_key_list = _rand_key_batch(opt.count ?? 5)
+  let test_body_list = test_key_list.map(_key_with_rand_body(opt.rand_width ?? 32))
 
   ::
-    let ans_stream_exists = _stg_.bkc_stream_exists @
+    let ans_stream_exists = _stg_.kbc_stream_exists @
       opt.use_keys ? test_key_list : test_body_list
 
     _expect_aiter(ans_stream_exists)
@@ -30,7 +30,7 @@ export async function validate_bkc_stream_async_gen(_stg_, opt={}) ::
     await _expect_agen_done(ans_stream_exists)
 
   :: // body for random key should be undefined
-    let ans_stream_fetch = _stg_.bkc_stream_fetch @
+    let ans_stream_fetch = _stg_.kbc_stream_fetch @
       opt.use_keys ? test_key_list : test_body_list
 
     _expect_aiter(ans_stream_fetch)
@@ -50,7 +50,7 @@ export async function validate_bkc_stream_async_gen(_stg_, opt={}) ::
     await _expect_agen_done(ans_stream_fetch)
 
   :: // store test body at key
-    let ans_stream_store = _stg_.bkc_stream_store(test_body_list)
+    let ans_stream_store = _stg_.kbc_stream_store(test_body_list)
 
     _expect_aiter(ans_stream_store)
 
@@ -69,7 +69,7 @@ export async function validate_bkc_stream_async_gen(_stg_, opt={}) ::
     await _expect_agen_done(ans_stream_store)
 
   :: // check keys now exist
-    let ans_stream_exists = _stg_.bkc_stream_exists @
+    let ans_stream_exists = _stg_.kbc_stream_exists @
       opt.use_keys ? test_key_list : test_body_list
 
     _expect_aiter(ans_stream_exists)
@@ -90,7 +90,7 @@ export async function validate_bkc_stream_async_gen(_stg_, opt={}) ::
 
 
   :: // check round-trip of body content
-    let ans_stream_fetch = _stg_.bkc_stream_fetch @
+    let ans_stream_fetch = _stg_.kbc_stream_fetch @
       opt.use_keys ? test_key_list : test_body_list
 
     _expect_aiter(ans_stream_fetch)

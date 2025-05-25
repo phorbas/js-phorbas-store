@@ -1,0 +1,38 @@
+import { pipeline } from 'node:stream/promises'
+import { handle_kbc } from './webstd.jsy'
+
+export function _http_kbc(fn_send, opt) ::
+  const _kbc_handle = handle_kbc @:
+    request_for: ctxreq => ctxreq
+
+    async body_for(ctxreq) ::
+      let c, chunks = []
+      for await c of ctxreq ::
+        chunks.push(c)
+      return new Blob(chunks).arrayBuffer()
+
+    ... opt
+
+  return async (req, resp) => ::
+    let ans = await _kbc_handle(req)
+    if ans ::
+      await fn_send(req, resp, ans)
+    return !! ans
+
+
+export async function _http_send(req, resp, ans) ::
+  resp.writeHead(ans.status, ans.statusText, ans.headers)
+  await pipeline(ans.body, resp)
+  resp.end()
+
+export const http_kbc = opt => _http_kbc(_http_send, opt)
+
+
+
+export const _express_send = (req, resp, ans) =>
+  resp.set(ans.headers)
+    .status(ans.status)
+    .send(new Uint8Array(ans.body))
+
+export const express_kbc = opt => _http_kbc(_express_send, opt)
+

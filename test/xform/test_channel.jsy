@@ -2,27 +2,27 @@ import * as test_bdd from '#test_bdd'
 import {expect} from 'chai'
 
 import {validate_backend} from '@phorbas/store/esm/validate_backend.js'
-import {bkc_js_map, bkc_channel_pair} from '@phorbas/store'
-import {bkc_channel_send, bkc_channel_recv} from '@phorbas/store/esm/xform/bkc_channel.js'
+import {kbc_js_map, kbc_channel_pair} from '@phorbas/store'
+import {kbc_channel_send, kbc_channel_recv} from '@phorbas/store/esm/xform/channel.js'
 
 
-test_bdd.describe @ 'bkc channel variants', @::>
+test_bdd.describe @ 'kbc channel variants', @::>
   if 1 ::
-    validate_backend @ test_bdd, 'bkc_channel_pair', @{}
-      bkc_create() ::
-        let {bkc_send, bkc_recv} = bkc_channel_pair(bkc_js_map())
-        return bkc_send
+    validate_backend @ test_bdd, 'kbc_channel_pair', @{}
+      kbc_create() ::
+        let {kbc_send, kbc_recv} = kbc_channel_pair(kbc_js_map())
+        return kbc_send
 
-      bkc_cleanup(ctx, stg) ::
+      kbc_cleanup(ctx, stg) ::
         stg.close_port()
 
   if 1 ::
-    validate_backend @ test_bdd, 'bkc_channel send & recv explicit', @{}
-      bkc_create() ::
+    validate_backend @ test_bdd, 'kbc_channel send & recv explicit', @{}
+      kbc_create() ::
         let {port1, port2} = new MessageChannel()
-        let bkc_send = bkc_channel_send(port1)
-        let bkc_recv = bkc_channel_recv(port2, bkc_js_map())
-        return bkc_send
+        let kbc_send = kbc_channel_send(port1)
+        let kbc_recv = kbc_channel_recv(port2, kbc_js_map())
+        return kbc_send
 
-      bkc_cleanup(ctx, stg) ::
+      kbc_cleanup(ctx, stg) ::
         stg.close_port()

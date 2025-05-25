@@ -1,22 +1,22 @@
-import { bkc_arrbuf } from '../core.jsy'
-import { _bkc_storage_ } from '../abstract/bkc_abstract_single.jsy'
-import {_bind_hexkey_request} from './fetch.jsy'
+import { kbc_arrbuf } from '../core.jsy'
+import { _kbc_storage_ } from '../abstract/abstract_single.jsy'
+import {_bind_key_request} from './fetch.jsy'
 
 export * from '../core.jsy'
 
-export default bkc_web_cache_fetch
-export async function bkc_web_cache_fetch(cache_store, url_base, opt={}) ::
-  const as_req = opt.as_request ?? _bind_hexkey_request(opt)
+export default kbc_web_cache_fetch
+export async function kbc_web_cache_fetch(cache_store, url_base, opt={}) ::
+  const as_req = opt.as_request ?? _bind_key_request(opt)
 
   const immutable = !! opt.immutable
   const _opt_match = opt.match ?? {ignoreMethod: true}
 
   cache_store = await cache_store
-  return _bkc_storage_.with @:
-    bkc_opt: @{} immutable
+  return _kbc_storage_.with @:
+    kbc_opt: @{} immutable
 
-    async bkc_exists(hexkey, kw) ::
-      let req = as_req(url_base, hexkey, kw?.signal)
+    async kbc_exists(key, kw) ::
+      let req = as_req(url_base, key, kw?.signal)
       let resp = await cache_store.match(req, _opt_match)
 
       if undefined === resp ::
@@ -27,8 +27,8 @@ export async function bkc_web_cache_fetch(cache_store, url_base, opt={}) ::
 
       return 1
 
-    async bkc_fetch(hexkey, kw) ::
-      let req = as_req(url_base, hexkey, kw?.signal)
+    async kbc_fetch(key, kw) ::
+      let req = as_req(url_base, key, kw?.signal)
       let resp = await cache_store.match(req, _opt_match)
 
       if undefined === resp ::
@@ -40,8 +40,8 @@ export async function bkc_web_cache_fetch(cache_store, url_base, opt={}) ::
 
       return resp.arrayBuffer()
 
-    async bkc_store(hexkey, body, kw) ::
-      let req = as_req(url_base, hexkey, kw?.signal), resp
+    async kbc_store(key, body, kw) ::
+      let req = as_req(url_base, key, kw?.signal), resp
       if immutable ::
         resp = await cache_store.match(req, _opt_match)
         try ::
@@ -49,10 +49,9 @@ export async function bkc_web_cache_fetch(cache_store, url_base, opt={}) ::
           return false // return false for immutable existing entry
         catch err :: // pass
 
-      body = await bkc_arrbuf(body)
+      body = await kbc_arrbuf(body)
       resp = await fetch @ req.url,
         @{} method: 'POST'
-            headers: { 'x-hk': hexkey }
             signal: kw?.signal
             body
 
@@ -64,7 +63,7 @@ export async function bkc_web_cache_fetch(cache_store, url_base, opt={}) ::
         return err
 
       resp = new Response @
-        body = await bkc_arrbuf(body),
+        body = await kbc_arrbuf(body),
         @{} status: 200, headers: @{} 'Content-Length': body.byteLength
 
       await cache_store.put(req, resp)

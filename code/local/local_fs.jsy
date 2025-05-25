@@ -1,23 +1,23 @@
-import { bkc_arrbuf } from '../core.jsy'
-import { _bkc_storage_ } from '../abstract/bkc_abstract_single.jsy'
+import { kbc_arrbuf } from '../core.jsy'
+import { _kbc_storage_ } from '../abstract/abstract_single.jsy'
 
 export * from '../core.jsy'
 
-export default bkc_with_fs
-export async function bkc_with_fs(opt={}) ::
-  let immutable = !! opt.immutable
-  let _enc_r = @{} encoding: null, flag: 'r'
-  let _enc_w = @{} encoding: null, flag: immutable ? 'wx' : 'w'
-  let {stat, readFile, writeFile} = await opt.fs
-  let base = opt.base || './var/'
-  let ext = opt.ext || '.bin'
+export default kbc_with_fs
+export function kbc_with_fs(opt={}) ::
+  const immutable = !! opt.immutable,
+    _enc_r = { encoding: null, flag: 'r' },
+    _enc_w = { encoding: null, flag: immutable ? 'wx' : 'w' },
+    base = opt.base || './var/',
+    ext = opt.ext || '.bin',
+    fs = opt.fs
 
-  return _bkc_storage_.with @:
-    bkc_opt: @{} immutable
+  return _kbc_storage_.with @:
+    kbc_opt: @{} immutable
 
-    bkc_exists: hexkey =>
+    kbc_exists: key =>
       new Promise @\ resolve, reject ::
-        stat @ `${base}${hexkey}${ext}`,
+        fs.stat @ `${base}${key}${ext}`,
           (err) => ::
             if ! err ::
               resolve(1)
@@ -25,9 +25,9 @@ export async function bkc_with_fs(opt={}) ::
               resolve(0)
             else reject(err)
 
-    bkc_fetch: hexkey =>
+    kbc_fetch: key =>
       new Promise @\ resolve, reject ::
-        readFile @ `${base}${hexkey}${ext}`, _enc_r,
+        fs.readFile @ `${base}${key}${ext}`, _enc_r,
           (err, buf) => ::
             if ! err ::
               resolve @ buf.buffer
@@ -35,10 +35,10 @@ export async function bkc_with_fs(opt={}) ::
               resolve()
             else reject(err)
 
-    bkc_store: @\ hexkey, body =>
+    kbc_store: @\ key, body =>
       new Promise @\ resolve, reject ::>
-        body = new Uint8Array @ await bkc_arrbuf(body)
-        writeFile @ `${base}${hexkey}${ext}`, body, _enc_w,
+        body = new Uint8Array(await kbc_arrbuf(body))
+        fs.writeFile @ `${base}${key}${ext}`, body, _enc_w,
           err => !err ? resolve(null)
             : immutable && 'EEXIST' === err.code ? resolve(false)
             : resolve(err)

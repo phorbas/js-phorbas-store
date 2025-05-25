@@ -1,7 +1,7 @@
 import * as test_bdd from 'node:test'
 
 import {validate_backend} from '@phorbas/store/esm/validate_backend.js'
-import {bkc_with_knex} from '@phorbas/store/esm/sql/knex.js'
+import {kbc_with_knex} from '@phorbas/store/esm/sql/knex.js'
 import knex from 'knex'
 
 
@@ -16,7 +16,7 @@ for (const host of postgres_hosts) {
   validate_backend(test_bdd,
     `knex to ${host}: pg driver`,
     {
-      async bkc_create(ctx) {
+      async kbc_create(ctx) {
         ctx.kdb = knex({
           client: 'pg',
           connection: {
@@ -25,16 +25,16 @@ for (const host of postgres_hosts) {
             password: 'integ_pass',
             database: 'phorbas_test'
           }})
-        return bkc_with_knex(ctx.kdb)
+        return kbc_with_knex(ctx.kdb)
       },
 
-      bkc_cleanup: ctx => ctx.kdb.destroy(),
+      kbc_cleanup: ctx => ctx.kdb.destroy(),
     })
 
   validate_backend(test_bdd,
     `knex to ${host}, immutable: pg driver`,
     {
-      async bkc_create(ctx) {
+      async kbc_create(ctx) {
         ctx.kdb = knex({
           client: 'pg',
           connection: {
@@ -43,10 +43,10 @@ for (const host of postgres_hosts) {
             password: 'integ_pass',
             database: 'phorbas_test'
           }})
-        return bkc_with_knex(ctx.kdb, {immutable: true})
+        return kbc_with_knex(ctx.kdb, {immutable: true})
       },
 
-      bkc_cleanup: ctx => ctx.kdb.destroy(),
+      kbc_cleanup: ctx => ctx.kdb.destroy(),
     })
 }
 

@@ -1,0 +1,103 @@
+import { kbc_arrbuf, kbc_batch_stream  } from '../core.jsy'
+import { _kbc_storage_mixin_ } from '../abstract/abstract.jsy'
+import { _kbc_multi_mixin_, _kbc_multi_with } from './multi.jsy'
+
+export * from '../core.jsy'
+
+let _kbc_multi_stream_
+export function kbc_multi_stream(opt={}) ::
+  _kbc_multi_stream_ ??= _kbc_storage_mixin_.with(_kbc_multi_stream_mixin_)
+  return _kbc_multi_with(_kbc_multi_stream_, opt)
+
+export default kbc_multi_stream
+
+
+const _by_stg = o => o.stg
+export const _kbc_multi_stream_mixin_ = @{}
+  ... _kbc_multi_mixin_
+
+  async * kbc_stream_store(key_body_aiter, kw) ::
+    const _kbc_rec = this._kbc_record()
+    for await let multi_batch of kbc_batch_stream(key_body_aiter, _kbc_rec, kw) ::
+      const remap = new Map(), _xf_lookup = this._xf_lookup(null, {remap})
+      await _encode_multi_batch @ multi_batch.map(_xf_lookup)
+      if kw?.signal?.aborted :: return
+
+      // parallel query by storage backend
+      multi_batch = Array.from @ Map.groupBy(multi_batch, _by_stg),
+        ([stg, stg_batch]) => stg.kbc_stream_store(stg_batch, kw)
+
+      for await let batch of this._multi_batch_merge(multi_batch, kw) ::
+        if kw?.signal?.aborted :: return
+        yield _decode_key_batch(batch, remap)
+
+  async * kbc_stream_exists(key_aiter, kw) ::
+    const _kbc_rec = this._kbc_record()
+    for await let multi_batch of kbc_batch_stream(key_aiter, _kbc_rec, kw) ::
+      const remap = new Map(), _xf_lookup = this._xf_lookup(null, {remap})
+      await _encode_multi_batch @ multi_batch.map(_xf_lookup)
+      if kw?.signal?.aborted :: return
+
+      // parallel query by storage backend
+      multi_batch = Array.from @ Map.groupBy(multi_batch, _by_stg),
+        ([stg, stg_batch]) => stg.kbc_stream_exists(stg_batch, kw)
+
+      for await let batch of this._multi_batch_merge(multi_batch, kw) ::
+        if kw?.signal?.aborted :: return
+        yield _decode_key_batch(batch, remap)
+
+  async * kbc_stream_fetch(key_aiter, kw) ::
+    let _xf_decode_body = this._xf_decode_body
+
+    const _kbc_rec = this._kbc_record()
+    for await let multi_batch of kbc_batch_stream(key_aiter, _kbc_rec, kw) ::
+      const remap = new Map(), _xf_lookup = this._xf_lookup(null, {remap})
+      await _encode_multi_batch @ multi_batch.map(_xf_lookup)
+      if kw?.signal?.aborted :: return
+
+      // parallel query by storage backend
+      multi_batch = Array.from @ Map.groupBy(multi_batch, _by_stg), _stream_fetch
+
+      for await let batch of this._multi_batch_merge(multi_batch, kw) ::
+        if kw?.signal?.aborted :: return
+        yield _decode_key_batch(batch, remap)
+
+
+    async function * _stream_fetch([stg, stg_batch]) ::
+      let by_key = new Map()
+      for let rec of stg_batch :: by_key.set(rec[0], rec)
+
+      for await let batch of stg.kbc_stream_fetch(stg_batch, kw) ::
+        yield batch.map(_reunite)
+
+      function _reunite([key, body]) ::
+        let rec = by_key.get(key)
+        rec[1] = _xf_decode_body(body, rec)
+        return rec
+
+  async * _multi_batch_merge(multi_streams, kw) ::
+    const signal = kw?.signal
+    for let batch_stream of multi_streams ::
+      yield * await batch_stream
+      if signal?.aborted :: return
+
+
+async function _encode_multi_batch(multi_batch) ::
+  for let idx in multi_batch ::
+    let rec = multi_batch[idx]
+    // only await thenables
+    if rec.then :: multi_batch[idx] = await rec
+
+async function _decode_key_batch(batch, remap) ::
+  let rev = new Map()
+  for let [orig, key] of remap ::
+    if key?.then :: key = await key
+    rev.set(key, orig)
+
+  for let rec of batch ::
+    let rk = rev.get(rec[0])
+    if undefined !== rk ::
+      rec[0] = rk.then ? await rk : rk
+
+  return batch
+

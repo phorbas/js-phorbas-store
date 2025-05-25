@@ -1,16 +1,16 @@
 import {as_arrbuf, _as_arrbuf} from '@phorbas/opaque/esm/subtle/utils.js'
 export {as_arrbuf, _as_arrbuf}
 
-export {bkc_storage_verify} from './abstract/bkc_abstract.jsy'
+export {kbc_storage_verify} from './abstract/abstract.jsy'
 
-export const bkc_arrbuf = body => as_arrbuf(body)
-export const bkc_rec_arrbuf = ([key, body]) => bkc_arrbuf(body)
+export const kbc_arrbuf = body => as_arrbuf(body)
+export const kbc_rec_arrbuf = ([key, body]) => kbc_arrbuf(body)
 
-export const bkc_extend = async (bkc, ...args) =>
-  Object.assign(await bkc, ... await Promise.all(args))
+export const kbc_extend = async (kbc, ...args) =>
+  Object.assign(await kbc, ... args)
 
-const _as_bkc_records = v => v.trim ? [v] : v.slice()
-export async function * bkc_batch_stream(aiter_batches, bkc_fn, kw) ::
+const _as_kbc_records = v => v.trim ? [v] : v.slice()
+export async function * kbc_batch_stream(aiter_batches, kbc_fn, kw) ::
   if 'string' === typeof aiter_batches :: throw new Error()
   if Array.isArray(aiter_batches) :: aiter_batches = [aiter_batches]
 
@@ -19,14 +19,14 @@ export async function * bkc_batch_stream(aiter_batches, bkc_fn, kw) ::
 
     if batch?.length ::
       //ensure batch is an array of new mutable tuples of max-length 2
-      batch = batch.trim ? [[batch]] : batch.map(_as_bkc_records)
-      if bkc_fn :: batch = batch.map(bkc_fn)
+      batch = batch.trim ? [[batch]] : batch.map(_as_kbc_records)
+      if kbc_fn :: batch = batch.map(kbc_fn)
       yield batch
 
-export const _bkc_fetch_ans = (buf, as_copy) => _as_arrbuf(buf, as_copy)
+export const _kbc_fetch_ans = (buf, as_copy) => _as_arrbuf(buf, as_copy)
 
 
-export const bkc_rec_tools = @{}
+export const kbc_rec_tools = @{}
   with_ctx(ctx) :: return {__proto__: this, ...ctx}
 
   key: rec => rec[0]

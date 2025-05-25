@@ -1,29 +1,56 @@
 import * as test_bdd from 'node:test'
 
 import {validate_backend} from '@phorbas/store/esm/validate_backend.js'
-import {bkc_pouchdb} from '@phorbas/store/esm/nosql/pouchdb.js'
+import {kbc_pouchdb} from '@phorbas/store/esm/nosql/pouchdb.js'
 import PouchDB from 'pouchdb'
+import pouchdb_memory from 'pouchdb-adapter-memory'
 
 import { couch_hosts } from './_integ_couch_hosts.mjs'
 
-for (const host of couch_hosts) {
+
+test_bdd.describe('PouchDB in-memory', () => {
+  PouchDB.plugin(pouchdb_memory)
+
   validate_backend(test_bdd,
-    `${host} with PouchDB`, {
+    'pouchdb in-memory', {
 
-    bkc_create: ctx => bkc_pouchdb(
-      ctx.client = new PouchDB(`${host}/pouchdb_phorbas_test`)),
+    kbc_create: ctx => kbc_pouchdb(
+      ctx.client = new PouchDB('phorbas_test', {adapter: 'memory'})),
 
-    blah_bkc_cleanup: ctx => ctx.client.close(),
+    kbc_cleanup: ctx => ctx.client.close(),
   })
 
   validate_backend(test_bdd,
-    `${host} with path and PouchDB`, {
+    'pouchdb in-memory (immutable)', {
 
-    bkc_create: ctx => bkc_pouchdb(
-      ctx.client = new PouchDB(`${host}/pouchdb_phorbas_test`),
-      {path:'/a/b/c'}),
+    kbc_create: ctx => kbc_pouchdb(
+      ctx.client = new PouchDB('phorbas_immutable_test', {adapter: 'memory'}),
+      {immutable: true}),
 
-    bkc_cleanup: ctx => ctx.client.close(),
+    kbc_cleanup: ctx => ctx.client.close(),
   })
+})
 
-}
+test_bdd.describe('PouchDB with hosts', () => {
+  for (const host of couch_hosts) {
+    validate_backend(test_bdd,
+      `${host} with PouchDB`, {
+
+      kbc_create: ctx => kbc_pouchdb(
+        ctx.client = new PouchDB(`${host}/pouchdb_phorbas_test`)),
+
+      blah_kbc_cleanup: ctx => ctx.client.close(),
+    })
+
+    validate_backend(test_bdd,
+      `${host} with path and PouchDB`, {
+
+      kbc_create: ctx => kbc_pouchdb(
+        ctx.client = new PouchDB(`${host}/pouchdb_phorbas_test`),
+        {path:'/a/b/c'}),
+
+      kbc_cleanup: ctx => ctx.client.close(),
+    })
+
+  }
+})

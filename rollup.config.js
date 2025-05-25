@@ -20,23 +20,23 @@ export const pkg_cfg_core = pkg_phrobas_store_group('', {
 
 export const pkg_abstract = pkg_phrobas_store_group('abstract', {
   input: [
-    'code/abstract/bkc_abstract.jsy',
-    'code/abstract/bkc_abstract_single.jsy',
-    'code/abstract/bkc_abstract_stream.jsy',
+    'code/abstract/abstract.jsy',
+    'code/abstract/abstract_single.jsy',
+    'code/abstract/abstract_stream.jsy',
   ]})
 
 export const pkg_cfg_xform = pkg_phrobas_store_group('xform', {
   input: [
     'code/xform/index.jsy',
-    'code/xform/bkc_multi.jsy',
-    'code/xform/bkc_multi_stream.jsy',
-    'code/xform/bkc_multi_path.jsy',
+    'code/xform/multi.jsy',
+    'code/xform/multi_stream.jsy',
+    'code/xform/multi_path.jsy',
 
-    'code/xform/bkc_xform.jsy',
-    'code/xform/bkc_xform_stream.jsy',
-    'code/xform/bkc_opaque.jsy',
+    'code/xform/xform.jsy',
+    'code/xform/xform_stream.jsy',
+    'code/xform/opaque.jsy',
 
-    'code/xform/bkc_channel.jsy',
+    'code/xform/channel.jsy',
   ]})
 
 export const pkg_cfg_web = pkg_phrobas_store_group('web', {
@@ -53,8 +53,8 @@ export const pkg_cfg_web = pkg_phrobas_store_group('web', {
 export const pkg_cfg_websvr = pkg_phrobas_store_group('websvr', {
   input: [
     'code/websvr/webstd.jsy',
-    'code/websvr/http_bkc.jsy',
-    'code/websvr/hono_bkc.jsy',
+    'code/websvr/http_kbc.jsy',
+    'code/websvr/hono_kbc.jsy',
   ]})
 
 export const pkg_cfg_local = pkg_phrobas_store_group('local', {
@@ -103,8 +103,9 @@ export const pkg_test_cfg = {
     'test-local': './test/local/unittest.jsy',
     'test-nosql': './test/nosql/unittest.jsy',
 
-    'test-integ-web': './test/web/integtest.jsy',
-    'test-integ-nosql': './test/nosql/integtest.jsy',
+    'test-integ-local': './test/local/integtest.js',
+    'test-integ-web': './test/web/integtest.js',
+    'test-integ-nosql': './test/nosql/integtest.js',
   },
 }
 

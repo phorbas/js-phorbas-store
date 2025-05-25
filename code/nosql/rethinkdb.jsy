@@ -1,36 +1,36 @@
-import { _as_arrbuf, bkc_arrbuf } from '../core.jsy'
-import { _bkc_storage_ } from '../abstract/bkc_abstract_single.jsy'
+import { _as_arrbuf, kbc_arrbuf } from '../core.jsy'
+import { _kbc_storage_ } from '../abstract/abstract_single.jsy'
 
 export * from '../core.jsy'
 
-export default bkc_rethinkdb
-export async function bkc_rethinkdb(opt={}) ::
-  const conn=opt.connection, table=opt.table
+export default kbc_rethinkdb
+export async function kbc_rethinkdb(opt={}) ::
+  const connection=opt.connection, table=opt.table
 
-  return _bkc_storage_.with @:
-    bkc_opt: @{}
+  return _kbc_storage_.with @:
+    kbc_opt: @{}
 
-    async bkc_exists(hexkey) ::
+    async kbc_exists(key) ::
       let res = await table
-        .get(hexkey)
+        .get(key)
         .run(connection)
 
       return null != res ? 1 : 0
 
-    async bkc_fetch(hexkey) ::
+    async kbc_fetch(key) ::
       let res = await table
-        .get(hexkey)
+        .get(key)
         .run(connection)
 
       if null != res ::
         return _as_arrbuf(res.bc)
 
-    async bkc_store(hexkey, body) ::
-      body = new Uint8Array(await bkc_arrbuf(body))
+    async kbc_store(key, body) ::
+      body = new Uint8Array(await kbc_arrbuf(body))
       try ::
         await table
           .insert @ 
-            @{} id: hexkey, bc: Buffer.from(body)
+            @{} id: key, bc: Buffer.from(body)
             @{} conflict: 'replace'
           .run(connection)
         return null

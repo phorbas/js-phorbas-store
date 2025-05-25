@@ -1,0 +1,64 @@
+import { kbc_arrbuf, kbc_storage_verify } from '../core.jsy'
+import { _kbc_storage_ } from '../abstract/abstract_single.jsy'
+
+export * from '../core.jsy'
+
+export function kbc_channel_pair(stg_tgt, opt={}) ::
+  let channel = new MessageChannel()
+  return @{}
+    channel
+    kbc_send: kbc_channel_send(channel.port1, opt)
+    kbc_recv: kbc_channel_recv(channel.port2, stg_tgt)
+
+
+export function kbc_channel_recv(recv_port, stg_tgt) ::
+  stg_tgt = kbc_storage_verify(stg_tgt)
+
+  recv_port.onmessage = async (evt) => ::
+    let {id, op, args} = evt.data
+    try ::
+      if ! /^kbc_/.test(op) :: throw new Error(`Invalid op "${op}"`)
+      let ans = await stg_tgt[op](...args)
+      evt.target.postMessage @: id, ans
+
+    catch err ::
+      evt.target.postMessage @: id, err: ''+err
+
+  stg_tgt.close_port = () => recv_port.close()
+  recv_port.unref?.()
+  return stg_tgt
+
+
+export async function kbc_channel_send(port, opt) ::
+  let by_id = opt?.by_id ?? new Map()
+  let n36=opt?.idx0 || 0, prefix = opt?.prefix ?? '&'
+
+  port.onmessage = (evt) => ::
+    let {id, ans, err, batch} = evt.data
+    let defer = by_id.get(id)
+    if err :: defer?.reject(err)
+    else defer?.resolve(ans)
+  
+  return _kbc_storage_.with @:
+    kbc_opt: @{} proxy: true
+    close_port() :: return port.close()
+
+    async kbc_exists(key) ::
+      return _rpc @ 'kbc_exists', key
+
+    async kbc_fetch(key) ::
+      return _rpc @ 'kbc_fetch', key
+
+    async kbc_store(key, body) ::
+      return _rpc @ 'kbc_store', key, body = await kbc_arrbuf(body)
+
+  async function _rpc(op, ... args) ::
+    let id = prefix + (n36++).toString(36)
+    let defer = Promise.withResolvers()
+    by_id.set(id, defer)
+    try ::
+      port.postMessage @: id, op, args
+      return await defer.promise
+    finally ::
+      by_id.delete(id)
+

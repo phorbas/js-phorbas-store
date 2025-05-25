@@ -1,7 +1,7 @@
 import * as test_bdd from 'node:test'
 
 import {validate_backend} from '@phorbas/store/esm/validate_backend.js'
-import {bkc_dynamodb} from '@phorbas/store/esm/nosql/dynamodb.js'
+import {kbc_dynamodb} from '@phorbas/store/esm/nosql/dynamodb.js'
 import AWS from "@aws-sdk/client-dynamodb"
 
 const integ_ddb_common = {
@@ -22,7 +22,7 @@ const _dynamodb_integ = [
 for (const ddb_cfg of _dynamodb_integ) {
   validate_backend(test_bdd,
     `AWS DynamoDB`, {
-      bkc_create: ctx => bkc_dynamodb( new AWS.DynamoDB(ddb_cfg) ),
+      kbc_create: ctx => kbc_dynamodb( new AWS.DynamoDB(ddb_cfg) ),
 
       max_item_size: 400000,
     })

@@ -1,36 +1,36 @@
-import { _as_arrbuf, bkc_arrbuf } from '../core.jsy'
-import { _bkc_storage_ } from '../abstract/bkc_abstract_single.jsy'
+import { _as_arrbuf, kbc_arrbuf } from '../core.jsy'
+import { _kbc_storage_ } from '../abstract/abstract_single.jsy'
 
 export * from '../core.jsy'
 
-export default bkc_consulkv
-export async function bkc_consulkv(consulkv, opt={}) ::
+export default kbc_consulkv
+export async function kbc_consulkv(consulkv, opt={}) ::
   let opt_path = '' + (opt.path || '/phorbas/').replace(/^\/+/, '')
 
-  return _bkc_storage_.with @:
-    bkc_opt: @{}
+  return _kbc_storage_.with @:
+    kbc_opt: @{}
 
-    async bkc_exists(hexkey) ::
+    async kbc_exists(key) ::
       let res = await consulkv.get @:
         raw: true, ... opt.has
-        key: opt_path + hexkey,
+        key: opt_path + key,
 
       return null != res ? 1 : 0
 
-    async bkc_fetch(hexkey) ::
+    async kbc_fetch(key) ::
       let res = await consulkv.get @:
         buffer: true, ... opt.get
-        key: opt_path + hexkey,
+        key: opt_path + key,
 
       if null != res ::
         return _as_arrbuf(res.Value)
 
-    async bkc_store(hexkey, body) ::
-      body = new Uint8Array(await bkc_arrbuf(body))
+    async kbc_store(key, body) ::
+      body = new Uint8Array(await kbc_arrbuf(body))
       try ::
         await consulkv.set @:
           ... opt.set
-          key: opt_path + hexkey
+          key: opt_path + key
           value: body //Buffer.from(u8_content)
         return null
       catch err ::

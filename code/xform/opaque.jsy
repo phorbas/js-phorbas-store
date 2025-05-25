@@ -1,0 +1,37 @@
+import { kbc_multi } from './multi.jsy'
+
+export * from '../core.jsy'
+
+const _okey_from_hk21 = opaque => key => opaque.from_hk21(key)
+export const kbc_opaque = opt => kbc_multi @
+  _kbc_opaque_xform( _okey_from_hk21(opt.opaque), opt )
+
+
+const _get_hk2 = hk21 => hk21[0]
+export function _kbc_opaque_xform(as_okey, _proto_) ::
+  return @{}
+    __proto__: _proto_
+
+    kbc_lookup(rec, rec_api) ::
+      rec.okey ??= as_okey(rec[0])
+      rec_api.set_key(rec, rec.okey.then(_get_hk2))
+
+    async encode_body(body, rec) ::
+      if ! rec.okey :: throw new Error()
+
+      body = await body
+      if body?.byteLength ::
+        let okey = rec.okey = await rec.okey
+        body = okey.encode_body?.(body) ?? okey.encipher?.(body) ?? body
+        return body
+
+    async decode_body(body, rec) ::
+      if ! rec.okey :: throw new Error()
+      body = await body
+      if body?.byteLength ::
+        let okey = await rec.okey
+        body = okey.decode_body?.(body) ?? okey.decipher?.(body) ?? body
+        return body
+
+export default kbc_opaque
+

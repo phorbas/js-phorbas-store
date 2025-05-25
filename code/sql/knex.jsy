@@ -1,10 +1,10 @@
-import { _as_arrbuf, bkc_arrbuf } from '../core.jsy'
-import { _bkc_storage_ } from '../abstract/bkc_abstract_single.jsy'
+import { _as_arrbuf, kbc_arrbuf } from '../core.jsy'
+import { _kbc_storage_ } from '../abstract/abstract_single.jsy'
 
 export * from '../core.jsy'
 
-export default bkc_with_knex
-export async function bkc_with_knex(knex, opt={}) ::
+export default kbc_with_knex
+export async function kbc_with_knex(knex, opt={}) ::
   const immutable = !! opt.immutable
   const table = opt.table || 'phorbas_kv'
   const U8Buffer = opt.U8Buffer ?? globalThis.Buffer ?? Uint8Array
@@ -14,8 +14,8 @@ export async function bkc_with_knex(knex, opt={}) ::
       let {key_type, blob_type} = opt
 
       let col_key = key_type
-        ? t.specificType('hk', key_type)
-        : t.string('hk')
+        ? t.specificType('k', key_type)
+        : t.string('k')
 
       col_key.unique().notNullable().primary()
 
@@ -26,31 +26,31 @@ export async function bkc_with_knex(knex, opt={}) ::
       col_bc.notNullable()
 
 
-  return _bkc_storage_.with @:
-    bkc_opt: @{} immutable
+  return _kbc_storage_.with @:
+    kbc_opt: @{} immutable
 
-    async bkc_exists(hexkey) ::
+    async kbc_exists(key) ::
       let ans = await knex(table)
-        .select('hk')
-        .where('hk', hexkey)
+        .select('k')
+        .where('k', key)
         .first()
 
       return null != ans ? 1 : 0
 
-    async bkc_fetch(hexkey) ::
+    async kbc_fetch(key) ::
       let ans = await knex(table)
         .select('bc')
-        .where('hk', hexkey)
+        .where('k', key)
         .first()
 
       if null != ans ::
         return _as_arrbuf(ans.bc)
 
-    async bkc_store(hexkey, body) ::
-      body = U8Buffer.from(await bkc_arrbuf(body))
+    async kbc_store(key, body) ::
+      body = U8Buffer.from(await kbc_arrbuf(body))
 
       try ::
-        await knex(table).insert({hk: hexkey, bc: body})
+        await knex(table).insert({k: key, bc: body})
         return null
       catch err ::
         if immutable ::
@@ -60,7 +60,7 @@ export async function bkc_with_knex(knex, opt={}) ::
 
       try ::
         await knex(table)
-          .where({hk: hexkey})
+          .where({k: key})
           .update({bc: body})
         return null
       catch err ::

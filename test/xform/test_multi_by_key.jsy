@@ -2,24 +2,24 @@ import * as test_bdd from '#test_bdd'
 import {expect} from 'chai'
 
 import {validate_backend} from '@phorbas/store/esm/validate_backend.js'
-import {bkc_js_map} from '@phorbas/store'
-import {bkc_multi_stream, bkc_xform_stream, bkc_multi_path} from '@phorbas/store/esm/xform/index.js'
+import {kbc_js_map} from '@phorbas/store'
+import {kbc_multi_stream, kbc_xform_stream, kbc_multi_path} from '@phorbas/store/esm/xform/index.js'
 
 
 
-async function mock_js_map() ::
+function mock_js_map() ::
   let mock_db = new Map()
-  let stg = await bkc_js_map(mock_db)
+  let stg = kbc_js_map(mock_db)
   stg.mock_db = mock_db
   return stg
 
-async function mock_inject_prefix({stg_tgt, lut_keys, sep, prefix}) ::
+function mock_inject_prefix({stg_tgt, lut_keys, sep, prefix}) ::
   if ! sep?.trim :: throw TypeError()
   lut_keys = [... lut_keys]
 
   // Inject mock prefix using first character of hexkey
-  return bkc_xform_stream @ stg_tgt, @{}
-    bkc_lookup(rec, rec_api) ::
+  return kbc_xform_stream @ stg_tgt, @{}
+    kbc_lookup(rec, rec_api) ::
       let hexkey = rec[0]
       // deterministically spread across LUT keys by first character of hexkey
       let dynkey = lut_keys[hexkey.charCodeAt(0) % lut_keys.length]
@@ -27,7 +27,7 @@ async function mock_inject_prefix({stg_tgt, lut_keys, sep, prefix}) ::
       rec_api.set_key(rec, `${prefix??''}${dynkey}${sep}${hexkey}`)
 
 
-test_bdd.describe @ 'bkc multi by key', @::>
+test_bdd.describe @ 'kbc multi by key', @::>
   const _some_path_prefix = '/some/path_prefix/'
   if 1 ::
     for let sep of ['~', '::@::'] ::
@@ -50,26 +50,26 @@ test_bdd.describe @ 'bkc multi by key', @::>
     _check_by_matcher @
       new URLPattern @:
         pathname: '/some/path_prefix/:stg/:key'
-        protocol: 'bkc'
+        protocol: 'kbc'
       @{} test_name: 'multi by URLPattern with pathname'
           sep:'/', prefix:_some_path_prefix
 
     _check_by_matcher @
-      new URLPattern('/some/path_prefix/:stg/:key', 'bkc:/')
-      @{} test_name: 'multi by URLPattern with bkc:/ prefix'
+      new URLPattern('/some/path_prefix/:stg/:key', 'kbc:/')
+      @{} test_name: 'multi by URLPattern with kbc:/ prefix'
           sep:'/', prefix:_some_path_prefix
 
 
 function _check_simplistic(sz_sep='~', opt) ::
   validate_backend @ test_bdd, `multi / simplistic "${sz_sep}"`, @{}
     skip_batch_count: true
-    async bkc_create() ::
+    async kbc_create() ::
       return mock_inject_prefix @:
         ... opt,
         sep: sz_sep, lut_keys: ['alpha', 'beta', 'gamma']
         stg_tgt: mock_js_map()
 
-    async bkc_cleanup(ctx, stg) ::
+    async kbc_cleanup(ctx, stg) ::
       for let [key, buf] of stg.stg_default.mock_db ::
         expect(buf).instanceof(ArrayBuffer)
 
@@ -82,19 +82,19 @@ function _check_by_matcher(matcher_list, opt={}) ::
   opt.test_name ??= `multi by matcher ${matcher_list}`
   validate_backend @ test_bdd, opt.test_name, @{}
     skip_batch_count: true
-    async bkc_create(ctx) ::
+    async kbc_create(ctx) ::
       let by_path = new Map @ Object.entries @:
-        alpha: await mock_js_map()
-        beta: await mock_js_map()
-        gamma: await mock_js_map()
+        alpha: mock_js_map()
+        beta: mock_js_map()
+        gamma: mock_js_map()
 
       ctx.by_path = by_path
       return mock_inject_prefix @:
         ... opt,
         lut_keys: by_path.keys(),
-        stg_tgt: bkc_multi_path(matcher_list, { by_path })
+        stg_tgt: kbc_multi_path(matcher_list, { by_path })
 
-    async bkc_cleanup(ctx) ::
+    async kbc_cleanup(ctx) ::
       for let [stg_name, stg] of ctx.by_path ::
         for let [hexkey, buf] of stg.mock_db ::
           expect(buf).instanceof(ArrayBuffer)

@@ -2,11 +2,11 @@ import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { serve } from '@hono/node-server'
 
-import { bkc_js_map } from '@phorbas/store'
-import { hono_bkc } from '@phorbas/store/esm/websvr/hono_bkc.js'
+import { kbc_js_map } from '@phorbas/store'
+import { hono_kbc } from '@phorbas/store/esm/websvr/hono_kbc.js'
 
-const stg = await bkc_js_map()
-const example_hono = hono_bkc({stg})
+const stg = await kbc_js_map()
+const example_hono = hono_kbc({stg})
 
 const app = new Hono()
 

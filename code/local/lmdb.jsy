@@ -1,12 +1,12 @@
-import { bkc_arrbuf, bkc_rec_arrbuf, bkc_batch_stream, _bkc_fetch_ans  } from '../core.jsy'
-import { _bkc_stream_storage_ } from '../abstract/bkc_abstract_stream.jsy'
+import { kbc_arrbuf, kbc_rec_arrbuf, kbc_batch_stream, _kbc_fetch_ans  } from '../core.jsy'
+import { _kbc_stream_storage_ } from '../abstract/abstract_stream.jsy'
 
 export * from '../core.jsy'
 
-export default bkc_with_lmdb
+export default kbc_with_lmdb
 
 const _dbi_default = { name: 'phorbas', create: true }
-export async function bkc_with_lmdb(lmdb_env, opt) ::
+export async function kbc_with_lmdb(lmdb_env, opt) ::
   if ! opt :: opt = {}
   else if 'string' === typeof opt ::
     opt = @{} dbi: { ..._dbi_default, name: opt }
@@ -15,12 +15,12 @@ export async function bkc_with_lmdb(lmdb_env, opt) ::
 
   const immutable = !! opt.immutable
   const dbi = lmdb_env.openDbi({keyIsString: true, ...opt.dbi})
-  return _bkc_stream_storage_.with @:
-    bkc_opt: @{} immutable
+  return _kbc_stream_storage_.with @:
+    kbc_opt: @{} immutable
 
-    async * bkc_stream_exists(hexkey_aiter, kw) ::
-      let _bkc_rec = this._bkc_record()
-      for await let batch of bkc_batch_stream(hexkey_aiter, _bkc_rec, kw) ::
+    async * kbc_stream_exists(key_aiter, kw) ::
+      let _kbc_rec = this._kbc_record()
+      for await let batch of kbc_batch_stream(key_aiter, _kbc_rec, kw) ::
         let _txn = lmdb_env.beginTxn()
         for let rec of batch ::
           let buf = _txn.getBinary(dbi, rec[0])
@@ -30,22 +30,22 @@ export async function bkc_with_lmdb(lmdb_env, opt) ::
         yield batch
 
 
-    async * bkc_stream_fetch(hexkey_aiter, kw) ::
-      let _bkc_rec = this._bkc_record()
-      for await let batch of bkc_batch_stream(hexkey_aiter, _bkc_rec, kw) ::
+    async * kbc_stream_fetch(key_aiter, kw) ::
+      let _kbc_rec = this._kbc_record()
+      for await let batch of kbc_batch_stream(key_aiter, _kbc_rec, kw) ::
         let _txn = lmdb_env.beginTxn()
         for let rec of batch ::
           let buf = _txn.getBinary(dbi, rec[0]) ?? void 0
-          rec[1] = _bkc_fetch_ans(buf, false)
+          rec[1] = _kbc_fetch_ans(buf, false)
 
         await _txn.commit()
         yield batch
 
 
-    async * bkc_stream_store(hexkey_body_aiter, kw) ::
-      let _bkc_body_rec = this._bkc_record(bkc_rec_arrbuf)
+    async * kbc_stream_store(key_body_aiter, kw) ::
+      let _kbc_body_rec = this._kbc_record(kbc_rec_arrbuf)
 
-      for await let batch of bkc_batch_stream(hexkey_body_aiter, _bkc_body_rec, kw) ::
+      for await let batch of kbc_batch_stream(key_body_aiter, _kbc_body_rec, kw) ::
         for let rec of batch ::
           rec[1] = await rec[1]
 

@@ -1,43 +1,43 @@
-import { _as_arrbuf, bkc_arrbuf } from '../core.jsy'
-import { _bkc_storage_ } from '../abstract/bkc_abstract_single.jsy'
+import { _as_arrbuf, kbc_arrbuf } from '../core.jsy'
+import { _kbc_storage_ } from '../abstract/abstract_single.jsy'
 
 export * from '../core.jsy'
 
-export default bkc_with_sqlite3
+export default kbc_with_sqlite3
 // for use with node-sqlite3
-export async function bkc_with_sqlite3(db, opt={}) :: const immutable = !! opt.immutable
+export async function kbc_with_sqlite3(db, opt={}) :: const immutable = !! opt.immutable
   const quoted_table = JSON.stringify('' + (opt.table || 'phorbas_kv'))
   ::
-    let sql_create = `CREATE TABLE IF NOT EXISTS ${quoted_table} ( "hk" TEXT PRIMARY KEY, "bc" BLOB );`
+    let sql_create = `CREATE TABLE IF NOT EXISTS ${quoted_table} ( "k" TEXT PRIMARY KEY, "bc" BLOB );`
     await new Promise @\ resolve, reject ::
       db.run @ sql_create, err => err ? reject(err) : resolve()
 
-  const sql_has = `SELECT 1 as "r" FROM ${quoted_table} WHERE "hk"=?`
-  const sql_get = `SELECT "hk", "bc" FROM ${quoted_table} WHERE "hk"=?`
-  const sql_set = `INSERT ${immutable ? '' : 'OR REPLACE'} INTO ${quoted_table} ("hk", "bc") VALUES (?, ?)`
+  const sql_has = `SELECT 1 as "r" FROM ${quoted_table} WHERE "k"=?`
+  const sql_get = `SELECT "k", "bc" FROM ${quoted_table} WHERE "k"=?`
+  const sql_set = `INSERT ${immutable ? '' : 'OR REPLACE'} INTO ${quoted_table} ("k", "bc") VALUES (?, ?)`
 
-  return _bkc_storage_.with @:
-    bkc_opt: @{} immutable
+  return _kbc_storage_.with @:
+    kbc_opt: @{} immutable
 
-    bkc_exists: (hexkey) =>
+    kbc_exists: (key) =>
       new Promise @\ resolve, reject ::>
-        db.get @ sql_has, hexkey,
+        db.get @ sql_has, key,
           @\ err, ans ::
             if (err) return reject(err)
             resolve(ans?.r ? 1 : 0)
 
-    bkc_fetch: (hexkey) =>
+    kbc_fetch: (key) =>
       new Promise @\ resolve, reject ::>
-        db.get @ sql_get, hexkey,
+        db.get @ sql_get, key,
           @\ err, ans ::
             if (err) return reject(err)
             resolve @ null == ans ? void ans
               : _as_arrbuf(ans.bc)
 
-    bkc_store: (hexkey, body) =>
+    kbc_store: (key, body) =>
       new Promise @\ resolve ::>
-        body = new Uint8Array(await bkc_arrbuf(body))
-        db.run @ sql_set, hexkey, body,
+        body = new Uint8Array(await kbc_arrbuf(body))
+        db.run @ sql_set, key, body,
           err => !err ? resolve(null)
             : immutable && 19===err.errno ? resolve(false)
             : resolve(err)

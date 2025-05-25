@@ -1,27 +1,27 @@
-import { _as_arrbuf, bkc_arrbuf } from '../core.jsy'
-import { _bkc_storage_ } from '../abstract/bkc_abstract_single.jsy'
+import { _as_arrbuf, kbc_arrbuf } from '../core.jsy'
+import { _kbc_storage_ } from '../abstract/abstract_single.jsy'
 
 export * from '../core.jsy'
 
-export default bkc_mongojs
-export async function bkc_mongojs(coll, {writeConcern}={}) ::
-  return _bkc_storage_.with @:
-    bkc_opt: @{}
+export default kbc_mongojs
+export async function kbc_mongojs(coll, {writeConcern}={}) ::
+  return _kbc_storage_.with @:
+    kbc_opt: @{}
 
-    async bkc_exists(hexkey) ::
-      let res = await coll.findOne({_id: hexkey}, {_id:1})
+    async kbc_exists(key) ::
+      let res = await coll.findOne({_id: key}, {_id:1})
       return null != res ? 1 : 0
 
-    async bkc_fetch(hexkey) ::
-      let res = await coll.findOne({_id: hexkey}, {_id:1, bc:1})
+    async kbc_fetch(key) ::
+      let res = await coll.findOne({_id: key}, {_id:1, bc:1})
       if null != res?.bc ::
         return _as_arrbuf(res.bc.buffer)
 
-    async bkc_store(hexkey, body) ::
-      body = new Uint8Array(await bkc_arrbuf(body))
+    async kbc_store(key, body) ::
+      body = new Uint8Array(await kbc_arrbuf(body))
       try ::
         await coll.updateOne @
-          @{} _id: hexkey
+          @{} _id: key
           @{} $set: @{} bc: body
           @{} upsert: true
         return null

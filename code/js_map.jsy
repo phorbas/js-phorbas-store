@@ -1,31 +1,31 @@
-import { _as_arrbuf, bkc_arrbuf } from './core.jsy'
-import { _bkc_storage_ } from './abstract/bkc_abstract_single.jsy'
+import { _as_arrbuf, kbc_arrbuf } from './core.jsy'
+import { _kbc_storage_ } from './abstract/abstract_single.jsy'
 
 export * from './core.jsy'
 
-export async function bkc_js_map(map_db, opt={}) ::
-  const immutable = !! opt.immutable
-  const as_copy = opt.as_copy ?? true // default to copy to prevent accidental mutation
+export function kbc_js_map(map_db, opt={}) ::
+  const immutable = !! opt.immutable,
+    as_copy = opt.as_copy ?? true // default to copy to prevent accidental mutation
 
   map_db ||= new Map()
-  return _bkc_storage_.with @:
-    bkc_opt: @{} immutable
+  return _kbc_storage_.with @:
+    kbc_opt: @{} immutable
 
-    async bkc_exists(hexkey) ::
-      let buf = map_db.get(hexkey)
+    async kbc_exists(key) ::
+      let buf = map_db.get(key)
       return buf ? 1 : 0
 
-    async bkc_fetch(hexkey) ::
-      let buf = map_db.get(hexkey)
+    async kbc_fetch(key) ::
+      let buf = map_db.get(key)
       return buf && _as_arrbuf(buf, as_copy)
 
-    async bkc_store(hexkey, body) ::
-      if immutable && map_db.has(hexkey) ::
+    async kbc_store(key, body) ::
+      if immutable && map_db.has(key) ::
         return false
 
-      map_db.set(hexkey, await bkc_arrbuf(body))
+      map_db.set(key, await kbc_arrbuf(body))
       return null
 
 export @{}
-  bkc_js_map as default
-  bkc_js_map as bkc_with_js_map
+  kbc_js_map as default
+  kbc_js_map as kbc_with_js_map

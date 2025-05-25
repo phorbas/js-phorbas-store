@@ -1,4 +1,4 @@
-import {bkc_storage_verify} from './core.jsy'
+import {kbc_storage_verify} from './core.jsy'
 import * as check_utils from './validate/check_utils.jsy'
 import * as check_single from './validate/check_single.jsy'
 import * as check_aiter from './validate/check_aiter.jsy'
@@ -14,21 +14,20 @@ export function validate_backend(test_bdd, backend_name, opt) ::
   if 'function' !== typeof describe ::
     throw new Error('validate_backend expects #test_bdd module as first argument')
 
-  if 'function' === typeof opt :: opt = {bkc_create: opt}
+  if 'function' === typeof opt :: opt = {kbc_create: opt}
 
   describe @ `backend: ${backend_name}`, function () ::
     if undefined !== opt.slow :: opt.slow(this)
 
     let _stg_, _ctx_
     before @::>
-      _stg_ = opt.bkc_create(_ctx_={})
-      _stg_ = _stg_ ? await _stg_.then() : _stg_ // ensure it is really an async promise
+      _stg_ = await opt.kbc_create(_ctx_={})
       if null == _stg_ ::
-        throw new TypeError("create bkc_storage did not return an instance")
+        throw new TypeError("create kbc_storage did not return an instance")
 
     after @::>
       try ::
-        await opt.bkc_cleanup?.(_ctx_, _stg_)
+        await opt.kbc_cleanup?.(_ctx_, _stg_)
       catch err ::
         console.error(err)
         throw err
@@ -36,36 +35,36 @@ export function validate_backend(test_bdd, backend_name, opt) ::
         _ctx_ = null
 
 
-    it @ 'bkc storage verify', () => bkc_storage_verify(_stg_)
+    it @ 'kbc storage verify', () => kbc_storage_verify(_stg_)
 
     if opt.simple ::
-      it @ 'with string', () => check_single.validate_bkc_random_key(_stg_, 'some simple test string')
-      it @ 'overwrite test', () => check_single.validate_bkc_overwrite(_stg_)
+      it @ 'with string', () => check_single.validate_kbc_random_key(_stg_, 'some simple test string')
+      it @ 'overwrite test', () => check_single.validate_kbc_overwrite(_stg_)
       return
 
     if opt.simple_stream ::
-      it @ 'stream with async iteration', () => check_aiter.validate_bkc_stream(_stg_, opt.simple_stream)
+      it @ 'stream with async iteration', () => check_aiter.validate_kbc_stream(_stg_, opt.simple_stream)
       return
 
-    describe @ 'bkc api', @::
-      it @ 'with string', () => check_single.validate_bkc_random_key(_stg_, 'some test string')
-      it @ 'with array', () => check_single.validate_bkc_random_key(_stg_, ['some', ' ~ ', 'test', ' ~ ', 'string', 'array'])
-      it @ 'with iterable', () => check_single.validate_bkc_random_key(_stg_, Iterator.from(['some', ' ~ ', 'test', ' ~ ', 'iterator']))
-      it @ 'with Blob', () => check_single.validate_bkc_random_key(_stg_, new Blob(['some', ' ~ ', 'test', ' ~ ', 'blob']))
-      it @ 'with Blob with type', () => check_single.validate_bkc_random_key(_stg_, new Blob(['some', ' ~ ', 'plaintext', ' ~ ', 'blob'], {type: 'text/plain'}))
+    describe @ 'kbc api', @::
+      it @ 'with string', () => check_single.validate_kbc_random_key(_stg_, 'some test string')
+      it @ 'with array', () => check_single.validate_kbc_random_key(_stg_, ['some', ' ~ ', 'test', ' ~ ', 'string', 'array'])
+      it @ 'with iterable', () => check_single.validate_kbc_random_key(_stg_, Iterator.from(['some', ' ~ ', 'test', ' ~ ', 'iterator']))
+      it @ 'with Blob', () => check_single.validate_kbc_random_key(_stg_, new Blob(['some', ' ~ ', 'test', ' ~ ', 'blob']))
+      it @ 'with Blob with type', () => check_single.validate_kbc_random_key(_stg_, new Blob(['some', ' ~ ', 'plaintext', ' ~ ', 'blob'], {type: 'text/plain'}))
 
-      it @ 'with random 16 byte binary', () => check_single.validate_bkc_random_key(_stg_, 16)
-      it @ 'with random 1024 byte binary', () => check_single.validate_bkc_random_key(_stg_, 1024)
-      it @ 'with random 16384 byte binary', () => check_single.validate_bkc_random_key(_stg_, 16384)
+      it @ 'with random 16 byte binary', () => check_single.validate_kbc_random_key(_stg_, 16)
+      it @ 'with random 1024 byte binary', () => check_single.validate_kbc_random_key(_stg_, 1024)
+      it @ 'with random 16384 byte binary', () => check_single.validate_kbc_random_key(_stg_, 16384)
 
-      it @ 'overwrite test', () => check_single.validate_bkc_overwrite(_stg_)
+      it @ 'overwrite test', () => check_single.validate_kbc_overwrite(_stg_)
 
       if ! opt.skip_batch_count ::
-        it @ 'stream with async generator', () => check_async_gen.validate_bkc_stream_async_gen(_stg_)
+        it @ 'stream with async generator', () => check_async_gen.validate_kbc_stream_async_gen(_stg_)
 
-      it @ 'stream with async iteration', () => check_aiter.validate_bkc_stream(_stg_)
-      it @ 'stream with async batch', () => check_aiter.validate_bkc_stream_batch(_stg_)
-      it @ 'stream with abort signal', () => check_aiter.validate_bkc_stream_batch_abort(_stg_)
+      it @ 'stream with async iteration', () => check_aiter.validate_kbc_stream(_stg_)
+      it @ 'stream with async batch', () => check_aiter.validate_kbc_stream_batch(_stg_)
+      it @ 'stream with abort signal', () => check_aiter.validate_kbc_stream_batch_abort(_stg_)
 
 
     let custom_tests = opt.tests

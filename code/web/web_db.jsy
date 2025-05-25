@@ -1,10 +1,10 @@
-import { bkc_arrbuf, bkc_rec_arrbuf, bkc_batch_stream, _bkc_fetch_ans  } from '../core.jsy'
-import { _bkc_stream_storage_ } from '../abstract/bkc_abstract_stream.jsy'
+import { kbc_arrbuf, kbc_rec_arrbuf, kbc_batch_stream, _kbc_fetch_ans  } from '../core.jsy'
+import { _kbc_stream_storage_ } from '../abstract/abstract_stream.jsy'
 
 export * from '../core.jsy'
 
-export default bkc_web_db
-export async function bkc_web_db(opt={}) ::
+export default kbc_web_db
+export async function kbc_web_db(opt={}) ::
   if 'string' === typeof opt ::
     let [db, store] = opt.split('/')
     opt = {db, store}
@@ -22,18 +22,18 @@ export async function bkc_web_db(opt={}) ::
 
   const idb = await _idb_req(req_open)
 
-  return Object.create @ _bkc_indexdb_proto_, @{}
+  return Object.create @ _kbc_indexdb_proto_, @{}
     _txn_ro: @{} value: ()=> _idb_txn(idb, store_name, 'readonly')
     _txn_rw: @{} value: ()=> _idb_txn(idb, store_name, 'readwrite')
 
 
 
-const _bkc_indexdb_proto_ = _bkc_stream_storage_.with @:
-  bkc_opt: @{}
+const _kbc_indexdb_proto_ = _kbc_stream_storage_.with @:
+  kbc_opt: @{}
 
-  async * bkc_stream_exists(hexkey_aiter, kw) ::
-    let _bkc_rec = this._bkc_record()
-    for await let batch of bkc_batch_stream(hexkey_aiter, _bkc_rec, kw) ::
+  async * kbc_stream_exists(key_aiter, kw) ::
+    let _kbc_rec = this._kbc_record()
+    for await let batch of kbc_batch_stream(key_aiter, _kbc_rec, kw) ::
       let [kvdb, txn_done] = this._txn_ro()
       for let rec of batch ::
         rec[1] = kvdb.count(rec[0])
@@ -45,9 +45,9 @@ const _bkc_indexdb_proto_ = _bkc_stream_storage_.with @:
 
       yield batch
 
-  async * bkc_stream_fetch(hexkey_aiter, kw) ::
-    let _bkc_rec = this._bkc_record()
-    for await let batch of bkc_batch_stream(hexkey_aiter, _bkc_rec, kw) ::
+  async * kbc_stream_fetch(key_aiter, kw) ::
+    let _kbc_rec = this._kbc_record()
+    for await let batch of kbc_batch_stream(key_aiter, _kbc_rec, kw) ::
       let [kvdb, txn_done] = this._txn_ro()
       for let rec of batch ::
         rec[1] = kvdb.get(rec[0])
@@ -55,14 +55,14 @@ const _bkc_indexdb_proto_ = _bkc_stream_storage_.with @:
       await txn_done
 
       for const rec of batch ::
-        rec[1] = _bkc_fetch_ans(rec[1].result, false)
+        rec[1] = _kbc_fetch_ans(rec[1].result, false)
 
       yield batch
 
-  async * bkc_stream_store(hexkey_body_aiter, kw) ::
-    let _bkc_body_rec = this._bkc_record(bkc_rec_arrbuf)
+  async * kbc_stream_store(key_body_aiter, kw) ::
+    let _kbc_body_rec = this._kbc_record(kbc_rec_arrbuf)
 
-    for await let batch of bkc_batch_stream(hexkey_body_aiter, _bkc_body_rec, kw) ::
+    for await let batch of kbc_batch_stream(key_body_aiter, _kbc_body_rec, kw) ::
       for let rec of batch ::
         rec[1] = await rec[1]
 
