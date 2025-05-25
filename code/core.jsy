@@ -1,11 +1,13 @@
 import {as_arrbuf, _as_arrbuf} from '@phorbas/opaque/esm/subtle/utils.js'
 export {as_arrbuf, _as_arrbuf}
 
-export {kbc_storage_verify} from './abstract/abstract.jsy'
+import {_kbc_api_} from './abstract/abstract.jsy'
+export {kbc_storage_verify, _kbc_api_} from './abstract/abstract.jsy'
 
 export const kbc_arrbuf = body => as_arrbuf(body)
 export const kbc_rec_arrbuf = ([key, body]) => kbc_arrbuf(body)
 
+export const kbc_api = (stg, kw) => _kbc_api_.with({stg, ...kw})
 export const kbc_extend = async (kbc, ...args) =>
   Object.assign(await kbc, ... args)
 

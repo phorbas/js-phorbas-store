@@ -2,10 +2,11 @@ import * as test_bdd from '#test_bdd'
 import {expect} from 'chai'
 
 import {validate_backend} from '@phorbas/store/esm/validate_backend.js'
-import {kbc_js_map} from '@phorbas/store/esm/js_map.js'
+import {kbc_js_map, kbc_api} from '@phorbas/store/esm/js_map.js'
 
 
 test_bdd.describe @ 'kbc_js_map', @::>
   validate_backend @ test_bdd, 'kbc_js_map', ()=> kbc_js_map()
   validate_backend @ test_bdd, 'kbc_js_map immutable', ()=> kbc_js_map(null, {immutable: true})
+  validate_backend @ test_bdd, 'kbc_api(kbc_js_map())', ()=> kbc_api(kbc_js_map())
 

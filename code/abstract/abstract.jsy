@@ -24,6 +24,38 @@ function _rec_then(y,n) ::
     .then(y,n)
 
 
+export const _kbc_api_ = @{}
+  __proto__: _kbc_storage_mixin_
+
+  get kbc_opt() ::
+    return this.stg.kbc_opt
+
+  async check(key, err) ::
+    err &&= await err
+    if (err) throw err
+    return err
+
+  async kbc_store(key, body) ::
+    let err = this.stg.kbc_store(key, body)
+    return this.check(key, err)
+  kbc_exists(key) ::
+    return this.stg.kbc_exists(key)
+  kbc_fetch(key) ::
+    return this.stg.kbc_fetch(key)
+
+  async * kbc_stream_store(key_body_aiter, kw) ::
+    for await let batch of this.stg.kbc_stream_store(key_body_aiter, kw) ::
+      // patch the error promises with this.check
+      let check = this.check
+      for let i in batch ::
+        batch[i][1] = check.apply(this, batch[i])
+      yield batch
+  kbc_stream_exists(key_aiter, kw) ::
+    return this.stg.kbc_stream_exists(key_aiter, kw)
+  kbc_stream_fetch(key_aiter, kw) ::
+    return this.stg.kbc_stream_fetch(key_aiter, kw)
+
+
 // kbc api verification -- binary key (binary) content
 export function kbc_storage_verify(stg, allow_null) ::
   if null == stg ::
