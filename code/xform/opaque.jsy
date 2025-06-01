@@ -22,16 +22,14 @@ export function _kbc_opaque_xform(as_okey, _proto_) ::
       body = await body
       if body?.byteLength ::
         let okey = rec.okey = await rec.okey
-        body = okey.encode_body?.(body) ?? okey.encipher?.(body) ?? body
-        return body
+        return okey.encode(body)
 
     async decode_body(body, rec) ::
       if ! rec.okey :: throw new Error()
       body = await body
       if body?.byteLength ::
         let okey = await rec.okey
-        body = okey.decode_body?.(body) ?? okey.decipher?.(body) ?? body
-        return body
+        return okey.decode(body)
 
 export default kbc_opaque
 
