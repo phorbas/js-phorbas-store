@@ -1,7 +1,7 @@
 {
   "name": "@phorbas/store",
-  "version": "0.5.0",
-  "description": "Persistent, hashed, opaque, replicable, binary key/content, addressable, storage",
+  "version": "0.5.1",
+  "description": "Persistent, hashed, opaque, replicable, binary content, addressable, storage",
   "license": "BSD-2-Clause",
   "author": "Shane Holloway <shane.holloway@ieee.org>",
   "homepage": "https://github.com/phorbas/js-phorbas-store#readme",
@@ -29,12 +29,8 @@
       "web": "./test/web_bdd_mocha.js"
     }
   },
-  "workspaces": [
-    "examples",
-    "test"
-  ],
   "devDependencies": {
-    "@phorbas/opaque": "file:../opaque",
+    "@phorbas/opaque": "^0.5.1",
     "@rollup/plugin-alias": "^5.1.1",
     "@rollup/plugin-node-resolve": "^16.0.1",
     "chai": "^5.2.0",
