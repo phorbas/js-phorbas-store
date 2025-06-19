@@ -2,15 +2,18 @@ import { kbc_multi } from './multi.jsy'
 
 export * from '../core.jsy'
 
-const _okey_from_hk21 = opaque => key => opaque.from_hk21(key)
+const _as_okey_fn = opaque =>
+  opaque.call ? opaque
+    : key => opaque.from_hk21(key)
+
 export const kbc_opaque = opt => kbc_multi @
-  _kbc_opaque_xform( _okey_from_hk21(opt.opaque), opt )
+  _kbc_opaque_xform( _as_okey_fn(opt.opaque), opt )
 
 
 const _get_hk2 = hk21 => hk21[0]
-export function _kbc_opaque_xform(as_okey, _proto_) ::
+export function _kbc_opaque_xform(as_okey, opt) ::
   return @{}
-    __proto__: _proto_
+    __proto__: opt
 
     kbc_lookup(rec, rec_api) ::
       rec.okey ??= as_okey(rec[0])
