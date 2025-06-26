@@ -11,3 +11,19 @@ if globalThis.indexedDB ::
           db: 'test-kbc_web_db',
           store: 'kv'
           wipe: true
+      kbc_cleanup: (ctx, stg) => stg.close()
+
+    validate_backend @ test_bdd, 'multi web_db, part one', @{}
+      kbc_create: () => kbc_web_db @:
+          db: 'test-kbc_web_db-multi', store: 'part_one'
+      kbc_cleanup: (ctx, stg) => stg.close()
+
+    validate_backend @ test_bdd, 'multi web_db, part two', @{}
+      kbc_create: () => kbc_web_db @:
+          db: 'test-kbc_web_db-multi', store: 'part_two'
+      kbc_cleanup: (ctx, stg) => stg.close()
+
+    validate_backend @ test_bdd, 'multi web_db, part three', @{}
+      kbc_create: () => kbc_web_db @:
+          db: 'test-kbc_web_db-multi', store: 'part_three'
+      kbc_cleanup: (ctx, stg) => stg.close()

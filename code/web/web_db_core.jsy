@@ -1,0 +1,73 @@
+import { kbc_arrbuf, kbc_rec_arrbuf, kbc_batch_stream, _kbc_fetch_ans  } from '../core.jsy'
+import { _kbc_stream_storage_ } from '../abstract/abstract_stream.jsy'
+
+export * from '../core.jsy'
+
+
+export default kbc_web_db_core
+export async function kbc_web_db_core(idb, store_name) ::
+  return Object.create @ _kbc_indexdb_proto_, @{}
+    _txn_ro: @{} value: ()=> _idb_txn(idb, store_name, 'readonly')
+    _txn_rw: @{} value: ()=> _idb_txn(idb, store_name, 'readwrite')
+
+    close: @{} value: () => idb.close()
+
+
+const _kbc_indexdb_proto_ = _kbc_stream_storage_.with @:
+  kbc_opt: @{}
+
+  async * kbc_stream_exists(key_aiter, kw) ::
+    let _kbc_rec = this._kbc_record()
+    for await let batch of kbc_batch_stream(key_aiter, _kbc_rec, kw) ::
+      let [kvdb, txn_done] = this._txn_ro()
+      for let rec of batch ::
+        rec[1] = kvdb.count(rec[0])
+
+      await txn_done
+
+      for const rec of batch ::
+        rec[1] = rec[1].result ? 1 : 0
+
+      yield batch
+
+  async * kbc_stream_fetch(key_aiter, kw) ::
+    let _kbc_rec = this._kbc_record()
+    for await let batch of kbc_batch_stream(key_aiter, _kbc_rec, kw) ::
+      let [kvdb, txn_done] = this._txn_ro()
+      for let rec of batch ::
+        rec[1] = kvdb.get(rec[0])
+
+      await txn_done
+
+      for const rec of batch ::
+        rec[1] = _kbc_fetch_ans(rec[1].result, false)
+
+      yield batch
+
+  async * kbc_stream_store(key_body_aiter, kw) ::
+    let _kbc_body_rec = this._kbc_record(kbc_rec_arrbuf)
+
+    for await let batch of kbc_batch_stream(key_body_aiter, _kbc_body_rec, kw) ::
+      for let rec of batch ::
+        rec[1] = await rec[1]
+
+      let [kvdb, txn_done] = this._txn_rw()
+      for let rec of batch ::
+        rec[1] = kvdb.put(rec[1], rec[0])
+
+      await txn_done
+
+      for const rec of batch ::
+        rec[1] = rec[1].error ?? null
+
+      yield batch
+
+
+function _idb_txn(idb, store_name, mode) ::
+  const txn = idb.transaction(store_name, mode)
+  return @[]
+    txn.objectStore(store_name),
+    new Promise @\ resolve, reject ::
+      txn.oncomplete = resolve
+      txn.onabort = txn.onerror = @=> reject @ txn.error
+

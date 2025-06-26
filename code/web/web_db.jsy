@@ -1,93 +1,48 @@
-import { kbc_arrbuf, kbc_rec_arrbuf, kbc_batch_stream, _kbc_fetch_ans  } from '../core.jsy'
-import { _kbc_stream_storage_ } from '../abstract/abstract_stream.jsy'
+import { kbc_web_db_core } from './web_db_core.jsy'
 
-export * from '../core.jsy'
+export * from './web_db_core.jsy'
+
 
 export default kbc_web_db
 export async function kbc_web_db(opt={}) ::
-  if 'string' === typeof opt ::
-    let [db, store] = opt.split('/')
-    opt = {db, store}
+  opt = @{} db: 'phorbas', store: 'kv', ... opt
 
-  const store_name = opt.store || 'kv'
-  const db_name = opt.db || 'phorbas'
+  let idb = opt.idb ?? await _idb_open(opt)
+  return kbc_web_db_core(idb, opt.store)
 
+
+async function _idb_open(opt, version=opt.version) ::
   if opt.wipe ::
-    await _idb_req @
-      indexedDB.deleteDatabase(db_name)
+    await new Promise @ (onsuccess, onerror) =>
+      Object.assign @
+        indexedDB.deleteDatabase(opt.db),
+        {onsuccess, onerror}
 
-  const req_open = indexedDB.open(db_name, 1)
-  req_open.onupgradeneeded = evt =>
-    evt.target.result.createObjectStore(store_name)
+  return new Promise @ (resolve, reject) => ::
+    let req = indexedDB.open(opt.db, version)
+    Object.assign @ req, @{}
+      onerror({target: {error}}) ::
+        reject(error)
 
-  const idb = await _idb_req(req_open)
+      onsuccess({target: {result: idb}}) ::
+        if _idb_has_store(idb, opt.store) ::
+          return resolve @ idb
 
-  return Object.create @ _kbc_indexdb_proto_, @{}
-    _txn_ro: @{} value: ()=> _idb_txn(idb, store_name, 'readonly')
-    _txn_rw: @{} value: ()=> _idb_txn(idb, store_name, 'readwrite')
+        if null == version ::
+          // attempt auto-upgrade for non-explicit version
+          idb.close()
+          return resolve @ _idb_open(opt, idb.version + 1)
 
+        let err = new Error('kbc_web_db unable to find object store')
+        err.store_name = opt.store
+        reject(err)
 
-
-const _kbc_indexdb_proto_ = _kbc_stream_storage_.with @:
-  kbc_opt: @{}
-
-  async * kbc_stream_exists(key_aiter, kw) ::
-    let _kbc_rec = this._kbc_record()
-    for await let batch of kbc_batch_stream(key_aiter, _kbc_rec, kw) ::
-      let [kvdb, txn_done] = this._txn_ro()
-      for let rec of batch ::
-        rec[1] = kvdb.count(rec[0])
-
-      await txn_done
-
-      for const rec of batch ::
-        rec[1] = rec[1].result ? 1 : 0
-
-      yield batch
-
-  async * kbc_stream_fetch(key_aiter, kw) ::
-    let _kbc_rec = this._kbc_record()
-    for await let batch of kbc_batch_stream(key_aiter, _kbc_rec, kw) ::
-      let [kvdb, txn_done] = this._txn_ro()
-      for let rec of batch ::
-        rec[1] = kvdb.get(rec[0])
-
-      await txn_done
-
-      for const rec of batch ::
-        rec[1] = _kbc_fetch_ans(rec[1].result, false)
-
-      yield batch
-
-  async * kbc_stream_store(key_body_aiter, kw) ::
-    let _kbc_body_rec = this._kbc_record(kbc_rec_arrbuf)
-
-    for await let batch of kbc_batch_stream(key_body_aiter, _kbc_body_rec, kw) ::
-      for let rec of batch ::
-        rec[1] = await rec[1]
-
-      let [kvdb, txn_done] = this._txn_rw()
-      for let rec of batch ::
-        rec[1] = kvdb.put(rec[1], rec[0])
-
-      await txn_done
-
-      for const rec of batch ::
-        rec[1] = rec[1].error ?? null
-
-      yield batch
+      onupgradeneeded({target: {result: idb}}) ::
+        opt.on_upgrade?.(idb, opt)
+        if ! _idb_has_store(idb, opt.store) ::
+          idb.createObjectStore(opt.store)
 
 
-function _idb_txn(idb, store_name, mode) ::
-  const txn = idb.transaction(store_name, mode)
-  return @[]
-    txn.objectStore(store_name),
-    new Promise @\ resolve, reject ::
-      txn.oncomplete = resolve
-      txn.onabort = txn.onerror = @=> reject @ txn.error
-
-function _idb_req(req) ::
-  return new Promise @\ resolve, reject ::
-    req.onsuccess = @=> resolve @ req.result
-    req.onerror = @=> reject @ req.error
+const _idb_has_store = (idb, store_name) =>
+  [... idb.objectStoreNames].includes(store_name)
 

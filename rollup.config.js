@@ -43,6 +43,7 @@ export const pkg_cfg_web = pkg_phrobas_store_group('web', {
   input: [
     'code/web/fetch.jsy',
 
+    'code/web/web_db_core.jsy',
     'code/web/web_db.jsy',
     'code/web/web_cache.jsy',
     'code/web/web_cache_fetch.jsy',
